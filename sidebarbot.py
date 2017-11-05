@@ -9,8 +9,8 @@ import re
 import requests
 
 EASTERN_TIMEZONE = tz.gettz('America/New_York')
-SUBREDDIT_NAME = 'knicklejerk'
-# SUBREDDIT_NAME = 'nyknicks'
+# SUBREDDIT_NAME = 'knicklejerk'
+SUBREDDIT_NAME = 'nyknicks'
 
 def build_schedule(teams):
   schedule = request_schedule()
@@ -115,16 +115,16 @@ if __name__ == "__main__":
   standings = build_standings(teams)
   subreddit = reddit.subreddit(SUBREDDIT_NAME)
 
-  print 'Querying settings.'
+  print 'Querying reddit settings.'
   descr = subreddit.mod.settings()['description']
 
+  print 'Updating reddit settings.'
   updated_descr = update_reddit_descr(
       descr, schedule, '[](#StartSchedule)', '[](#EndSchedule)')
   updated_descr = update_reddit_descr(
       updated_descr, standings, '[](#StartStandings)', '[](#EndStandings)')
-
   if updated_descr != descr:
     print 'Updating reddit settings.'
     subreddit.mod.update(description=updated_descr)  
   else:
-    print 'No schedule changes.'
+    print 'No changes.'
