@@ -8,22 +8,11 @@ import praw
 import re
 import requests
 
-def update_schedule():
-  eastern_zone = tz.gettz('America/New_York')
-  subreddit_name = 'knicklejerk'
+EASTERN_TIMEZONE = tz.gettz('America/New_York')
+SUBREDDIT_NAME = 'knicklejerk'
 
-  password = getpass.getpass(prompt='Enter reddit password: ')
-  client_secret = getpass.getpass(
-      prompt='Enter client secret (It\'s here: https://www.reddit.com/prefs/apps/): ')
-
-  print 'Logging in.'
-  reddit = praw.Reddit(
-      client_id='wJgBsaHZJ42LBg',
-      client_secret=client_secret,
-      password=password,
-      user_agent='python-praw',
-      username='macdoogles')
-  subreddit = reddit.subreddit(subreddit_name)
+def update_schedule(reddit):
+  subreddit = reddit.subreddit(SUBREDDIT_NAME)
 
   print 'Fetching team data.'
   teams = get_teams()
@@ -31,7 +20,6 @@ def update_schedule():
 
   print 'Fetching schedule information.'
   schedule = get_schedule()
-  sleep(1)
 
   print 'Building schedule text.'
   # FYI: We want to show to a show a total of 12 games: last + 3 prior + 7 next.
@@ -45,7 +33,7 @@ def update_schedule():
   rows = ['Date|Team|Loc|Time/Outcome', ':--|:--:|:--|:--']
   for i in range(start_idx, end_idx):
     game = schedule['league']['standard'][i]
-    d = dateutil.parser.parse(game['startTimeUTC']).astimezone(eastern_zone)
+    d = dateutil.parser.parse(game['startTimeUTC']).astimezone(EASTERN_TIMEZONE)
     date = d.strftime('%b %d') 
     time = d.strftime('%I:%M %p').lstrip('0')
     is_home_team = game['isHomeTeam']
@@ -64,18 +52,13 @@ def update_schedule():
   startmarker, endmarker = (descr.index("[](#StartSchedule)"),
       descr.index("[](#EndSchedule)") + len("[](#EndSchedule)"))
   updated_descr = descr.replace(descr[startmarker:endmarker], 
-      "[](#StartSchedule)\n \n" + result + "\n \n[](#EndSchedule)")
+      "[](#StartSchedule)\n\n" + result + "\n\n[](#EndSchedule)")
 
   if updated_descr != descr:
     print 'Updating reddit settings.'
     subreddit.mod.update(description=updated_descr)  
   else:
     print 'No schedule changes.'
-
-def winloss(knicks_score, opp_score):
-  kscore = int(knicks_score['score'])
-  oscore = int(opp_score['score'])
-  return 'Win' if kscore > oscore else 'Loss'
 
 def get_teams():
   req = requests.get('http://data.nba.net/10s/prod/v1/2017/teams.json')
@@ -94,5 +77,22 @@ def get_schedule():
     raise Exception('Schedule request failed with status %s' % req.status_code)
   return json.loads(req.content)
 
+def winloss(knicks_score, opp_score):
+  kscore = int(knicks_score['score'])
+  oscore = int(opp_score['score'])
+  return 'Win' if kscore > oscore else 'Loss'
+
 if __name__ == "__main__":
-  update_schedule()
+  password = getpass.getpass(prompt='Enter reddit password: ')
+  client_secret = getpass.getpass(
+      prompt='Enter client secret (It\'s here: https://www.reddit.com/prefs/apps/): ')
+
+  print 'Logging in.'
+  reddit = praw.Reddit(
+      client_id='wJgBsaHZJ42LBg',
+      client_secret=client_secret,
+      password=password,
+      user_agent='python-praw',
+      username='macdoogles')
+
+  update_schedule(reddit)
