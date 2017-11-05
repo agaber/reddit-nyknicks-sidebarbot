@@ -10,16 +10,10 @@ import requests
 
 EASTERN_TIMEZONE = tz.gettz('America/New_York')
 SUBREDDIT_NAME = 'knicklejerk'
+# SUBREDDIT_NAME = 'nyknicks'
 
-def update_schedule(reddit):
-  subreddit = reddit.subreddit(SUBREDDIT_NAME)
-
-  print 'Fetching team data.'
-  teams = get_teams()
-  sleep(1)
-
-  print 'Fetching schedule information.'
-  schedule = get_schedule()
+def build_schedule(teams):
+  schedule = request_schedule()
 
   print 'Building schedule text.'
   # FYI: We want to show to a show a total of 12 games: last + 4 prior + 7 next.
@@ -45,23 +39,44 @@ def update_schedule(reddit):
     row = ('%s | [](/#%s) | %s | %s' % 
         (date, opp_team_name, 'Home' if is_home_team else 'Away', time_or_score))
     rows.append(row)
-  result = '\n'.join(rows)
+  return '\n'.join(rows)
 
-  print 'Querying settings.'
-  descr = subreddit.mod.settings()['description']
-  startmarker, endmarker = (descr.index("[](#StartSchedule)"),
-      descr.index("[](#EndSchedule)") + len("[](#EndSchedule)"))
-  updated_descr = descr.replace(descr[startmarker:endmarker], 
-      "[](#StartSchedule)\n\n" + result + "\n\n[](#EndSchedule)")
+def build_standings(teams):
+  standings = request_division_standings()
+  print 'Building standings text.'
+  division = standings['league']['standard']['conference']['east']['atlantic']
+  rows = ['Team|W|L|Conf. Rank', ':--:|:--:|:--:|:--:']
+  for d in division:
+    team = teams[d['teamId']]['nickname']
+    wins = d['win']
+    loses = d['loss']
+    conf_rank = d['confRank']
+    row = '[](/#%s) | %s | %s | %s' % (team, wins, loses, conf_rank)
+    rows.append(row)
+  return '\n'.join(rows)
 
-  if updated_descr != descr:
-    print 'Updating reddit settings.'
-    subreddit.mod.update(description=updated_descr)  
-  else:
-    print 'No schedule changes.'
+def request_division_standings():
+  print 'Fetching division standings.'
+  req = requests.get(
+      'http://data.nba.net/10s/prod/v1/current/standings_division.json')
+  sleep(.5)
+  if not req.status_code == 200:
+    raise Exception('Standings request failed with status %s' % req.status_code)
+  return json.loads(req.content)
 
-def get_teams():
+def request_schedule():
+  print 'Fetching schedule information.'
+  req = requests.get(
+      'http://data.nba.net/data/10s/prod/v1/2017/teams/knicks/schedule.json')
+  sleep(.5)
+  if not req.status_code == 200:
+    raise Exception('Schedule request failed with status %s' % req.status_code)
+  return json.loads(req.content)
+
+def request_teams():
+  print 'Fetching team data.'
   req = requests.get('http://data.nba.net/10s/prod/v1/2017/teams.json')
+  sleep(.5)
   if not req.status_code == 200:
     raise Exception('Teams request failed with status %s' % req.status_code)
   teams = json.loads(req.content)
@@ -70,12 +85,12 @@ def get_teams():
     teams_map[team['teamId']] = team
   return teams_map
 
-def get_schedule():
-  req = requests.get(
-      'http://data.nba.net/data/10s/prod/v1/2017/teams/knicks/schedule.json')
-  if not req.status_code == 200:
-    raise Exception('Schedule request failed with status %s' % req.status_code)
-  return json.loads(req.content)
+def update_reddit_descr(descr, text, start_marker, end_marker):
+  start, end = (descr.index(start_marker),
+      descr.index(end_marker) + len(end_marker))
+  return descr.replace(
+      descr[start:end], 
+      start_marker + '\n\n' + text + '\n\n' + end_marker)
 
 def winloss(knicks_score, opp_score):
   kscore = int(knicks_score['score'])
@@ -87,7 +102,7 @@ if __name__ == "__main__":
   client_secret = getpass.getpass(
       prompt='Enter client secret (It\'s here: https://www.reddit.com/prefs/apps/): ')
 
-  print 'Logging in.'
+  print 'Logging in to reddit.'
   reddit = praw.Reddit(
       client_id='wJgBsaHZJ42LBg',
       client_secret=client_secret,
@@ -95,4 +110,21 @@ if __name__ == "__main__":
       user_agent='python-praw',
       username='macdoogles')
 
-  update_schedule(reddit)
+  teams = request_teams()
+  schedule = build_schedule(teams)
+  standings = build_standings(teams)
+  subreddit = reddit.subreddit(SUBREDDIT_NAME)
+
+  print 'Querying settings.'
+  descr = subreddit.mod.settings()['description']
+
+  updated_descr = update_reddit_descr(
+      descr, schedule, '[](#StartSchedule)', '[](#EndSchedule)')
+  updated_descr = update_reddit_descr(
+      updated_descr, standings, '[](#StartStandings)', '[](#EndStandings)')
+
+  if updated_descr != descr:
+    print 'Updating reddit settings.'
+    subreddit.mod.update(description=updated_descr)  
+  else:
+    print 'No schedule changes.'
