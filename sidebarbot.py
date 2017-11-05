@@ -7,6 +7,7 @@ import json
 import praw
 import re
 import requests
+import sys
 
 EASTERN_TIMEZONE = tz.gettz('America/New_York')
 # SUBREDDIT_NAME = 'knicklejerk'
@@ -99,8 +100,8 @@ def winloss(knicks_score, opp_score):
 
 if __name__ == "__main__":
   password = getpass.getpass(prompt='Enter reddit password: ')
-  client_secret = getpass.getpass(
-      prompt='Enter client secret (It\'s here: https://www.reddit.com/prefs/apps/): ')
+  client_secret = raw_input(
+      'Enter client secret (It\'s here: https://www.reddit.com/prefs/apps/): ')
 
   print 'Logging in to reddit.'
   reddit = praw.Reddit(
@@ -110,21 +111,38 @@ if __name__ == "__main__":
       user_agent='python-praw',
       username='macdoogles')
 
-  teams = request_teams()
-  schedule = build_schedule(teams)
-  standings = build_standings(teams)
-  subreddit = reddit.subreddit(SUBREDDIT_NAME)
+  while True:
+    try:
+      teams = request_teams()
+      schedule = build_schedule(teams)
+      standings = build_standings(teams)
+      subreddit = reddit.subreddit(SUBREDDIT_NAME)
 
-  print 'Querying reddit settings.'
-  descr = subreddit.mod.settings()['description']
+      print 'Querying reddit settings.'
+      descr = subreddit.mod.settings()['description']
 
-  print 'Updating reddit settings.'
-  updated_descr = update_reddit_descr(
-      descr, schedule, '[](#StartSchedule)', '[](#EndSchedule)')
-  updated_descr = update_reddit_descr(
-      updated_descr, standings, '[](#StartStandings)', '[](#EndStandings)')
-  if updated_descr != descr:
-    print 'Updating reddit settings.'
-    subreddit.mod.update(description=updated_descr)  
-  else:
-    print 'No changes.'
+      print 'Updating reddit settings.'
+      updated_descr = update_reddit_descr(
+          descr, schedule, '[](#StartSchedule)', '[](#EndSchedule)')
+      updated_descr = update_reddit_descr(
+          updated_descr, standings, '[](#StartStandings)', '[](#EndStandings)')
+      if updated_descr != descr:
+        print 'Updating reddit settings.'
+        subreddit.mod.update(description=updated_descr)  
+      else:
+        print 'No changes.'
+
+      print 'All done. Sleeping for one hour.'
+      # Stupid way to sleep for one hour without breaking ctrl+c.
+      # https://stackoverflow.com/questions/5114292/break-interrupt-a-time-sleep-in-python
+      for i in range(60):
+        sleep(60)
+    except KeyboardInterrupt:
+      print 'Goodbye.'
+      sys.exit(0)
+    except Exception as ex:
+      template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+      message = template.format(type(ex).__name__, ex.args)
+      print message
+      print 'Will resume shortly...'
+      sleep(60)
