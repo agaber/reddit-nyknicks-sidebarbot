@@ -4,10 +4,15 @@ from time import sleep
 import dateutil.parser
 import getpass
 import json
+import logging
+import logging.config
 import praw
 import re
 import requests
 import sys
+
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger('sidebarbot')
 
 EASTERN_TIMEZONE = tz.gettz('America/New_York')
 # SUBREDDIT_NAME = 'knicklejerk'
@@ -16,7 +21,7 @@ SUBREDDIT_NAME = 'nyknicks'
 def build_schedule(teams):
   schedule = request_schedule()
 
-  print 'Building schedule text.'
+  logger.info('Building schedule text.')
   # FYI: We want to show to a show a total of 12 games: last + 4 prior + 7 next.
   # Get the array index of the last game played.
   last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
@@ -44,7 +49,7 @@ def build_schedule(teams):
 
 def build_standings(teams):
   standings = request_division_standings()
-  print 'Building standings text.'
+  logger.info('Building standings text.')
   division = standings['league']['standard']['conference']['east']['atlantic']
   rows = ['Team|W|L|Conf. Rank', ':--:|:--:|:--:|:--:']
   for d in division:
@@ -57,7 +62,7 @@ def build_standings(teams):
   return '\n'.join(rows)
 
 def request_division_standings():
-  print 'Fetching division standings.'
+  logger.info('Fetching division standings.')
   req = requests.get(
       'http://data.nba.net/10s/prod/v1/current/standings_division.json')
   sleep(.5)
@@ -66,7 +71,7 @@ def request_division_standings():
   return json.loads(req.content)
 
 def request_schedule():
-  print 'Fetching schedule information.'
+  logger.info('Fetching schedule information.')
   req = requests.get(
       'http://data.nba.net/data/10s/prod/v1/2017/teams/knicks/schedule.json')
   sleep(.5)
@@ -75,7 +80,7 @@ def request_schedule():
   return json.loads(req.content)
 
 def request_teams():
-  print 'Fetching team data.'
+  logger.info('Fetching team data.')
   req = requests.get('http://data.nba.net/10s/prod/v1/2017/teams.json')
   sleep(.5)
   if not req.status_code == 200:
@@ -103,7 +108,7 @@ if __name__ == "__main__":
   client_secret = raw_input(
       'Enter client secret (It\'s here: https://www.reddit.com/prefs/apps/): ')
 
-  print 'Logging in to reddit.'
+  logger.info('Logging in to reddit.')
   reddit = praw.Reddit(
       client_id='wJgBsaHZJ42LBg',
       client_secret=client_secret,
@@ -118,31 +123,31 @@ if __name__ == "__main__":
       standings = build_standings(teams)
       subreddit = reddit.subreddit(SUBREDDIT_NAME)
 
-      print 'Querying reddit settings.'
+      logger.info('Querying reddit settings.')
       descr = subreddit.mod.settings()['description']
 
-      print 'Updating reddit settings.'
+      logger.info('Updating reddit settings.')
       updated_descr = update_reddit_descr(
           descr, schedule, '[](#StartSchedule)', '[](#EndSchedule)')
       updated_descr = update_reddit_descr(
           updated_descr, standings, '[](#StartStandings)', '[](#EndStandings)')
       if updated_descr != descr:
-        print 'Updating reddit settings.'
+        logger.info('Updating reddit settings.')
         subreddit.mod.update(description=updated_descr)  
       else:
-        print 'No changes.'
+        logger.info('No changes.')
 
-      print 'All done. Sleeping for one hour.'
+      logger.info('All done. Sleeping for one hour.')
       # Stupid way to sleep for one hour without breaking ctrl+c.
       # https://stackoverflow.com/questions/5114292/break-interrupt-a-time-sleep-in-python
       for i in range(60):
         sleep(60)
     except KeyboardInterrupt:
-      print 'Goodbye.'
+      logger.info('Goodbye.')
       sys.exit(0)
     except Exception as ex:
       template = "An exception of type {0} occurred. Arguments:\n{1!r}"
       message = template.format(type(ex).__name__, ex.args)
-      print message
-      print 'Will resume shortly...'
+      logger.error(message)
+      logger.info('Will resume shortly...')
       sleep(60)
