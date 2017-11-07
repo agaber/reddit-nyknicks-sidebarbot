@@ -2,7 +2,6 @@ from dateutil import tz
 from time import sleep
 
 import dateutil.parser
-import getpass
 import json
 import logging
 import logging.config
@@ -103,17 +102,8 @@ def winloss(knicks_score, opp_score):
   return 'Win' if kscore > oscore else 'Loss'
 
 if __name__ == "__main__":
-  password = getpass.getpass(prompt='Enter reddit password: ')
-  client_secret = raw_input(
-      'Enter client secret (It\'s here: https://www.reddit.com/prefs/apps/): ')
-
   logger.info('Logging in to reddit.')
-  reddit = praw.Reddit(
-      client_id='wJgBsaHZJ42LBg',
-      client_secret=client_secret,
-      password=password,
-      user_agent='python-praw',
-      username='macdoogles')
+  reddit = praw.Reddit('nyknicks-sidebarbot', user_agent='python-praw')
 
   while True:
     try:
@@ -125,7 +115,6 @@ if __name__ == "__main__":
       logger.info('Querying reddit settings.')
       descr = subreddit.mod.settings()['description']
 
-      logger.info('Updating reddit settings.')
       updated_descr = update_reddit_descr(
           descr, schedule, '[](#StartSchedule)', '[](#EndSchedule)')
       updated_descr = update_reddit_descr(
