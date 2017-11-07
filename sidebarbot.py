@@ -11,12 +11,11 @@ import re
 import requests
 import sys
 
+EASTERN_TIMEZONE = tz.gettz('America/New_York')
+SUBREDDIT_NAME = 'nyknicks'
+
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('sidebarbot')
-
-EASTERN_TIMEZONE = tz.gettz('America/New_York')
-# SUBREDDIT_NAME = 'knicklejerk'
-SUBREDDIT_NAME = 'nyknicks'
 
 def build_schedule(teams):
   schedule = request_schedule()
