@@ -138,9 +138,9 @@ if __name__ == "__main__":
         logger.info('No changes.')
 
       logger.info('All done. Sleeping for one hour.')
-      # Stupid way to sleep for one hour without breaking ctrl+c.
+      # Stupid way to sleep for a long time without breaking ctrl+c.
       # https://stackoverflow.com/questions/5114292/break-interrupt-a-time-sleep-in-python
-      for i in range(60):
+      for i in range(20):
         sleep(60)
     except KeyboardInterrupt:
       logger.info('Goodbye.')
