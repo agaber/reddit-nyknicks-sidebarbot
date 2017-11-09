@@ -105,6 +105,7 @@ if __name__ == "__main__":
   logger.info('Logging in to reddit.')
   reddit = praw.Reddit('nyknicks-sidebarbot', user_agent='python-praw')
 
+  #TODO: Run this as a cron job instead of an infinite loop.
   while True:
     try:
       teams = request_teams()
@@ -125,10 +126,10 @@ if __name__ == "__main__":
       else:
         logger.info('No changes.')
 
-      logger.info('All done. Sleeping for one hour.')
+      logger.info('All done. Pausing....')
       # Stupid way to sleep for a long time without breaking ctrl+c.
       # https://stackoverflow.com/questions/5114292/break-interrupt-a-time-sleep-in-python
-      for i in range(20):
+      for i in range(5):
         sleep(60)
     except KeyboardInterrupt:
       logger.info('Goodbye.')
