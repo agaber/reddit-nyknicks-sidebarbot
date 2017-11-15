@@ -13,6 +13,39 @@ import sys
 EASTERN_TIMEZONE = tz.gettz('America/New_York')
 SUBREDDIT_NAME = 'nyknicks'
 
+TEAM_SUB_MAP = {
+  '76ers': 'sixers',
+  'Bucks': 'MkeBucks',
+  'Bulls': '/r/chicagobulls',
+  'Cavaliers': 'clevelandcavs',
+  'Celtics': 'bostonceltics',
+  'Clippers': 'LAClippers',
+  'Grizzlies': 'memphisgrizzlies',
+  'Hawks': 'AtlantaHawks',
+  'Heat': 'heat',
+  'Hornets': 'CharlotteHornets',
+  'Jazz': 'UtahJazz',
+  'Kings': 'kings',
+  'Knicks': 'NYKnicks',
+  'Lakers': 'lakers',
+  'Magic': 'OrlandoMagic',
+  'Mavericks': 'mavericks',
+  'Nets': 'GoNets',
+  'Nuggets': 'denvernuggets',
+  'Pacers': 'pacers',
+  'Pelicans': 'NOLAPelicans',
+  'Pistons': 'DetroitPistons',
+  'Raptors': 'torontoraptors',
+  'Rockets': 'rockets',
+  'Spurs': 'NBASpurs',
+  'Suns': 'suns',
+  'Thunder': 'thunder',
+  'Timberwolves': 'timberwolves',
+  'Trailblazers': 'ripcity',
+  'Warriors': 'warriors',
+  'Wizards': 'washingtonwizards',
+}
+
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('sidebarbot')
 
@@ -38,10 +71,11 @@ def build_schedule(teams):
     knicks_score = game['hTeam' if is_home_team else 'vTeam']
     opp_score = game['vTeam' if is_home_team else 'hTeam']
     opp_team_name = teams[opp_score['teamId']]['nickname']
+    opp_team_sub = TEAM_SUB_MAP[opp_team_name]
     time_or_score = (time if knicks_score['score'] == '' 
         else winloss(knicks_score, opp_score))
-    row = ('%s | [](/#%s) | %s | %s' % 
-        (date, opp_team_name, 'Home' if is_home_team else 'Away', time_or_score))
+    row = ('%s | [](/r/%s) | %s | %s' % 
+        (date, opp_team_sub, 'Home' if is_home_team else 'Away', time_or_score))
     rows.append(row)
   return '\n'.join(rows)
 
@@ -52,10 +86,11 @@ def build_standings(teams):
   rows = ['Team|W|L|Conf. Rank', ':--:|:--:|:--:|:--:']
   for d in division:
     team = teams[d['teamId']]['nickname']
+    teamsub = TEAM_SUB_MAP[team]
     wins = d['win']
     loses = d['loss']
     conf_rank = d['confRank']
-    row = '[](/#%s) | %s | %s | %s' % (team, wins, loses, conf_rank)
+    row = '[](/r/%s) | %s | %s | %s' % (teamsub, wins, loses, conf_rank)
     rows.append(row)
   return '\n'.join(rows)
 
