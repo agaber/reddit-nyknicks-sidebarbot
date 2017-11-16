@@ -41,7 +41,7 @@ TEAM_SUB_MAP = {
   'Suns': 'suns',
   'Thunder': 'thunder',
   'Timberwolves': 'timberwolves',
-  'Trailblazers': 'ripcity',
+  'Trail Blazers': 'ripcity',
   'Warriors': 'warriors',
   'Wizards': 'washingtonwizards',
 }
