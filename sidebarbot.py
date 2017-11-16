@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from dateutil import tz
 from time import sleep
 
@@ -64,17 +65,26 @@ def build_schedule(teams):
   rows = ['Date|Team|Loc|Time/Outcome', ':--|:--:|:--|:--']
   for i in range(start_idx, end_idx):
     game = schedule['league']['standard'][i]
-    d = dateutil.parser.parse(game['startTimeUTC']).astimezone(EASTERN_TIMEZONE)
-    date = d.strftime('%b %d') 
-    time = d.strftime('%I:%M %p').lstrip('0')
     is_home_team = game['isHomeTeam']
     knicks_score = game['hTeam' if is_home_team else 'vTeam']
     opp_score = game['vTeam' if is_home_team else 'hTeam']
     opp_team_name = teams[opp_score['teamId']]['nickname']
     opp_team_sub = TEAM_SUB_MAP[opp_team_name]
-    time_or_score = (time if knicks_score['score'] == '' 
+
+    d = dateutil.parser.parse(game['startTimeUTC']).astimezone(EASTERN_TIMEZONE)
+    date = d.strftime('%b %d')
+    if d.date() == datetime.today().date():
+      date = 'Today'
+    elif d.date() == datetime.today().date() - timedelta(days=1):
+      date = 'Yesterday'
+    elif d.date() == datetime.today().date() + timedelta(days=1):
+      date = 'Tomorrow'
+
+    time = d.strftime('%I:%M %p').lstrip('0')
+    time_or_score = (time if knicks_score['score'] == ''
         else winloss(knicks_score, opp_score))
-    row = ('%s | [](/r/%s) | %s | %s' % 
+
+    row = ('%s | [](/r/%s) | %s | %s' %
         (date, opp_team_sub, 'Home' if is_home_team else 'Away', time_or_score))
     rows.append(row)
   return '\n'.join(rows)
@@ -128,7 +138,7 @@ def update_reddit_descr(descr, text, start_marker, end_marker):
   start, end = (descr.index(start_marker),
       descr.index(end_marker) + len(end_marker))
   return descr.replace(
-      descr[start:end], 
+      descr[start:end],
       start_marker + '\n\n' + text + '\n\n' + end_marker)
 
 def winloss(knicks_score, opp_score):
@@ -157,7 +167,7 @@ if __name__ == "__main__":
           updated_descr, standings, '[](#StartStandings)', '[](#EndStandings)')
       if updated_descr != descr:
         logger.info('Updating reddit settings.')
-        subreddit.mod.update(description=updated_descr)  
+        subreddit.mod.update(description=updated_descr)
       else:
         logger.info('No changes.')
 
