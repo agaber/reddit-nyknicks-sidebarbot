@@ -90,17 +90,16 @@ def build_schedule(teams):
   return '\n'.join(rows)
 
 def build_standings(teams):
-  standings = request_division_standings()
+  standings = request_conf_standings()
   logger.info('Building standings text.')
-  division = standings['league']['standard']['conference']['east']['atlantic']
-  rows = ['Team|W|L|Conf. Rank', ':--:|:--:|:--:|:--:']
+  division = standings['league']['standard']['conference']['east']
+  rows = ['Team|W|L', ':--:|:--:|:--:']
   for d in division:
     team = teams[d['teamId']]['nickname']
     teamsub = TEAM_SUB_MAP[team]
     wins = d['win']
     loses = d['loss']
-    conf_rank = d['confRank']
-    row = '[](/r/%s) | %s | %s | %s' % (teamsub, wins, loses, conf_rank)
+    row = '[](/r/%s) | %s | %s | %s' % (teamsub, wins, loses)
     rows.append(row)
   return '\n'.join(rows)
 
@@ -108,6 +107,15 @@ def request_division_standings():
   logger.info('Fetching division standings.')
   req = requests.get(
       'http://data.nba.net/10s/prod/v1/current/standings_division.json')
+  sleep(.5)
+  if not req.status_code == 200:
+    raise Exception('Standings request failed with status %s' % req.status_code)
+  return json.loads(req.content)
+
+def request_conf_standings():
+  logger.info('Fetching division standings.')
+  req = requests.get(
+      'http://data.nba.net/10s/prod/v1/current/standings_conference.json')
   sleep(.5)
   if not req.status_code == 200:
     raise Exception('Standings request failed with status %s' % req.status_code)
