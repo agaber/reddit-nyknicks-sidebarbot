@@ -93,16 +93,16 @@ def build_standings(teams):
   standings = request_conf_standings()
   logger.info('Building standings text.')
   division = standings['league']['standard']['conference']['east']
-  rows = ['Team|W|L|Last 10', ':--:|:--:|:--:|:--:']
-  for d in division:
+  rows = [' | | |Record|GB', ':--:|:--:|:--:|:--:|:--:|:--:']
+  for i, d in enumerate(division):
     team = teams[d['teamId']]['nickname']
     teamsub = TEAM_SUB_MAP[team]
     wins = d['win']
     loses = d['loss']
-    last_10_wins = d['lastTenWin']
-    last_10_loss = d['lastTenLoss']
-    row = ('[](/r/%s) | %s | %s | %s - %s' %
-        (teamsub, wins, loses, last_10_wins, last_10_loss))
+    games_behind = d['gamesBehind']
+    games_behind = '-' if games_behind == '0' else games_behind
+    row = ('%s | [](/r/%s) | %s| %s-%s | %s' %
+        (i + 1, teamsub, team, wins, loses, games_behind))
     rows.append(row)
   return '\n'.join(rows)
 
