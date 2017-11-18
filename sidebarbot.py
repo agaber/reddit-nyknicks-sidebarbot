@@ -17,7 +17,7 @@ SUBREDDIT_NAME = 'nyknicks'
 TEAM_SUB_MAP = {
   '76ers': 'sixers',
   'Bucks': 'MkeBucks',
-  'Bulls': '/r/chicagobulls',
+  'Bulls': 'chicagobulls',
   'Cavaliers': 'clevelandcavs',
   'Celtics': 'bostonceltics',
   'Clippers': 'LAClippers',
@@ -93,13 +93,16 @@ def build_standings(teams):
   standings = request_conf_standings()
   logger.info('Building standings text.')
   division = standings['league']['standard']['conference']['east']
-  rows = ['Team|W|L', ':--:|:--:|:--:']
+  rows = ['Team|W|L|Last 10', ':--:|:--:|:--:|:--:']
   for d in division:
     team = teams[d['teamId']]['nickname']
     teamsub = TEAM_SUB_MAP[team]
     wins = d['win']
     loses = d['loss']
-    row = '[](/r/%s) | %s | %s | %s' % (teamsub, wins, loses)
+    last_10_wins = d['lastTenWin']
+    last_10_loss = d['lastTenLoss']
+    row = ('[](/r/%s) | %s | %s | %s - %s' %
+        (teamsub, wins, loses, last_10_wins, last_10_loss))
     rows.append(row)
   return '\n'.join(rows)
 
