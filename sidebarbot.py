@@ -62,7 +62,7 @@ def build_schedule(teams):
   # Show the previous 4 games or more if we're at the end of the season.
   start_idx = max(0, last_played_idx - (4 + (end_idx - last_played_idx) % 7))
 
-  rows = ['Date|Team|Loc|Time/Outcome', ':--|:--:|:--|:--']
+  rows = ['Date|Team|Loc|Time/Outcome', ':--:|:--:|:--:|:--:']
   for i in range(start_idx, end_idx):
     game = schedule['league']['standard'][i]
     is_home_team = game['isHomeTeam']
@@ -84,7 +84,7 @@ def build_schedule(teams):
     time_or_score = (time if knicks_score['score'] == ''
         else winloss(knicks_score, opp_score))
 
-    row = ('%s | [](/r/%s) | %s | %s' %
+    row = ('%s|[](/r/%s)|%s|%s' %
         (date, opp_team_sub, 'Home' if is_home_team else 'Away', time_or_score))
     rows.append(row)
   return '\n'.join(rows)
@@ -93,7 +93,7 @@ def build_standings(teams):
   standings = request_conf_standings()
   logger.info('Building standings text.')
   division = standings['league']['standard']['conference']['east']
-  rows = [' | | |Record|GB', ':--:|:--:|:--:|:--:|:--:|:--:']
+  rows = [' | | |Record|GB', ':--:|:--:|:--|:--:|:--:']
   for i, d in enumerate(division):
     team = teams[d['teamId']]['nickname']
     teamsub = TEAM_SUB_MAP[team]
@@ -101,19 +101,10 @@ def build_standings(teams):
     loses = d['loss']
     games_behind = d['gamesBehind']
     games_behind = '-' if games_behind == '0' else games_behind
-    row = ('%s | [](/r/%s) | %s| %s-%s | %s' %
+    row = ('%s|[](/r/%s)|%s|%s-%s|%s' %
         (i + 1, teamsub, team, wins, loses, games_behind))
     rows.append(row)
   return '\n'.join(rows)
-
-def request_division_standings():
-  logger.info('Fetching division standings.')
-  req = requests.get(
-      'http://data.nba.net/10s/prod/v1/current/standings_division.json')
-  sleep(.5)
-  if not req.status_code == 200:
-    raise Exception('Standings request failed with status %s' % req.status_code)
-  return json.loads(req.content)
 
 def request_conf_standings():
   logger.info('Fetching division standings.')
