@@ -93,8 +93,19 @@ def build_standings(teams):
   standings = request_conf_standings()
   logger.info('Building standings text.')
   division = standings['league']['standard']['conference']['east']
+  return print_standings(teams, division)
+
+def build_tank_standings(teams):
+  standings = request_conf_standings()
+  logger.info('Building tank standings text.')
+  t = standings['league']['standard']['conference']['east']
+  t = t + standings['league']['standard']['conference']['west']
+  t = sorted(t, key=lambda team: float(team['lossPct']), reverse=True)
+  return print_standings(teams, t[:15])
+
+def print_standings(teams, standings):
   rows = [' | | |Record|GB', ':--:|:--:|:--|:--:|:--:']
-  for i, d in enumerate(division):
+  for i, d in enumerate(standings):
     team = teams[d['teamId']]['nickname']
     teamsub = TEAM_SUB_MAP[team]
     wins = d['win']
@@ -107,7 +118,7 @@ def build_standings(teams):
   return '\n'.join(rows)
 
 def request_conf_standings():
-  logger.info('Fetching division standings.')
+  logger.info('Fetching conference standings.')
   req = requests.get(
       'http://data.nba.net/10s/prod/v1/current/standings_conference.json')
   sleep(.5)
@@ -157,7 +168,8 @@ if __name__ == "__main__":
     try:
       teams = request_teams()
       schedule = build_schedule(teams)
-      standings = build_standings(teams)
+      # standings = build_standings(teams)
+      standings = build_tank_standings(teams)
       subreddit = reddit.subreddit(SUBREDDIT_NAME)
 
       logger.info('Querying reddit settings.')
