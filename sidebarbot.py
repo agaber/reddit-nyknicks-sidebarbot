@@ -101,7 +101,7 @@ def build_tank_standings(teams):
   t = standings['league']['standard']['conference']['east']
   t = t + standings['league']['standard']['conference']['west']
   t = sorted(t, key=lambda team: float(team['lossPct']), reverse=True)
-  return print_standings(teams, t[:15])
+  return print_standings(teams, t[:10])
 
 def print_standings(teams, standings):
   rows = [' | | |Record|GB', ':--:|:--:|:--|:--:|:--:']
