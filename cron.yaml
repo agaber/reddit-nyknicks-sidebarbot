@@ -1,0 +1,4 @@
+cron:
+- description: "Updates the /r/nyknicks sidebar."
+  url: /update-knicks-sidebar
+  schedule: every 1 minutes
