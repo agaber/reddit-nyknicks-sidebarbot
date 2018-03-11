@@ -4,20 +4,16 @@ A reddit bot that manages the [/r/nyknicks](https://www.reddit.com/r/NYKnicks/)
 sidebar.
 
 ## Prerequisites
-
 * [Set up your python environment](https://cloud.google.com/python/setup)
-
 * Use Python3 (virtualenv --python python3 env)
-
 * [Install gcloud tools](https://cloud.google.com/sdk/)
+* A praw.ini file (not submitted) with the following contents:
 
-## Not submitted but this requires a praw.ini file with the following contents:
-
-    [nyknicks-sidebarbot]
-    client_id=(from reddit.com/prefs/apps)
-    client_secret=(from reddit.com/prefs/apps)
-    password=(mod password)
-    username=(mod username)
+        [nyknicks-sidebarbot]
+        client_id=(from reddit.com/prefs/apps)
+        client_secret=(from reddit.com/prefs/apps)
+        password=(mod password)
+        username=(mod username)
 
 ## Running locally:
 
