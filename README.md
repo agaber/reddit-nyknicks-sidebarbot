@@ -3,6 +3,12 @@
 A reddit bot that manages the [/r/nyknicks](https://www.reddit.com/r/NYKnicks/)
 sidebar.
 
+Prerequisites
+
+* [Set up your python environment](https://cloud.google.com/python/setup)
+
+* [Install gcloud tools](https://cloud.google.com/sdk/)
+
 To run on Linux:
 
     $ sudo apt update
@@ -14,8 +20,6 @@ To run on Linux:
     $ gcloud app deploy cron.yaml
     $ gcloud app deploy [--no-promote] [--version=]
     $ deactivate # to end virtualenv
-
-You also have to install gcloud. I don't remember how I did it. 
 
 Not submitted but this requires a praw.ini file with the following contents:
 
