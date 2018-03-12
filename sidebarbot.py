@@ -98,10 +98,15 @@ def build_standings(teams):
 def build_tank_standings(teams):
   standings = request_conf_standings()
   logger.info('Building tank standings text.')
-  t = standings['league']['standard']['conference']['east']
-  t = t + standings['league']['standard']['conference']['west']
-  t = sorted(t, key=lambda team: float(team['lossPct']), reverse=True)
-  return print_standings(teams, t[:10])
+  rows = standings['league']['standard']['conference']['east']
+  rows = rows + standings['league']['standard']['conference']['west']
+  rows = sorted(rows, key=lambda team: float(team['lossPct']), reverse=True)
+  worst_wins = int(rows[0]['win'])
+  worst_loss = int(rows[0]['loss'])
+  for row in rows:
+     gb = (abs(worst_wins - int(row['win'])) + abs(worst_loss - int(row['loss']))) / 2
+     row['gamesBehind'] = ('%.1f' % gb).replace('.0', '')
+  return print_standings(teams, rows[:10])
 
 def print_standings(teams, standings):
   rows = [' | | |Record|GB', ':--:|:--:|:--|:--:|:--:']
