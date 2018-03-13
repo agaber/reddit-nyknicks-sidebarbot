@@ -7,6 +7,7 @@ import json
 import logging
 import logging.config
 import praw
+import pytz
 import re
 import requests
 
@@ -73,11 +74,12 @@ def build_schedule(teams):
 
     d = dateutil.parser.parse(game['startTimeUTC']).astimezone(EASTERN_TIMEZONE)
     date = d.strftime('%b %d')
-    if d.date() == datetime.today().date():
+    today = datetime.now(pytz.timezone('US/Eastern')).today().date()
+    if d.date() == today:
       date = 'Today'
-    elif d.date() == datetime.today().date() - timedelta(days=1):
+    elif d.date() == today - timedelta(days=1):
       date = 'Yesterday'
-    elif d.date() == datetime.today().date() + timedelta(days=1):
+    elif d.date() == today + timedelta(days=1):
       date = 'Tomorrow'
 
     time = d.strftime('%I:%M %p').lstrip('0')
