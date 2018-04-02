@@ -60,7 +60,7 @@ def build_schedule(teams):
   # Get the next 7 games.
   end_idx = min(last_played_idx + 7, len(schedule['league']['standard']))
   # Show the previous 4 games or more if we're at the end of the season.
-  start_idx = max(0, last_played_idx - (4 + (end_idx - last_played_idx) % 7))
+  start_idx = max(0, last_played_idx - (4 + (7 - (end_idx - last_played_idx - 1))))
 
   rows = ['Date|Team|Loc|Time/Outcome', ':--:|:--:|:--:|:--:']
   for i in range(start_idx, end_idx):
