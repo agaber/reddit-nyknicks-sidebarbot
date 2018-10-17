@@ -11,8 +11,8 @@ import re
 import requests
 
 EASTERN_TIMEZONE = timezone('America/New_York')
-# SUBREDDIT_NAME = 'nyknicks'
-SUBREDDIT_NAME = 'knicklejerk'
+SUBREDDIT_NAME = 'nyknicks'
+# SUBREDDIT_NAME = 'knicklejerk'
 
 TEAM_SUB_MAP = {
   '76ers': 'sixers',
