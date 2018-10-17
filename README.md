@@ -20,6 +20,7 @@ sidebar.
     $ pip install --user --upgrade virtualenv
     $ cd your/project
     $ virtualenv --python python3 env
+    $ source env/bin/activate
     $ pip install -r requirements.txt
     $ python main.py # http://localhost:8080/healthz should print ok.
     $ deactivate     # to end virtualenv

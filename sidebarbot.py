@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from dateutil import tz
+from pytz import timezone
 from time import sleep
 
 import dateutil.parser
@@ -10,9 +10,9 @@ import praw
 import re
 import requests
 
-EASTERN_TIMEZONE = tz.gettz('America/New_York')
-SUBREDDIT_NAME = 'nyknicks'
-# SUBREDDIT_NAME = 'knicklejerk'
+EASTERN_TIMEZONE = timezone('America/New_York')
+# SUBREDDIT_NAME = 'nyknicks'
+SUBREDDIT_NAME = 'knicklejerk'
 
 TEAM_SUB_MAP = {
   '76ers': 'sixers',
@@ -57,6 +57,9 @@ def build_schedule(teams):
   # FYI: We want to show to a show a total of 12 games: last + 4 prior + 7 next.
   # Get the array index of the last game played.
   last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
+  if last_played_idx == -1:
+    # Current game index was -1 before the season started.
+    last_played_idx = 5
   # Get the next 7 games.
   end_idx = min(last_played_idx + 7, len(schedule['league']['standard']))
   # Show the previous 4 games or more if we're at the end of the season.
@@ -73,7 +76,7 @@ def build_schedule(teams):
 
     d = dateutil.parser.parse(game['startTimeUTC']).astimezone(EASTERN_TIMEZONE)
     date = d.strftime('%b %d')
-    today = datetime.now().today().astimezone(EASTERN_TIMEZONE).date()
+    today = datetime.now(EASTERN_TIMEZONE).today().date()
     if d.date() == today:
       date = 'Today'
     elif d.date() == today - timedelta(days=1):
@@ -133,13 +136,13 @@ def request_conf_standings():
 def request_schedule():
   logger.info('Fetching schedule information.')
   r = requests.get(
-      'http://data.nba.net/data/10s/prod/v1/2017/teams/knicks/schedule.json')
+      'http://data.nba.net/data/10s/prod/v1/2018/teams/knicks/schedule.json')
   r.raise_for_status()
   return json.loads(r.content.decode('utf-8'))
 
 def request_teams():
   logger.info('Fetching team data.')
-  r = requests.get('http://data.nba.net/10s/prod/v1/2017/teams.json')
+  r = requests.get('http://data.nba.net/10s/prod/v1/2018/teams.json')
   r.raise_for_status()
   teams = json.loads(r.content.decode('utf-8'))
   teams_map = dict()
@@ -165,8 +168,8 @@ def execute():
 
   teams = request_teams()
   schedule = build_schedule(teams)
-  # standings = build_standings(teams)
-  standings = build_tank_standings(teams)
+  standings = build_standings(teams)
+  # standings = build_tank_standings(teams)
   subreddit = reddit.subreddit(SUBREDDIT_NAME)
 
   logger.info('Querying reddit settings.')
