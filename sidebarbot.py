@@ -56,8 +56,7 @@ def build_schedule(teams):
   logger.info('Building schedule text.')
   # FYI: We want to show to a show a total of 12 games: most recent + 4 prior + 7 next.
   # Get the array index of the last game played.
-  # Current game index was -1 the day before the 2018 season started.
-  last_played_idx = schedule['league']['lastStandardGamePlayedIndex'] + 6
+  last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
 
   # Get the next 7 games.
   end_idx = min(last_played_idx + 7, len(schedule['league']['standard']))
