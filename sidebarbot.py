@@ -7,10 +7,11 @@ import json
 import logging
 import logging.config
 import praw
+import pytz
 import re
 import requests
 
-EASTERN_TIMEZONE = timezone('America/New_York')
+EASTERN_TIMEZONE = timezone('US/Eastern')
 SUBREDDIT_NAME = 'nyknicks'
 # SUBREDDIT_NAME = 'knicklejerk'
 
@@ -75,7 +76,7 @@ def build_schedule(teams):
 
     d = dateutil.parser.parse(game['startTimeUTC']).astimezone(EASTERN_TIMEZONE)
     date = d.strftime('%b %d')
-    today = datetime.now(EASTERN_TIMEZONE).today().date()
+    today = datetime.utcnow().replace(tzinfo=EASTERN_TIMEZONE).today().date()
     if d.date() == today:
       date = 'Today'
     elif d.date() == today - timedelta(days=1):
