@@ -12,6 +12,7 @@ import re
 import requests
 
 EASTERN_TIMEZONE = timezone('US/Eastern')
+UTC = timezone('UTC')
 SUBREDDIT_NAME = 'nyknicks'
 # SUBREDDIT_NAME = 'knicklejerk'
 
@@ -76,7 +77,7 @@ def build_schedule(teams):
 
     d = dateutil.parser.parse(game['startTimeUTC']).astimezone(EASTERN_TIMEZONE)
     date = d.strftime('%b %d')
-    today = datetime.utcnow().replace(tzinfo=EASTERN_TIMEZONE).today().date()
+    today = datetime.now(timezone('UTC')).astimezone(EASTERN_TIMEZONE).date()
     if d.date() == today:
       date = 'Today'
     elif d.date() == today - timedelta(days=1):
