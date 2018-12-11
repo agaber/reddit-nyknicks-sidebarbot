@@ -75,8 +75,8 @@ def build_schedule(teams):
     opp_team_name = teams[opp_score['teamId']]['nickname']
     opp_team_sub = TEAM_SUB_MAP[opp_team_name]
 
-    gametime = dateutil.parser.parse(game['startTimeUTC'])
-    today = datetime.now(UTC).date()
+    gametime = dateutil.parser.parse(game['startTimeUTC']).astimezone(EASTERN_TIMEZONE)
+    today = datetime.now(UTC).astimezone(EASTERN_TIMEZONE).date()
     if gametime.date() == today:
       date = 'Today'
     elif gametime.date() == today - timedelta(days=1):
@@ -84,7 +84,7 @@ def build_schedule(teams):
     elif gametime.date() == today + timedelta(days=1):
       date = 'Tomorrow'
     else:
-      date = gametime.astimezone(EASTERN_TIMEZONE).strftime('%b %d')
+      date = gametime.strftime('%b %d')
 
     time = gametime.strftime('%I:%M %p').lstrip('0')
     time_or_score = (time if knicks_score['score'] == ''
