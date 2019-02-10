@@ -171,8 +171,8 @@ def execute():
   teams = request_teams()
   schedule = build_schedule(teams)
   standings = build_standings(teams)
-  # standings = build_tank_standings(teams)
-  subreddit = reddit.subreddit(SUBREDDIT_NAME)
+  standings = build_tank_standings(teams)
+  # subreddit = reddit.subreddit(SUBREDDIT_NAME)
 
   logger.info('Querying reddit settings.')
   descr = subreddit.mod.settings()['description']
