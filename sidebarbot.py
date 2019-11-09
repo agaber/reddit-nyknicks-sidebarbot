@@ -138,13 +138,13 @@ def request_conf_standings():
 def request_schedule():
   logger.info('Fetching schedule information.')
   r = requests.get(
-      'http://data.nba.net/data/10s/prod/v1/2018/teams/knicks/schedule.json')
+      'http://data.nba.net/data/10s/prod/v1/2019/teams/knicks/schedule.json')
   r.raise_for_status()
   return json.loads(r.content.decode('utf-8'))
 
 def request_teams():
   logger.info('Fetching team data.')
-  r = requests.get('http://data.nba.net/10s/prod/v1/2018/teams.json')
+  r = requests.get('http://data.nba.net/10s/prod/v1/2019/teams.json')
   r.raise_for_status()
   teams = json.loads(r.content.decode('utf-8'))
   teams_map = dict()
@@ -170,8 +170,8 @@ def execute():
 
   teams = request_teams()
   schedule = build_schedule(teams)
-  # standings = build_standings(teams)
-  standings = build_tank_standings(teams)
+  standings = build_standings(teams)
+  # standings = build_tank_standings(teams)
   subreddit = reddit.subreddit(SUBREDDIT_NAME)
 
   logger.info('Querying reddit settings.')
