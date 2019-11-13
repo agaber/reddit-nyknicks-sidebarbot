@@ -10,6 +10,7 @@ import praw
 import pytz
 import re
 import requests
+import traceback
 
 EASTERN_TIMEZONE = timezone('US/Eastern')
 UTC = timezone('UTC')
@@ -190,4 +191,7 @@ def execute():
   logger.info('All done.')
 
 if __name__ == "__main__":
-  execute()
+  try:
+    execute()
+  except:
+    logger.error(traceback.format_exc())
