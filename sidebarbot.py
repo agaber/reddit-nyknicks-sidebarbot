@@ -163,7 +163,8 @@ def update_reddit_descr(descr, text, start_marker, end_marker):
 def winloss(knicks_score, opp_score):
   kscore = int(knicks_score['score'])
   oscore = int(opp_score['score'])
-  return 'Win' if kscore > oscore else 'Loss'
+  return ('W %s-%s' % (kscore, oscore) 
+      if kscore > oscore else 'L %s-%s' % (oscore, kscore))
 
 def execute():
   logger.info('Logging in to reddit.')
