@@ -5,7 +5,14 @@ sidebar.
 
 ## Prerequisites
 * [Set up your python environment](https://cloud.google.com/python/setup)
-* Use Python3 (virtualenv --python python3 env)
+
+  On Mac, using [Homebrew](https://brew.sh/):
+
+       $ brew upgrade
+       $ brew install python3
+       $ brew postinstall python3
+       $ python3 -m pip install --upgrade pip
+       
 * [Install gcloud tools (deprecated)](https://cloud.google.com/sdk/)
 * A praw.ini file (not submitted) with the following contents:
 
@@ -15,19 +22,17 @@ sidebar.
         password=(mod password)
         username=(mod username)
 
-On Mac, using [Homebrew](https://brew.sh/)
-
-     $ brew upgrade
-     $ brew install python3
-     $ brew postinstall python3
-     $ python3 -m pip install --upgrade pip
-
-The commands are similar on linux with apt install.
+The commands are similar on Linux with apt install.
 
 ## Running locally:
 
     $ pip install -r requirements.txt
+    $ mkdir -p ~/.redditbot/logs
     $ python3 sidebarbot.py
+
+## Unit tests
+
+    $ python3 -m unittest discover -s ./ -p '*_test.py'
 
 ## Running a local server for AppEngine with virtualenv (deprecated):
 
@@ -46,11 +51,8 @@ The commands are similar on linux with apt install.
 
 ## NBA Data
 
-\* Tip: Install [this](https://chrome.google.com/webstore/detail/json-viewer/gbmdgpbipfallnflgajpaliibnhdgobh/related?hl=en-US) JSON viewer chrome extension.
+\* Tip: Install [this](https://chrome.google.com/webstore/detail/json-viewer/gbmdgpbipfallnflgajpaliibnhdgobh/related?hl=en-US) JSON viewer Chrome Extension.
 
 * Available APIs: http://data.nba.net/10s/prod/v1/today.json
 * Players: http://data.nba.net/prod/v1/2020/players.json
 * Other API info: https://github.com/kashav/nba.js/blob/master/docs/api/DATA.md
-
-Do not submit:
-http://data.nba.net/10s/prod/v1/2020/teams/knicks/roster.json
