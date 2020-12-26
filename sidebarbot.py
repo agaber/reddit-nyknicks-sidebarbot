@@ -14,7 +14,6 @@ import traceback
 
 EASTERN_TIMEZONE = timezone('US/Eastern')
 UTC = timezone('UTC')
-YEAR = '2020'
 SUBREDDIT_NAME = 'nyknicks'
 # SUBREDDIT_NAME = 'knicklejerk'
 
@@ -54,8 +53,8 @@ TEAM_SUB_MAP = {
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('sidebarbot')
 
-def build_schedule(teams):
-  schedule = request_schedule()
+def build_schedule(teams, year):
+  schedule = request_schedule(year)
 
   logger.info('Building schedule text.')
   # FYI: We want to show to a show a total of 12 games: most recent + 4 prior + 7 next.
@@ -137,22 +136,29 @@ def request_conf_standings():
   r.raise_for_status()
   return json.loads(r.content.decode('utf-8'))
 
-def request_schedule():
+def request_schedule(year):
   logger.info('Fetching schedule information.')
   r = requests.get(
-      f'http://data.nba.net/data/10s/prod/v1/{YEAR}/teams/knicks/schedule.json')
+      f'http://data.nba.net/data/10s/prod/v1/{year}/teams/knicks/schedule.json')
   r.raise_for_status()
   return json.loads(r.content.decode('utf-8'))
 
-def request_teams():
+def request_teams(year):
   logger.info('Fetching team data.')
-  r = requests.get(f'http://data.nba.net/10s/prod/v1/{YEAR}/teams.json')
+  r = requests.get(f'http://data.nba.net/10s/prod/v1/{year}/teams.json')
   r.raise_for_status()
   teams = json.loads(r.content.decode('utf-8'))
   teams_map = dict()
   for team in teams['league']['standard']:
     teams_map[team['teamId']] = team
   return teams_map
+
+def get_current_year():
+  logger.info('Fetching current seaso year')
+  r = requests.get('http://data.nba.net/10s/prod/v1/today.json')
+  r.raise_for_status()
+  data = json.loads(r.content.decode('utf-8'))
+  return data['seasonScheduleYear']
 
 def update_reddit_descr(descr, text, start_marker, end_marker):
   start, end = (descr.index(start_marker),
@@ -171,8 +177,9 @@ def execute():
   logger.info('Logging in to reddit.')
   reddit = praw.Reddit('nyknicks-sidebarbot', user_agent='python-praw')
 
-  teams = request_teams()
-  schedule = build_schedule(teams)
+  current_year = get_current_year()
+  teams = request_teams(current_year)
+  schedule = build_schedule(teams, current_year)
   standings = build_standings(teams)
   # standings = build_tank_standings(teams)
   subreddit = reddit.subreddit(SUBREDDIT_NAME)
