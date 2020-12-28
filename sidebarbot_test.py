@@ -8,12 +8,13 @@ import unittest
 def mocked_requests_get(*args, **kwargs):
   class MockResponse:
     def __init__(self, file_name, status_code):
-      self.content = open(file_name, 'r').read().encode('utf-8')
+      with open(file_name, 'r') as f:
+        self.content = f.read().encode('utf-8')
       self.status_code = status_code
     def raise_for_status(self):
       pass
   requested_url = args[0]
-  testdata_path = 'testdata/' + requested_url.split('/')[-1]
+  testdata_path = 'services/testdata/' + requested_url.split('/')[-1]
   if os.path.isfile(testdata_path):
     return MockResponse(testdata_path, 200)
   return MockResponse(None, 404)
@@ -22,7 +23,7 @@ def mocked_requests_get(*args, **kwargs):
 class SidebarBotTest(unittest.TestCase):
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_build_tank_standings(self, mock_get):
-    teams = sidebarbot.request_teams()
+    teams = sidebarbot.request_teams('2018')
     standings = sidebarbot.build_tank_standings(teams)
     self.assertEqual(standings, """ | | |Record|GB
 :--:|:--:|:--|:--:|:--:

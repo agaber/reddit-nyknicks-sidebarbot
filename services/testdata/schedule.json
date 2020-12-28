@@ -1,0 +1,624 @@
+{
+  "_internal": {
+    "pubDateTime": "2020-12-28 08:59:09.013 EST",
+    "igorPath": "S3,1609163909892,1609163918783|router,1609163918783,1609163918789|xmlProcessor,1609163920949,1609163943208|domUpdater,1609163944332,1609163947337|feedProducer,1609163947420,1609163992974",
+    "xslt": "NBA/xsl/team/schedule/marty_team_schedule.xsl",
+    "xsltForceRecompile": "true",
+    "xsltInCache": "false",
+    "xsltCompileTimeMillis": "961",
+    "xsltTransformTimeMillis": "28331",
+    "consolidatedDomKey": "prod__transform__marty_team_schedule__4573483187082",
+    "endToEndTimeMillis": "83082"
+  },
+  "league": {
+    "lastStandardGamePlayedIndex": 6,
+    "standard": [
+      {
+        "seasonStageId": 1,
+        "seasonId": "12020",
+        "gameUrlCode": "20201211/NYKDET",
+        "gameId": "0012000002",
+        "statusNum": 3,
+        "extendedStatusNum": 0,
+        "startTimeEastern": "7:00 PM ET",
+        "startTimeUTC": "2020-12-12T00:00:00.000Z",
+        "startDateEastern": "20201211",
+        "homeStartDate": "20201211",
+        "homeStartTime": "1900",
+        "visitorStartDate": "20201211",
+        "visitorStartTime": "1900",
+        "isHomeTeam": false,
+        "isStartTimeTBD": false,
+        "watch": {
+          "broadcast": {
+            "broadcasters": {
+              "national": [
+                
+              ],
+              "canadian": [
+                {
+                  "shortName": "SN1",
+                  "longName": "SN1"
+                }
+              ],
+              "spanish_national": [
+                
+              ],
+              "vTeam": [
+                {
+                  "shortName": "MSG",
+                  "longName": "MSG"
+                }
+              ],
+              "hTeam": [
+                {
+                  "shortName": "FSD",
+                  "longName": "Fox Sports Detroit"
+                }
+              ]
+            },
+            "video": {
+              "regionalBlackoutCodes": "",
+              "canPurchase": false,
+              "isLeaguePass": true,
+              "isNationalBlackout": false,
+              "isTNTOT": false,
+              "isVR": false,
+              "tntotIsOnAir": false,
+              "isNextVR": false,
+              "isNBAOnTNTVR": false,
+              "isMagicLeap": false,
+              "isOculusVenues": false,
+              "streams": [
+                {
+                  "streamType": "vTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "hTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "espanol_vTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "espanol_hTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "espanol_natl",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "mobile",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "condensed",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "alt",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                }
+              ],
+              "deepLink": [
+                
+              ]
+            },
+            "audio": {
+              "national": {
+                "streams": [
+                  {
+                    "language": "English",
+                    "isOnAir": false,
+                    "streamId": ""
+                  },
+                  {
+                    "language": "Spanish",
+                    "isOnAir": false,
+                    "streamId": ""
+                  }
+                ],
+                "broadcasters": [
+                  
+                ]
+              },
+              "vTeam": {
+                "streams": [
+                  {
+                    "language": "English",
+                    "isOnAir": false,
+                    "streamId": ""
+                  },
+                  {
+                    "language": "Spanish",
+                    "isOnAir": false,
+                    "streamId": ""
+                  }
+                ],
+                "broadcasters": [
+                  {
+                    "shortName": "ESPN NY 98.7",
+                    "longName": "ESPN NY 98.7"
+                  }
+                ]
+              },
+              "hTeam": {
+                "streams": [
+                  {
+                    "language": "English",
+                    "isOnAir": false,
+                    "streamId": ""
+                  },
+                  {
+                    "language": "Spanish",
+                    "isOnAir": false,
+                    "streamId": ""
+                  }
+                ],
+                "broadcasters": [
+                  {
+                    "shortName": "97.1 FM The Ticket",
+                    "longName": "97.1 FM The Ticket"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "nugget": {
+          "text": ""
+        },
+        "vTeam": {
+          "teamId": "1610612752",
+          "score": "90"
+        },
+        "hTeam": {
+          "teamId": "1610612765",
+          "score": "84"
+        }
+      },
+      {
+        "seasonStageId": 1,
+        "seasonId": "12020",
+        "gameUrlCode": "20201213/NYKDET",
+        "gameId": "0012000015",
+        "statusNum": 3,
+        "extendedStatusNum": 0,
+        "startTimeEastern": "7:00 PM ET",
+        "startTimeUTC": "2020-12-14T00:00:00.000Z",
+        "startDateEastern": "20201213",
+        "homeStartDate": "20201213",
+        "homeStartTime": "1900",
+        "visitorStartDate": "20201213",
+        "visitorStartTime": "1900",
+        "isHomeTeam": false,
+        "isStartTimeTBD": false,
+        "watch": {
+          "broadcast": {
+            "broadcasters": {
+              "national": [
+                
+              ],
+              "canadian": [
+                
+              ],
+              "spanish_national": [
+                
+              ],
+              "vTeam": [
+                {
+                  "shortName": "MSG",
+                  "longName": "MSG"
+                }
+              ],
+              "hTeam": [
+                {
+                  "shortName": "FSD",
+                  "longName": "Fox Sports Detroit"
+                }
+              ]
+            },
+            "video": {
+              "regionalBlackoutCodes": "",
+              "canPurchase": false,
+              "isLeaguePass": true,
+              "isNationalBlackout": false,
+              "isTNTOT": false,
+              "isVR": false,
+              "tntotIsOnAir": false,
+              "isNextVR": false,
+              "isNBAOnTNTVR": false,
+              "isMagicLeap": false,
+              "isOculusVenues": false,
+              "streams": [
+                {
+                  "streamType": "vTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "hTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "espanol_vTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "espanol_hTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "espanol_natl",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "mobile",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "condensed",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "alt",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                }
+              ],
+              "deepLink": [
+                
+              ]
+            },
+            "audio": {
+              "national": {
+                "streams": [
+                  {
+                    "language": "English",
+                    "isOnAir": false,
+                    "streamId": ""
+                  },
+                  {
+                    "language": "Spanish",
+                    "isOnAir": false,
+                    "streamId": ""
+                  }
+                ],
+                "broadcasters": [
+                  
+                ]
+              },
+              "vTeam": {
+                "streams": [
+                  {
+                    "language": "English",
+                    "isOnAir": false,
+                    "streamId": ""
+                  },
+                  {
+                    "language": "Spanish",
+                    "isOnAir": false,
+                    "streamId": ""
+                  }
+                ],
+                "broadcasters": [
+                  {
+                    "shortName": "ESPN NY 98.7",
+                    "longName": "ESPN NY 98.7"
+                  }
+                ]
+              },
+              "hTeam": {
+                "streams": [
+                  {
+                    "language": "English",
+                    "isOnAir": false,
+                    "streamId": ""
+                  },
+                  {
+                    "language": "Spanish",
+                    "isOnAir": false,
+                    "streamId": ""
+                  }
+                ],
+                "broadcasters": [
+                  {
+                    "shortName": "97.1 FM The Ticket",
+                    "longName": "97.1 FM The Ticket"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "nugget": {
+          "text": ""
+        },
+        "vTeam": {
+          "teamId": "1610612752",
+          "score": "91"
+        },
+        "hTeam": {
+          "teamId": "1610612765",
+          "score": "99"
+        }
+      },
+      {
+        "seasonStageId": 1,
+        "seasonId": "12020",
+        "gameUrlCode": "20201216/CLENYK",
+        "gameId": "0012000028",
+        "statusNum": 3,
+        "extendedStatusNum": 0,
+        "startTimeEastern": "7:30 PM ET",
+        "startTimeUTC": "2020-12-17T00:30:00.000Z",
+        "startDateEastern": "20201216",
+        "homeStartDate": "20201216",
+        "homeStartTime": "1930",
+        "visitorStartDate": "20201216",
+        "visitorStartTime": "1930",
+        "isHomeTeam": true,
+        "isStartTimeTBD": false,
+        "watch": {
+          "broadcast": {
+            "broadcasters": {
+              "national": [
+                
+              ],
+              "canadian": [
+                {
+                  "shortName": "NBAC",
+                  "longName": "NBA TV Canada"
+                }
+              ],
+              "spanish_national": [
+                
+              ],
+              "vTeam": [
+                {
+                  "shortName": "FSO",
+                  "longName": "Fox Sports Ohio"
+                }
+              ],
+              "hTeam": [
+                {
+                  "shortName": "MSG",
+                  "longName": "MSG"
+                }
+              ]
+            },
+            "video": {
+              "regionalBlackoutCodes": "",
+              "canPurchase": false,
+              "isLeaguePass": true,
+              "isNationalBlackout": false,
+              "isTNTOT": false,
+              "isVR": false,
+              "tntotIsOnAir": false,
+              "isNextVR": false,
+              "isNBAOnTNTVR": false,
+              "isMagicLeap": false,
+              "isOculusVenues": false,
+              "streams": [
+                {
+                  "streamType": "vTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "hTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "espanol_vTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "espanol_hTeam",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "espanol_natl",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "mobile",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "condensed",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                },
+                {
+                  "streamType": "alt",
+                  "isOnAir": false,
+                  "doesArchiveExist": false,
+                  "isArchiveAvailToWatch": false,
+                  "streamId": "",
+                  "duration": 0
+                }
+              ],
+              "deepLink": [
+                
+              ]
+            },
+            "audio": {
+              "national": {
+                "streams": [
+                  {
+                    "language": "English",
+                    "isOnAir": false,
+                    "streamId": ""
+                  },
+                  {
+                    "language": "Spanish",
+                    "isOnAir": false,
+                    "streamId": ""
+                  }
+                ],
+                "broadcasters": [
+                  
+                ]
+              },
+              "vTeam": {
+                "streams": [
+                  {
+                    "language": "English",
+                    "isOnAir": false,
+                    "streamId": ""
+                  },
+                  {
+                    "language": "Spanish",
+                    "isOnAir": false,
+                    "streamId": ""
+                  }
+                ],
+                "broadcasters": [
+                  {
+                    "shortName": "WTAM/WMMS/WNZN",
+                    "longName": "WTAM/WMMS/WNZN"
+                  }
+                ]
+              },
+              "hTeam": {
+                "streams": [
+                  {
+                    "language": "English",
+                    "isOnAir": false,
+                    "streamId": ""
+                  },
+                  {
+                    "language": "Spanish",
+                    "isOnAir": false,
+                    "streamId": ""
+                  }
+                ],
+                "broadcasters": [
+                  {
+                    "shortName": "ESPN NY 98.7",
+                    "longName": "ESPN NY 98.7"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "nugget": {
+          "text": ""
+        },
+        "vTeam": {
+          "teamId": "1610612739",
+          "score": "93"
+        },
+        "hTeam": {
+          "teamId": "1610612752",
+          "score": "100"
+        }
+      }
+    ],
+    "africa": [
+      
+    ],
+    "sacramento": [
+      
+    ],
+    "vegas": [
+      
+    ],
+    "utah": [
+      
+    ]
+  }
+}

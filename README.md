@@ -12,7 +12,7 @@ sidebar.
        $ brew install python3
        $ brew postinstall python3
        $ python3 -m pip install --upgrade pip
-       
+
 * [Install gcloud tools (deprecated)](https://cloud.google.com/sdk/)
 * A praw.ini file (not submitted) with the following contents:
 
@@ -54,5 +54,4 @@ The commands are similar on Linux with apt install.
 \* Tip: Install [this](https://chrome.google.com/webstore/detail/json-viewer/gbmdgpbipfallnflgajpaliibnhdgobh/related?hl=en-US) JSON viewer Chrome Extension.
 
 * Available APIs: http://data.nba.net/10s/prod/v1/today.json
-* Players: http://data.nba.net/prod/v1/2020/players.json
 * Other API info: https://github.com/kashav/nba.js/blob/master/docs/api/DATA.md

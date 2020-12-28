@@ -1,0 +1,249 @@
+{
+  "_internal": {
+    "pubDateTime": "2020-12-27 16:47:49.380 EST",
+    "igorPath": "S3,1609105655902,1609105664378|nbads,1609105664378,1609105665067|poller1,1609105651934,1609105665241|router,1609105665242,1609105665269|domVariableUpdater,1609105665382,1609105665515|domUpdater,1609105668092,1609105668559|feedProducer,1609105668658,1609105674103",
+    "xslt": "NBA/xsl/league/roster/marty_active_players.xsl",
+    "xsltForceRecompile": "true",
+    "xsltInCache": "false",
+    "xsltCompileTimeMillis": "333",
+    "xsltTransformTimeMillis": "4263",
+    "consolidatedDomKey": "prod__transform__marty_active_players__4248505444633",
+    "endToEndTimeMillis": "18201"
+  },
+  "league": {
+    "standard": [
+      {
+        "firstName": "Precious",
+        "lastName": "Achiuwa",
+        "temporaryDisplayName": "Achiuwa, Precious",
+        "personId": "1630173",
+        "teamId": "1610612748",
+        "jersey": "5",
+        "isActive": true,
+        "pos": "F",
+        "heightFeet": "6",
+        "heightInches": "8",
+        "heightMeters": "2.03",
+        "weightPounds": "225",
+        "weightKilograms": "102.1",
+        "dateOfBirthUTC": "1999-09-19",
+        "teamSitesOnly": {
+          "playerCode": "precious_achiuwa",
+          "posFull": "Forward",
+          "displayAffiliation": "Memphis/Nigeria",
+          "freeAgentCode": ""
+        },
+        "teams": [
+          {
+            "teamId": "1610612748",
+            "seasonStart": "2020",
+            "seasonEnd": "2020"
+          }
+        ],
+        "draft": {
+          "teamId": "1610612748",
+          "pickNum": "20",
+          "roundNum": "1",
+          "seasonYear": "2020"
+        },
+        "nbaDebutYear": "2020",
+        "yearsPro": "0",
+        "collegeName": "Memphis",
+        "lastAffiliation": "Memphis/Nigeria",
+        "country": "Nigeria"
+      },
+      {
+        "firstName": "Jaylen",
+        "lastName": "Adams",
+        "temporaryDisplayName": "Adams, Jaylen",
+        "personId": "1629121",
+        "teamId": "1610612749",
+        "jersey": "6",
+        "isActive": true,
+        "pos": "G",
+        "heightFeet": "6",
+        "heightInches": "0",
+        "heightMeters": "1.83",
+        "weightPounds": "225",
+        "weightKilograms": "102.1",
+        "dateOfBirthUTC": "1996-05-04",
+        "teamSitesOnly": {
+          "playerCode": "jaylen_adams",
+          "posFull": "Guard",
+          "displayAffiliation": "St. Bonaventure/USA",
+          "freeAgentCode": ""
+        },
+        "teams": [
+          {
+            "teamId": "1610612737",
+            "seasonStart": "2018",
+            "seasonEnd": "2018"
+          },
+          {
+            "teamId": "1610612757",
+            "seasonStart": "2019",
+            "seasonEnd": "2019"
+          },
+          {
+            "teamId": "1610612749",
+            "seasonStart": "2020",
+            "seasonEnd": "2020"
+          }
+        ],
+        "draft": {
+          "teamId": "",
+          "pickNum": "",
+          "roundNum": "",
+          "seasonYear": ""
+        },
+        "nbaDebutYear": "2018",
+        "yearsPro": "2",
+        "collegeName": "St. Bonaventure",
+        "lastAffiliation": "St. Bonaventure/USA",
+        "country": "USA"
+      },
+      {
+        "firstName": "Steven",
+        "lastName": "Adams",
+        "temporaryDisplayName": "Adams, Steven",
+        "personId": "203500",
+        "teamId": "1610612740",
+        "jersey": "12",
+        "isActive": true,
+        "pos": "C",
+        "heightFeet": "6",
+        "heightInches": "11",
+        "heightMeters": "2.11",
+        "weightPounds": "265",
+        "weightKilograms": "120.2",
+        "dateOfBirthUTC": "1993-07-20",
+        "teamSitesOnly": {
+          "playerCode": "steven_adams",
+          "posFull": "Center",
+          "displayAffiliation": "Pittsburgh/New Zealand",
+          "freeAgentCode": ""
+        },
+        "teams": [
+          {
+            "teamId": "1610612760",
+            "seasonStart": "2013",
+            "seasonEnd": "2019"
+          },
+          {
+            "teamId": "1610612740",
+            "seasonStart": "2020",
+            "seasonEnd": "2020"
+          }
+        ],
+        "draft": {
+          "teamId": "1610612760",
+          "pickNum": "12",
+          "roundNum": "1",
+          "seasonYear": "2013"
+        },
+        "nbaDebutYear": "2013",
+        "yearsPro": "7",
+        "collegeName": "Pittsburgh",
+        "lastAffiliation": "Pittsburgh/New Zealand",
+        "country": "New Zealand"
+      },
+      {
+        "firstName": "Bam",
+        "lastName": "Adebayo",
+        "temporaryDisplayName": "Adebayo, Bam",
+        "personId": "1628389",
+        "teamId": "1610612748",
+        "jersey": "13",
+        "isActive": true,
+        "pos": "C-F",
+        "heightFeet": "6",
+        "heightInches": "9",
+        "heightMeters": "2.06",
+        "weightPounds": "255",
+        "weightKilograms": "115.7",
+        "dateOfBirthUTC": "1997-07-18",
+        "teamSitesOnly": {
+          "playerCode": "bam_adebayo",
+          "posFull": "Center-Forward",
+          "displayAffiliation": "Kentucky/USA",
+          "freeAgentCode": ""
+        },
+        "teams": [
+          {
+            "teamId": "1610612748",
+            "seasonStart": "2017",
+            "seasonEnd": "2020"
+          }
+        ],
+        "draft": {
+          "teamId": "1610612748",
+          "pickNum": "14",
+          "roundNum": "1",
+          "seasonYear": "2017"
+        },
+        "nbaDebutYear": "2017",
+        "yearsPro": "3",
+        "collegeName": "Kentucky",
+        "lastAffiliation": "Kentucky/USA",
+        "country": "USA"
+      },
+      {
+        "firstName": "LaMarcus",
+        "lastName": "Aldridge",
+        "temporaryDisplayName": "Aldridge, LaMarcus",
+        "personId": "200746",
+        "teamId": "1610612759",
+        "jersey": "12",
+        "isActive": true,
+        "pos": "C-F",
+        "heightFeet": "6",
+        "heightInches": "11",
+        "heightMeters": "2.11",
+        "weightPounds": "250",
+        "weightKilograms": "113.4",
+        "dateOfBirthUTC": "1985-07-19",
+        "teamSitesOnly": {
+          "playerCode": "lamarcus_aldridge",
+          "posFull": "Center-Forward",
+          "displayAffiliation": "Texas/USA",
+          "freeAgentCode": ""
+        },
+        "teams": [
+          {
+            "teamId": "1610612757",
+            "seasonStart": "2006",
+            "seasonEnd": "2014"
+          },
+          {
+            "teamId": "1610612759",
+            "seasonStart": "2015",
+            "seasonEnd": "2020"
+          }
+        ],
+        "draft": {
+          "teamId": "1610612741",
+          "pickNum": "2",
+          "roundNum": "1",
+          "seasonYear": "2006"
+        },
+        "nbaDebutYear": "2006",
+        "yearsPro": "14",
+        "collegeName": "Texas",
+        "lastAffiliation": "Texas/USA",
+        "country": "USA"
+      }
+    ],
+    "africa": [
+      
+    ],
+    "sacramento": [
+      
+    ],
+    "vegas": [
+      
+    ],
+    "utah": [
+      
+    ]
+  }
+}
