@@ -180,8 +180,6 @@ def execute(subreddit_name):
   if updated_descr != descr:
     logger.info('Updating reddit settings.')
     subreddit.mod.update(description=updated_descr)
-    # subreddit.wiki['config/sidebar'].edit(updated_descr)
-    print(updated_descr)
   else:
     logger.info('No changes.')
 
