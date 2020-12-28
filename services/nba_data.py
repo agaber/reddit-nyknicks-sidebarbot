@@ -7,6 +7,15 @@ logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('sidebarbot')
 
 
+def conference_standings():
+  logger.info('Fetching conference standings.')
+  r = requests.get(
+      'http://data.nba.net/10s/prod/v1/current/standings_conference.json')
+  r.raise_for_status()
+  data = json.loads(r.content.decode('utf-8'))
+  return data['league']['standard']
+
+
 def current_year():
   logger.info('Fetching current season schedule year.')
   r = requests.get('http://data.nba.net/10s/prod/v1/today.json')

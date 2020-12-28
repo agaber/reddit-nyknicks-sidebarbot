@@ -27,6 +27,16 @@ def mocked_requests_get(*args, **kwargs):
 class NbaDataTest(unittest.TestCase):
 
   @patch('requests.get', side_effect=mocked_requests_get)
+  def test_conference_standings(self, mock_get):
+    standings = nba_data.conference_standings()
+    # Just verify a few properties instead of the entire large response.
+    self.assertEqual(2017, standings['seasonYear'])
+    teamIds = list(map(lambda t: t['teamId'], standings['conference']['east']))
+    self.assertEqual(teamIds[0:2], ['1610612761', '1610612738'])
+    mock_get.assert_called_once_with(
+        'http://data.nba.net/10s/prod/v1/current/standings_conference.json')
+
+  @patch('requests.get', side_effect=mocked_requests_get)
   def test_current_year(self, mock_get):
     self.assertEqual(nba_data.current_year(), 2020)
     mock_get.assert_called_once_with(
