@@ -1,3 +1,4 @@
+from services import nba_data
 from unittest.mock import patch
 
 import os.path
@@ -23,7 +24,7 @@ def mocked_requests_get(*args, **kwargs):
 class SidebarBotTest(unittest.TestCase):
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_build_tank_standings(self, mock_get):
-    teams = sidebarbot.request_teams('2018')
+    teams = nba_data.teams('2018')
     standings = sidebarbot.build_tank_standings(teams)
     self.assertEqual(standings, """ | | |Record|GB
 :--:|:--:|:--|:--:|:--:

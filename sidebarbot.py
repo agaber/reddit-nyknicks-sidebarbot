@@ -1,15 +1,14 @@
 from datetime import datetime, timedelta
 from pytz import timezone
+from services import nba_data
 from time import sleep
 
 import dateutil.parser
-import json
 import logging
 import logging.config
 import praw
 import pytz
 import re
-import requests
 import traceback
 
 EASTERN_TIMEZONE = timezone('US/Eastern')
@@ -54,7 +53,7 @@ logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('sidebarbot')
 
 def build_schedule(teams, year):
-  schedule = request_schedule(year)
+  schedule = nba_data.schedule('knicks', year)
 
   logger.info('Building schedule text.')
   # FYI: We want to show to a show a total of 12 games: most recent + 4 prior + 7 next.
@@ -97,16 +96,16 @@ def build_schedule(teams, year):
   return '\n'.join(rows)
 
 def build_standings(teams):
-  standings = request_conf_standings()
+  standings = nba_data.conference_standings()
   logger.info('Building standings text.')
-  division = standings['league']['standard']['conference']['east']
+  division = standings['conference']['east']
   return print_standings(teams, division)
 
 def build_tank_standings(teams):
-  standings = request_conf_standings()
+  standings = nba_data.conference_standings()
   logger.info('Building tank standings text.')
-  rows = standings['league']['standard']['conference']['east']
-  rows = rows + standings['league']['standard']['conference']['west']
+  rows = standings['conference']['east']
+  rows = rows + standings['conference']['west']
   rows = sorted(rows, key=lambda team: float(team['lossPct']), reverse=True)
   worst_wins = int(rows[0]['win'])
   worst_loss = int(rows[0]['loss'])
@@ -129,37 +128,6 @@ def print_standings(teams, standings):
     rows.append(row)
   return '\n'.join(rows)
 
-def request_conf_standings():
-  logger.info('Fetching conference standings.')
-  r = requests.get(
-      'http://data.nba.net/10s/prod/v1/current/standings_conference.json')
-  r.raise_for_status()
-  return json.loads(r.content.decode('utf-8'))
-
-def request_schedule(year):
-  logger.info('Fetching schedule information.')
-  r = requests.get(
-      f'http://data.nba.net/data/10s/prod/v1/{year}/teams/knicks/schedule.json')
-  r.raise_for_status()
-  return json.loads(r.content.decode('utf-8'))
-
-def request_teams(year):
-  logger.info('Fetching team data.')
-  r = requests.get(f'http://data.nba.net/10s/prod/v1/{year}/teams.json')
-  r.raise_for_status()
-  teams = json.loads(r.content.decode('utf-8'))
-  teams_map = dict()
-  for team in teams['league']['standard']:
-    teams_map[team['teamId']] = team
-  return teams_map
-
-def get_current_year():
-  logger.info('Fetching current seaso year')
-  r = requests.get('http://data.nba.net/10s/prod/v1/today.json')
-  r.raise_for_status()
-  data = json.loads(r.content.decode('utf-8'))
-  return data['seasonScheduleYear']
-
 def update_reddit_descr(descr, text, start_marker, end_marker):
   start, end = (descr.index(start_marker),
       descr.index(end_marker) + len(end_marker))
@@ -177,8 +145,8 @@ def execute():
   logger.info('Logging in to reddit.')
   reddit = praw.Reddit('nyknicks-sidebarbot', user_agent='python-praw')
 
-  current_year = get_current_year()
-  teams = request_teams(current_year)
+  current_year = nba_data.current_year()
+  teams = nba_data.teams(current_year)
   schedule = build_schedule(teams, current_year)
   standings = build_standings(teams)
   # standings = build_tank_standings(teams)
