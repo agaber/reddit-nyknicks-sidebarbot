@@ -167,8 +167,7 @@ def execute(subreddit_name):
   logger.info('All done.')
 
 if __name__ == "__main__":
-  argc = len(sys.argv)
-  if argc != 2:
+  if len(sys.argv) != 2:
     logger.error(f'Invalid command line arguments: "{sys.argv}"')
     raise SystemExit(f'Usage: {sys.argv[0]} subreddit')
 
