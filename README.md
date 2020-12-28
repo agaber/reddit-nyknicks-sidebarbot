@@ -13,7 +13,8 @@ sidebar.
        $ brew postinstall python3
        $ python3 -m pip install --upgrade pip
 
-* [Install gcloud tools (deprecated)](https://cloud.google.com/sdk/)
+  The commands are similar on Linux with apt install.
+
 * A praw.ini file (not submitted) with the following contents:
 
         [nyknicks-sidebarbot]
@@ -21,8 +22,6 @@ sidebar.
         client_secret=(from reddit.com/prefs/apps)
         password=(mod password)
         username=(mod username)
-
-The commands are similar on Linux with apt install.
 
 ## Running locally:
 
@@ -33,21 +32,6 @@ The commands are similar on Linux with apt install.
 ## Unit tests
 
     $ python3 -m unittest discover -s ./ -p '*_test.py'
-
-## Running a local server for AppEngine with virtualenv (deprecated):
-
-    $ pip install --user --upgrade virtualenv
-    $ cd your/project
-    $ virtualenv --python python3 env
-    $ source env/bin/activate
-    $ pip install -r requirements.txt
-    $ python main.py # http://localhost:8080/healthz should print ok.
-    $ deactivate     # to end virtualenv
-
-## Deploy to AppEngine (deprecated):
-
-    $ gcloud app deploy [--no-promote] [--version=]
-    $ gcloud app deploy cron.yaml
 
 ## NBA Data
 

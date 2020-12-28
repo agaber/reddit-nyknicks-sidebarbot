@@ -1,5 +1,3 @@
-Flask>=0.12.3
-gunicorn==19.7.1
 praw==7.1.0
 py-dateutil==2.2
 pytz==2018.3
