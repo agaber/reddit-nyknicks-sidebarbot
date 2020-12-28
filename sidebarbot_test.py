@@ -7,13 +7,17 @@ import unittest
 
 # This method will be used by the mock to replace requests.get
 def mocked_requests_get(*args, **kwargs):
+  
   class MockResponse:
+    
     def __init__(self, file_name, status_code):
       with open(file_name, 'r') as f:
         self.content = f.read().encode('utf-8')
       self.status_code = status_code
+    
     def raise_for_status(self):
       pass
+
   requested_url = args[0]
   testdata_path = 'services/testdata/' + requested_url.split('/')[-1]
   if os.path.isfile(testdata_path):

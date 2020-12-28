@@ -37,7 +37,7 @@ def roster(team):
   r = requests.get(f'http://data.nba.net/prod/v1/2020/teams/{team}/roster.json')
   r.raise_for_status()
   data = json.loads(r.content.decode('utf-8'))
-  return list(
+  return set(
       map(lambda p: p['personId'], data['league']['standard']['players']))
 
 

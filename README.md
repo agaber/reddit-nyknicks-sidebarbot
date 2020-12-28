@@ -27,7 +27,7 @@ sidebar.
 
     $ pip install -r requirements.txt
     $ mkdir -p ~/.redditbot/logs
-    $ python3 sidebarbot.py
+    $ python3 sidebarbot.py NYKnicks
 
 ## Unit tests
 

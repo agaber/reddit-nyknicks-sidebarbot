@@ -51,6 +51,24 @@ TEAM_SUB_MAP = {
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('sidebarbot')
 
+def build_roster(year):
+  current_year = nba_data.current_year()
+  players = nba_data.players(year)
+  roster = nba_data.roster('knicks')
+  team_players = filter(lambda player: player['personId'] in roster, players)
+
+  rows = []
+  for player in team_players:
+    name = f'{player["firstName"]} {player["lastName"]}'
+    jersey = player['jersey']
+    position = player['pos'].replace('-', '/') if player['pos'] else ''
+    rows.append(f'{name}|{jersey}|{position}')
+  rows.sort()
+
+  rows.insert(0, ':--|:--:|:--:')
+  rows.insert(0, 'Name|No.|Position')
+  return '\n'.join(rows)
+
 def build_schedule(teams, year):
   schedule = nba_data.schedule('knicks', year)
 
@@ -127,12 +145,13 @@ def print_standings(teams, standings):
     rows.append(row)
   return '\n'.join(rows)
 
-def update_reddit_descr(descr, text, start_marker, end_marker):
-  start, end = (descr.index(start_marker),
-      descr.index(end_marker) + len(end_marker))
-  return descr.replace(
-      descr[start:end],
-      start_marker + '\n\n' + text + '\n\n' + end_marker)
+def update_reddit_descr(descr, text, marker):
+  start_marker = f'[](#Start{marker})'
+  start = descr.index(start_marker)
+  end_marker = f'[](#End{marker})'
+  end = descr.index(end_marker) + len(end_marker)
+  new_text = f'{start_marker}\n\n{text}\n\n{end_marker}'
+  return descr.replace(descr[start:end], new_text)
 
 def winloss(knicks_score, opp_score):
   kscore = int(knicks_score['score'])
@@ -141,26 +160,28 @@ def winloss(knicks_score, opp_score):
       if kscore > oscore else 'L %s-%s' % (oscore, kscore))
 
 def execute(subreddit_name):
-  logger.info('Logging in to reddit.')
-  reddit = praw.Reddit('nyknicks-sidebarbot', user_agent='python-praw')
-
   current_year = nba_data.current_year()
+  roster = build_roster(current_year)
   teams = nba_data.teams(current_year)
   schedule = build_schedule(teams, current_year)
   standings = build_standings(teams)
   # standings = build_tank_standings(teams)
-  subreddit = reddit.subreddit(subreddit_name)
+
+  logger.info('Logging in to reddit.')
+  reddit = praw.Reddit('nyknicks-sidebarbot', user_agent='python-praw')
 
   logger.info('Querying reddit settings.')
+  subreddit = reddit.subreddit(subreddit_name)
   descr = subreddit.mod.settings()['description']
+  updated_descr = update_reddit_descr(descr, schedule, 'Schedule')
+  updated_descr = update_reddit_descr(updated_descr, standings, 'Standings')
+  updated_descr = update_reddit_descr(updated_descr, roster, 'Roster')
 
-  updated_descr = update_reddit_descr(
-      descr, schedule, '[](#StartSchedule)', '[](#EndSchedule)')
-  updated_descr = update_reddit_descr(
-      updated_descr, standings, '[](#StartStandings)', '[](#EndStandings)')
   if updated_descr != descr:
     logger.info('Updating reddit settings.')
     subreddit.mod.update(description=updated_descr)
+    # subreddit.wiki['config/sidebar'].edit(updated_descr)
+    print(updated_descr)
   else:
     logger.info('No changes.')
 
