@@ -9,12 +9,11 @@ import logging.config
 import praw
 import pytz
 import re
+import sys
 import traceback
 
 EASTERN_TIMEZONE = timezone('US/Eastern')
 UTC = timezone('UTC')
-SUBREDDIT_NAME = 'nyknicks'
-# SUBREDDIT_NAME = 'knicklejerk'
 
 TEAM_SUB_MAP = {
   '76ers': 'sixers',
@@ -141,7 +140,7 @@ def winloss(knicks_score, opp_score):
   return ('W %s-%s' % (kscore, oscore) 
       if kscore > oscore else 'L %s-%s' % (oscore, kscore))
 
-def execute():
+def execute(subreddit_name):
   logger.info('Logging in to reddit.')
   reddit = praw.Reddit('nyknicks-sidebarbot', user_agent='python-praw')
 
@@ -150,7 +149,7 @@ def execute():
   schedule = build_schedule(teams, current_year)
   standings = build_standings(teams)
   # standings = build_tank_standings(teams)
-  subreddit = reddit.subreddit(SUBREDDIT_NAME)
+  subreddit = reddit.subreddit(subreddit_name)
 
   logger.info('Querying reddit settings.')
   descr = subreddit.mod.settings()['description']
@@ -168,7 +167,14 @@ def execute():
   logger.info('All done.')
 
 if __name__ == "__main__":
+  argc = len(sys.argv)
+  if argc != 2:
+    logger.error(f'Invalid command line arguments: "{sys.argv}"')
+    raise SystemExit(f'Usage: {sys.argv[0]} subreddit')
+
   try:
-    execute()
+    subreddit_name = sys.argv[1]
+    logger.info(f'Using subreddit: {subreddit_name}')
+    execute(subreddit_name)
   except:
     logger.error(traceback.format_exc())
