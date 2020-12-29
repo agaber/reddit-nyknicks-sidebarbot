@@ -17,11 +17,11 @@ sidebar.
 
 * A praw.ini file (not submitted) with the following contents:
 
-        [nyknicks-sidebarbot]
+        [nyknicks-automod]
         client_id=(from reddit.com/prefs/apps)
         client_secret=(from reddit.com/prefs/apps)
         password=(mod password)
-        username=(mod username)
+        username=nyknicks-automod
 
 ## Running locally:
 
