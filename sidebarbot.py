@@ -179,7 +179,7 @@ def execute(now, subreddit_name, tanking):
   """
     The main starting point (after command line args are parsed) that initiates
     all of the work this bot will do. It intereacts with reddit and the NBA Data
-    APis to build roster, schedule and standings strings and posts them to
+    APIs to build roster, schedule and standings strings and posts them to
     reddit.
 
     Parameters
