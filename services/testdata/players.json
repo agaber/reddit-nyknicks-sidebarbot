@@ -231,6 +231,211 @@
         "collegeName": "Texas",
         "lastAffiliation": "Texas/USA",
         "country": "USA"
+      },
+      {
+        "firstName": "RJ",
+        "lastName": "Barrett",
+        "temporaryDisplayName": "Barrett, RJ",
+        "personId": "1629628",
+        "teamId": "1610612752",
+        "jersey": "9",
+        "isActive": true,
+        "pos": "F-G",
+        "heightFeet": "6",
+        "heightInches": "6",
+        "heightMeters": "1.98",
+        "weightPounds": "214",
+        "weightKilograms": "97.1",
+        "dateOfBirthUTC": "2000-06-14",
+        "teamSitesOnly": {
+          "playerCode": "rj_barrett",
+          "posFull": "Forward-Guard",
+          "displayAffiliation": "Duke/Canada",
+          "freeAgentCode": ""
+        },
+        "teams": [
+          {
+            "teamId": "1610612752",
+            "seasonStart": "2019",
+            "seasonEnd": "2020"
+          }
+        ],
+        "draft": {
+          "teamId": "1610612752",
+          "pickNum": "3",
+          "roundNum": "1",
+          "seasonYear": "2019"
+        },
+        "nbaDebutYear": "2019",
+        "yearsPro": "1",
+        "collegeName": "Duke",
+        "lastAffiliation": "Duke/Canada",
+        "country": "Canada"
+      },
+      {
+        "firstName": "Ignas",
+        "lastName": "Brazdeikis",
+        "temporaryDisplayName": "Brazdeikis, Ignas",
+        "personId": "1629649",
+        "teamId": "1610612752",
+        "jersey": "17",
+        "isActive": true,
+        "pos": "F",
+        "heightFeet": "6",
+        "heightInches": "6",
+        "heightMeters": "1.98",
+        "weightPounds": "221",
+        "weightKilograms": "100.2",
+        "dateOfBirthUTC": "1999-01-08",
+        "teamSitesOnly": {
+          "playerCode": "ignas_brazdeikis",
+          "posFull": "Forward",
+          "displayAffiliation": "Michigan/Lithuania",
+          "freeAgentCode": ""
+        },
+        "teams": [
+          {
+            "teamId": "1610612752",
+            "seasonStart": "2019",
+            "seasonEnd": "2020"
+          }
+        ],
+        "draft": {
+          "teamId": "1610612758",
+          "pickNum": "47",
+          "roundNum": "2",
+          "seasonYear": "2019"
+        },
+        "nbaDebutYear": "2019",
+        "yearsPro": "1",
+        "collegeName": "Michigan",
+        "lastAffiliation": "Michigan/Canada",
+        "country": "Canada"
+      },
+      {
+        "firstName": "Reggie",
+        "lastName": "Bullock",
+        "temporaryDisplayName": "Bullock, Reggie",
+        "personId": "203493",
+        "teamId": "1610612752",
+        "jersey": "25",
+        "isActive": true,
+        "pos": "G-F",
+        "heightFeet": "6",
+        "heightInches": "6",
+        "heightMeters": "1.98",
+        "weightPounds": "205",
+        "weightKilograms": "93.0",
+        "dateOfBirthUTC": "1991-03-16",
+        "teamSitesOnly": {
+          "playerCode": "reggie_bullock",
+          "posFull": "Guard-Forward",
+          "displayAffiliation": "North Carolina/USA",
+          "freeAgentCode": ""
+        },
+        "teams": [
+          {
+            "teamId": "1610612746",
+            "seasonStart": "2013",
+            "seasonEnd": "2014"
+          },
+          {
+            "teamId": "1610612756",
+            "seasonStart": "2014",
+            "seasonEnd": "2014"
+          },
+          {
+            "teamId": "1610612765",
+            "seasonStart": "2015",
+            "seasonEnd": "2018"
+          },
+          {
+            "teamId": "1610612747",
+            "seasonStart": "2018",
+            "seasonEnd": "2018"
+          },
+          {
+            "teamId": "1610612752",
+            "seasonStart": "2019",
+            "seasonEnd": "2020"
+          }
+        ],
+        "draft": {
+          "teamId": "1610612746",
+          "pickNum": "25",
+          "roundNum": "1",
+          "seasonYear": "2013"
+        },
+        "nbaDebutYear": "2013",
+        "yearsPro": "7",
+        "collegeName": "North Carolina",
+        "lastAffiliation": "North Carolina/USA",
+        "country": "USA"
+      },
+      {
+        "firstName": "Alec",
+        "lastName": "Burks",
+        "temporaryDisplayName": "Burks, Alec",
+        "personId": "202692",
+        "teamId": "1610612752",
+        "jersey": "18",
+        "isActive": true,
+        "pos": "G",
+        "heightFeet": "6",
+        "heightInches": "6",
+        "heightMeters": "1.98",
+        "weightPounds": "214",
+        "weightKilograms": "97.1",
+        "dateOfBirthUTC": "1991-07-20",
+        "teamSitesOnly": {
+          "playerCode": "alec_burks",
+          "posFull": "Guard",
+          "displayAffiliation": "Colorado/USA",
+          "freeAgentCode": ""
+        },
+        "teams": [
+          {
+            "teamId": "1610612762",
+            "seasonStart": "2011",
+            "seasonEnd": "2018"
+          },
+          {
+            "teamId": "1610612739",
+            "seasonStart": "2018",
+            "seasonEnd": "2018"
+          },
+          {
+            "teamId": "1610612758",
+            "seasonStart": "2018",
+            "seasonEnd": "2018"
+          },
+          {
+            "teamId": "1610612755",
+            "seasonStart": "2019",
+            "seasonEnd": "2019"
+          },
+          {
+            "teamId": "1610612744",
+            "seasonStart": "2019",
+            "seasonEnd": "2019"
+          },
+          {
+            "teamId": "1610612752",
+            "seasonStart": "2020",
+            "seasonEnd": "2020"
+          }
+        ],
+        "draft": {
+          "teamId": "1610612762",
+          "pickNum": "12",
+          "roundNum": "1",
+          "seasonYear": "2011"
+        },
+        "nbaDebutYear": "2011",
+        "yearsPro": "9",
+        "collegeName": "Colorado",
+        "lastAffiliation": "Colorado/USA",
+        "country": "USA"
       }
     ],
     "africa": [

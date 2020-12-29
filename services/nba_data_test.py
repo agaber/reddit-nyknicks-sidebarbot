@@ -54,6 +54,10 @@ class NbaDataTest(unittest.TestCase):
         'Adams, Steven',
         'Adebayo, Bam',
         'Aldridge, LaMarcus',
+        'Barrett, RJ',
+        'Brazdeikis, Ignas',
+        'Bullock, Reggie',
+        'Burks, Alec',
     ]
     self.assertEqual(actual_names, expected_names)
     mock_get.assert_called_once_with(
