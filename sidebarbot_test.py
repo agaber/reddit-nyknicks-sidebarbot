@@ -3,6 +3,7 @@ Verifies that the sidebarbot correctly updates the sidebar text by mocking
 calls to the Reddit and NBA Data APIs.
 """
 
+from datetime import datetime
 from services import nba_data_test
 from unittest.mock import MagicMock, patch
 
@@ -38,9 +39,18 @@ Lorem ipsum....
 
 Date|Team|Loc|Time/Outcome
 :--:|:--:|:--:|:--:
-Dec 11|[](/r/DetroitPistons)|Away|W 90-84
 Dec 13|[](/r/DetroitPistons)|Away|L 99-91
 Dec 16|[](/r/clevelandcavs)|Home|W 100-93
+Dec 18|[](/r/clevelandcavs)|Home|W 119-83
+Dec 23|[](/r/pacers)|Away|L 121-107
+Dec 26|[](/r/sixers)|Home|L 109-89
+Dec 27|[](/r/MkeBucks)|Home|W 130-110
+Today|[](/r/clevelandcavs)|Away|7:00 PM
+Dec 31|[](/r/torontoraptors)|Away|7:30 PM
+Jan 02|[](/r/pacers)|Away|7:00 PM
+Jan 04|[](/r/AtlantaHawks)|Away|7:30 PM
+Jan 06|[](/r/UtahJazz)|Home|7:30 PM
+Jan 08|[](/r/thunder)|Home|7:30 PM
 
 [](#EndSchedule)
 
@@ -93,9 +103,18 @@ Lorem ipsum....
 
 Date|Team|Loc|Time/Outcome
 :--:|:--:|:--:|:--:
-Dec 11|[](/r/DetroitPistons)|Away|W 90-84
 Dec 13|[](/r/DetroitPistons)|Away|L 99-91
 Dec 16|[](/r/clevelandcavs)|Home|W 100-93
+Dec 18|[](/r/clevelandcavs)|Home|W 119-83
+Dec 23|[](/r/pacers)|Away|L 121-107
+Dec 26|[](/r/sixers)|Home|L 109-89
+Dec 27|[](/r/MkeBucks)|Home|W 130-110
+Today|[](/r/clevelandcavs)|Away|7:00 PM
+Dec 31|[](/r/torontoraptors)|Away|7:30 PM
+Jan 02|[](/r/pacers)|Away|7:00 PM
+Jan 04|[](/r/AtlantaHawks)|Away|7:30 PM
+Jan 06|[](/r/UtahJazz)|Home|7:30 PM
+Jan 08|[](/r/thunder)|Home|7:30 PM
 
 [](#EndSchedule)
 
@@ -136,6 +155,9 @@ ___
 bye
 """
 
+# To isolate testing just the schedule logic.
+INITIAL_SCHEDULE_DESCR = '[](#StartSchedule)[](#EndSchedule)'
+
 
 class SidebarBotTest(unittest.TestCase):
 
@@ -149,9 +171,10 @@ class SidebarBotTest(unittest.TestCase):
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
     mock_praw.return_value = mock_reddit
+    now = datetime(2020, 12, 29, 17, 12, 52, 305157, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute('subredditName', False)
+    sidebarbot.execute(now, 'subredditName', False)
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
@@ -167,9 +190,10 @@ class SidebarBotTest(unittest.TestCase):
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
     mock_praw.return_value = mock_reddit
+    now = datetime(2020, 12, 29, 17, 12, 52, 305157, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute('subredditName', False)
+    sidebarbot.execute(now, 'subredditName', False)
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
@@ -185,14 +209,53 @@ class SidebarBotTest(unittest.TestCase):
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
     mock_praw.return_value = mock_reddit
+    now = datetime(2020, 12, 29, 17, 12, 52, 305157, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute('subredditName', True)
+    sidebarbot.execute(now, 'subredditName', True)
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
     mock_mod.update.assert_called_with(
         description=EXPECTED_UPDATED_TANKING_DESCR)
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_execute_scheduleWithYesterdayTomorrow(self, mock_get, mock_praw):
+    # Expect it to lookup the initial description from the reddit API.
+    mock_mod = MagicMock()
+    mock_mod.settings.return_value = {'description': INITIAL_SCHEDULE_DESCR}
+    mock_subreddit = MagicMock(mod=mock_mod)
+    mock_reddit = MagicMock(['subreddit'])
+    mock_reddit.subreddit.return_value = mock_subreddit
+    mock_praw.return_value = mock_reddit
+
+    # Expect today to be the first game of the season.
+    now = datetime(2020, 12, 28, 10, 00, 00, 00, sidebarbot.UTC)
+
+    # Execute.
+    sidebarbot.execute(now, 'subredditName', False)
+
+    # Verify.
+    mock_mod.update.assert_called_with(
+        description="""[](#StartSchedule)
+
+Date|Team|Loc|Time/Outcome
+:--:|:--:|:--:|:--:
+Dec 13|[](/r/DetroitPistons)|Away|L 99-91
+Dec 16|[](/r/clevelandcavs)|Home|W 100-93
+Dec 18|[](/r/clevelandcavs)|Home|W 119-83
+Dec 23|[](/r/pacers)|Away|L 121-107
+Dec 26|[](/r/sixers)|Home|L 109-89
+Yesterday|[](/r/MkeBucks)|Home|W 130-110
+Tomorrow|[](/r/clevelandcavs)|Away|7:00 PM
+Dec 31|[](/r/torontoraptors)|Away|7:30 PM
+Jan 02|[](/r/pacers)|Away|7:00 PM
+Jan 04|[](/r/AtlantaHawks)|Away|7:30 PM
+Jan 06|[](/r/UtahJazz)|Home|7:30 PM
+Jan 08|[](/r/thunder)|Home|7:30 PM
+
+[](#EndSchedule)""")
 
 
 if __name__ == '__main__':

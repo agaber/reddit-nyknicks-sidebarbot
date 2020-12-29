@@ -72,7 +72,8 @@ def build_roster(year):
   return '\n'.join(rows)
 
 
-def build_schedule(teams, year):
+def build_schedule(now, teams, year):
+  today = now.astimezone(EASTERN_TIMEZONE).date()
   schedule = nba_data.schedule('knicks', year)
 
   logger.info('Building schedule text.')
@@ -99,7 +100,7 @@ def build_schedule(teams, year):
     gametime = dateutil.parser \
         .parse(game['startTimeUTC']) \
         .astimezone(EASTERN_TIMEZONE)
-    today = datetime.now(UTC).astimezone(EASTERN_TIMEZONE).date()
+    
     if gametime.date() == today:
       date = 'Today'
     elif gametime.date() == today - timedelta(days=1):
@@ -158,11 +159,13 @@ def print_standings(teams, standings):
 
 def update_reddit_descr(descr, text, marker):
   start_marker = f'[](#Start{marker})'
-  start = descr.index(start_marker)
+  start = descr.find(start_marker)
   end_marker = f'[](#End{marker})'
-  end = descr.index(end_marker) + len(end_marker)
+  end = descr.find(end_marker)
+  if start == -1 or end == -1:
+    return descr
   new_text = f'{start_marker}\n\n{text}\n\n{end_marker}'
-  return descr.replace(descr[start:end], new_text)
+  return descr.replace(descr[start:end + len(end_marker)], new_text)
 
 
 def winloss(knicks_score, opp_score):
@@ -172,11 +175,28 @@ def winloss(knicks_score, opp_score):
       if kscore > oscore else 'L %s-%s' % (oscore, kscore))
 
 
-def execute(subreddit_name, tanking):
+def execute(now, subreddit_name, tanking):
+  """
+    The main starting point (after command line args are parsed) that initiates
+    all of the work this bot will do. It intereacts with reddit and the NBA Data
+    APis to build roster, schedule and standings strings and posts them to
+    reddit.
+
+    Parameters
+    ----------
+    now : datetime
+      The current time, preferably in UTC.
+    subreddit_name : string
+      The name of the subreddit to modify. The bot must have permissions to edit
+      in this sub.
+    tanking : boolean
+      If true, print the standings as a race to the bottom, otherwise print
+      normal Eastern Conference standings.
+  """
   current_year = nba_data.current_year()
   roster = build_roster(current_year)
   teams = nba_data.teams(current_year)
-  schedule = build_schedule(teams, current_year)
+  schedule = build_schedule(now, teams, current_year)
   standings = build_tank_standings(teams) \
       if tanking else build_standings(teams)
 
@@ -221,6 +241,6 @@ if __name__ == "__main__":
   logger.info(f'Print tank standings: {tank_standings}')
 
   try:
-    execute(subreddit_name, tank_standings)
+    execute(datetime.now(UTC), subreddit_name, tank_standings)
   except:
     logger.error(traceback.format_exc())

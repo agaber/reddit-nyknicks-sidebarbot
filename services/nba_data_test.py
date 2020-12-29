@@ -77,7 +77,7 @@ class NbaDataTest(unittest.TestCase):
     # Just verify a few properties instead of the entire large response.
     actual = list(map(lambda s: s['gameId'], response['league']['standard']))
     expected = ['0012000002', '0012000015', '0012000028']
-    self.assertEqual(actual, expected)
+    self.assertEqual(actual[0:3], expected)
     mock_get.assert_called_once_with(
         'http://data.nba.net/data/10s/prod/v1/2020/teams/knicks/schedule.json')
 
