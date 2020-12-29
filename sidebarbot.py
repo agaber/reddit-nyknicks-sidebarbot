@@ -182,7 +182,7 @@ def execute(subreddit_name, tanking):
 
   logger.info('Logging in to reddit.')
   reddit = praw.Reddit('nyknicks-sidebarbot', user_agent='python-praw')
-
+  
   logger.info('Querying reddit settings.')
   subreddit = reddit.subreddit(subreddit_name)
   descr = subreddit.mod.settings()['description']
@@ -197,7 +197,6 @@ def execute(subreddit_name, tanking):
     logger.info('No changes.')
 
   logger.info('All done.')
-
 
 if __name__ == "__main__":
   parser = OptionParser()
