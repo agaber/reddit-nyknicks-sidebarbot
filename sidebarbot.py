@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from optparse import OptionParser
 from pytz import timezone
 from services import nba_data
 from time import sleep
@@ -51,6 +52,7 @@ TEAM_SUB_MAP = {
 logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('sidebarbot')
 
+
 def build_roster(year):
   current_year = nba_data.current_year()
   players = nba_data.players(year)
@@ -69,11 +71,13 @@ def build_roster(year):
   rows.insert(0, 'Name|No.|Position')
   return '\n'.join(rows)
 
+
 def build_schedule(teams, year):
   schedule = nba_data.schedule('knicks', year)
 
   logger.info('Building schedule text.')
-  # FYI: We want to show to a show a total of 12 games: most recent + 4 prior + 7 next.
+  # FYI: We want to show to a show a total of 12 games: 
+  #    most recent + 4 prior + 7 next.
   # Get the array index of the last game played.
   last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
 
@@ -92,7 +96,9 @@ def build_schedule(teams, year):
     opp_team_name = teams[opp_score['teamId']]['nickname']
     opp_team_sub = TEAM_SUB_MAP[opp_team_name]
 
-    gametime = dateutil.parser.parse(game['startTimeUTC']).astimezone(EASTERN_TIMEZONE)
+    gametime = dateutil.parser \
+        .parse(game['startTimeUTC']) \
+        .astimezone(EASTERN_TIMEZONE)
     today = datetime.now(UTC).astimezone(EASTERN_TIMEZONE).date()
     if gametime.date() == today:
       date = 'Today'
@@ -108,15 +114,18 @@ def build_schedule(teams, year):
         else winloss(knicks_score, opp_score))
 
     row = ('%s|[](/r/%s)|%s|%s' %
-        (date, opp_team_sub, 'Home' if is_home_team else 'Away', time_or_score))
+        (date, opp_team_sub, 
+            'Home' if is_home_team else 'Away', time_or_score))
     rows.append(row)
   return '\n'.join(rows)
+
 
 def build_standings(teams):
   standings = nba_data.conference_standings()
   logger.info('Building standings text.')
   division = standings['conference']['east']
   return print_standings(teams, division)
+
 
 def build_tank_standings(teams):
   standings = nba_data.conference_standings()
@@ -130,6 +139,7 @@ def build_tank_standings(teams):
      gb = (abs(worst_wins - int(row['win'])) + abs(worst_loss - int(row['loss']))) / 2
      row['gamesBehind'] = ('%.1f' % gb).replace('.0', '')
   return print_standings(teams, rows[:10])
+
 
 def print_standings(teams, standings):
   rows = [' | | |Record|GB', ':--:|:--:|:--|:--:|:--:']
@@ -145,6 +155,7 @@ def print_standings(teams, standings):
     rows.append(row)
   return '\n'.join(rows)
 
+
 def update_reddit_descr(descr, text, marker):
   start_marker = f'[](#Start{marker})'
   start = descr.index(start_marker)
@@ -153,19 +164,21 @@ def update_reddit_descr(descr, text, marker):
   new_text = f'{start_marker}\n\n{text}\n\n{end_marker}'
   return descr.replace(descr[start:end], new_text)
 
+
 def winloss(knicks_score, opp_score):
   kscore = int(knicks_score['score'])
   oscore = int(opp_score['score'])
   return ('W %s-%s' % (kscore, oscore) 
       if kscore > oscore else 'L %s-%s' % (oscore, kscore))
 
-def execute(subreddit_name):
+
+def execute(subreddit_name, tanking):
   current_year = nba_data.current_year()
   roster = build_roster(current_year)
   teams = nba_data.teams(current_year)
   schedule = build_schedule(teams, current_year)
-  standings = build_standings(teams)
-  # standings = build_tank_standings(teams)
+  standings = build_tank_standings(teams) \
+      if tanking else build_standings(teams)
 
   logger.info('Logging in to reddit.')
   reddit = praw.Reddit('nyknicks-sidebarbot', user_agent='python-praw')
@@ -185,14 +198,30 @@ def execute(subreddit_name):
 
   logger.info('All done.')
 
+
 if __name__ == "__main__":
-  if len(sys.argv) != 2:
-    logger.error(f'Invalid command line arguments: "{sys.argv}"')
+  parser = OptionParser()
+  parser.add_option(
+      "-t", 
+      "--tank_standings", 
+      dest="tank",
+      help="Print the race to be worst instead of best, if enabled.",
+      metavar='yes|no')
+  (options, args) = parser.parse_args()
+
+  if len(args) != 1:
+    logger.error(f'Invalid command line arguments: {args}')
     raise SystemExit(f'Usage: {sys.argv[0]} subreddit')
 
+  subreddit_name = args[0]
+  logger.info(f'Using subreddit: {subreddit_name}')
+
+  yes = set(['yes', 'y', 'true'])
+  tank_standings = True \
+      if options.tank and options.tank.lower() in yes else False
+  logger.info(f'Print tank standings: {tank_standings}')
+
   try:
-    subreddit_name = sys.argv[1]
-    logger.info(f'Using subreddit: {subreddit_name}')
-    execute(subreddit_name)
+    execute(subreddit_name, tank_standings)
   except:
     logger.error(traceback.format_exc())
