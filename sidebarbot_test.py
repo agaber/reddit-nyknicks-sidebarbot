@@ -32,6 +32,12 @@ ___
 bye
 """
 
+# To isolate testing just the standings logic.
+INITIAL_STANDINGS_DESCR = '[](#StartStandings)[](#EndStandings)'
+
+# To isolate testing just the schedule logic.
+INITIAL_SCHEDULE_DESCR = '[](#StartSchedule)[](#EndSchedule)'
+
 EXPECTED_UPDATED_DESCR = """
 Lorem ipsum....
 
@@ -82,12 +88,12 @@ ___
 
 [](#StartRoster)
 
-Name|No.|Position
-:--|:--:|:--:
-Alec Burks|18|G
-Ignas Brazdeikis|17|F
-RJ Barrett|9|F/G
-Reggie Bullock|25|G/F
+No.|Name|Position
+:--:|:--|:--:
+18|Alec Burks|G
+17|Ignas Brazdeikis|F
+9|RJ Barrett|F/G
+25|Reggie Bullock|G/F
 
 [](#EndRoster)
 
@@ -95,68 +101,6 @@ ___
 
 bye
 """
-
-EXPECTED_UPDATED_TANKING_DESCR = """
-Lorem ipsum....
-
-[](#StartSchedule)
-
-Date|Team|Loc|Time/Outcome
-:--:|:--:|:--:|:--:
-Dec 13|[](/r/DetroitPistons)|Away|L 99-91
-Dec 16|[](/r/clevelandcavs)|Home|W 100-93
-Dec 18|[](/r/clevelandcavs)|Home|W 119-83
-Dec 23|[](/r/pacers)|Away|L 121-107
-Dec 26|[](/r/sixers)|Home|L 109-89
-Dec 27|[](/r/MkeBucks)|Home|W 130-110
-Today|[](/r/clevelandcavs)|Away|7:00 PM
-Dec 31|[](/r/torontoraptors)|Away|7:30 PM
-Jan 02|[](/r/pacers)|Away|7:00 PM
-Jan 04|[](/r/AtlantaHawks)|Away|7:30 PM
-Jan 06|[](/r/UtahJazz)|Home|7:30 PM
-Jan 08|[](/r/thunder)|Home|7:30 PM
-
-[](#EndSchedule)
-
----
-
-[](#StartStandings)
-
- | | |Record|GB
-:--:|:--:|:--|:--:|:--:
-1|[](/r/memphisgrizzlies)|Grizzlies|18-48|-
-2|[](/r/suns)|Suns|19-49|1
-3|[](/r/OrlandoMagic)|Magic|20-47|1.5
-4|[](/r/AtlantaHawks)|Hawks|20-47|1.5
-5|[](/r/kings)|Kings|21-46|2.5
-6|[](/r/GoNets)|Nets|21-45|3
-7|[](/r/mavericks)|Mavericks|21-45|3
-8|[](/r/chicagobulls)|Bulls|23-43|5
-9|[](/r/NYKnicks)|Knicks|24-43|5.5
-10|[](/r/CharlotteHornets)|Hornets|29-38|10.5
-
-[](#EndStandings)
-
-___
-
-[](#StartRoster)
-
-Name|No.|Position
-:--|:--:|:--:
-Alec Burks|18|G
-Ignas Brazdeikis|17|F
-RJ Barrett|9|F/G
-Reggie Bullock|25|G/F
-
-[](#EndRoster)
-
-___
-
-bye
-"""
-
-# To isolate testing just the schedule logic.
-INITIAL_SCHEDULE_DESCR = '[](#StartSchedule)[](#EndSchedule)'
 
 
 class SidebarBotTest(unittest.TestCase):
@@ -204,7 +148,7 @@ class SidebarBotTest(unittest.TestCase):
   def test_execute_tankChanges_updatesDescription(self, mock_get, mock_praw):
     # Expect it to lookup the initial description from the reddit API.
     mock_mod = MagicMock()
-    mock_mod.settings.return_value = {'description': INITIAL_DESCR}
+    mock_mod.settings.return_value = {'description': INITIAL_STANDINGS_DESCR}
     mock_subreddit = MagicMock(mod=mock_mod)
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
@@ -217,7 +161,22 @@ class SidebarBotTest(unittest.TestCase):
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
     mock_mod.update.assert_called_with(
-        description=EXPECTED_UPDATED_TANKING_DESCR)
+        description="""[](#StartStandings)
+
+ | | |Record|GB
+:--:|:--:|:--|:--:|:--:
+1|[](/r/memphisgrizzlies)|Grizzlies|18-48|-
+2|[](/r/suns)|Suns|19-49|1
+3|[](/r/OrlandoMagic)|Magic|20-47|1.5
+4|[](/r/AtlantaHawks)|Hawks|20-47|1.5
+5|[](/r/kings)|Kings|21-46|2.5
+6|[](/r/GoNets)|Nets|21-45|3
+7|[](/r/mavericks)|Mavericks|21-45|3
+8|[](/r/chicagobulls)|Bulls|23-43|5
+9|[](/r/NYKnicks)|Knicks|24-43|5.5
+10|[](/r/CharlotteHornets)|Hornets|29-38|10.5
+
+[](#EndStandings)""")
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
@@ -229,8 +188,6 @@ class SidebarBotTest(unittest.TestCase):
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
     mock_praw.return_value = mock_reddit
-
-    # Expect today to be the first game of the season.
     now = datetime(2020, 12, 28, 10, 00, 00, 00, sidebarbot.UTC)
 
     # Execute.

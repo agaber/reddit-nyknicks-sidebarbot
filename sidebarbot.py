@@ -64,11 +64,13 @@ def build_roster(year):
     name = f'{player["firstName"]} {player["lastName"]}'
     jersey = player['jersey']
     position = player['pos'].replace('-', '/') if player['pos'] else ''
-    rows.append(f'{name}|{jersey}|{position}')
-  rows.sort()
+    rows.append(f'{jersey}|{name}|{position}')
 
-  rows.insert(0, ':--|:--:|:--:')
-  rows.insert(0, 'Name|No.|Position')
+  # Sort players by first name.
+  rows.sort(key = lambda r: r.split('|')[1])
+
+  rows.insert(0, ':--:|:--|:--:')
+  rows.insert(0, 'No.|Name|Position')
   return '\n'.join(rows)
 
 
