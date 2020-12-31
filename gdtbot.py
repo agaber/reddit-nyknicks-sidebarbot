@@ -9,13 +9,22 @@ import logging.config
 import praw
 import traceback
 
-# https://github.com/HokageEzio/KnicksGDT/blob/main/Knicks%20Bot.py
-
 EASTERN_TIMEZONE = timezone('US/Eastern')
 UTC = timezone('UTC')
 
 logging.config.fileConfig("logging.conf")
-logger = logging.getLogger("gdtbot")
+
+
+class GameThreadBot:
+  _logger = logging.getLogger("gdtbot")
+
+  def __init__(self, now: datetime, subreddit_name: str):
+    self.now = now
+    self.subreddit_name = subreddit_name
+    self.reddit = praw.Reddit('nyknicks-automod'
+
+  def run():
+    pass
 
 
 class Action(Enum):
