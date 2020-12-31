@@ -65,7 +65,7 @@ class NbaDataTest(unittest.TestCase):
 
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_roster(self, mock_get):
-    response = nba_data.roster('knicks')
+    response = nba_data.roster('knicks', '2020')
     expected = set(['1629628', '1629649', '203493', '202692'])
     self.assertEqual(response, expected)
     mock_get.assert_called_once_with(

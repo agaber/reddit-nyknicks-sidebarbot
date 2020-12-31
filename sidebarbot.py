@@ -56,7 +56,7 @@ logger = logging.getLogger('sidebarbot')
 def build_roster(year):
   current_year = nba_data.current_year()
   players = nba_data.players(year)
-  roster = nba_data.roster('knicks')
+  roster = nba_data.roster('knicks', year)
   team_players = filter(lambda player: player['personId'] in roster, players)
 
   rows = []
