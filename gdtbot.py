@@ -20,11 +20,22 @@ class GameThreadBot:
 
   def __init__(self, now: datetime, subreddit_name: str):
     self.now = now
+    self.reddit = praw.Reddit('nyknicks-automod')
     self.subreddit_name = subreddit_name
-    self.reddit = praw.Reddit('nyknicks-automod'
 
-  def run():
-    pass
+  def run(self):
+    season_year = nba_data.current_year()
+    schedule = nba_data.schedule('knicks', season_year)
+    last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
+    games = schedule['league']['standard']
+
+    previous_game = games[last_played_idx]
+    next_game = games[last_played_idx + 1] \
+        if len(games) >= last_played_idx + 1 else None
+
+    # current_game is:
+    #   first game with statusNum == 1
+    #   game that is one hour 
 
 
 class Action(Enum):
