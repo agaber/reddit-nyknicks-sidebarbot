@@ -203,12 +203,8 @@ def execute(now, subreddit_name, tanking):
       if tanking else build_standings(teams)
 
   logger.info('Logging in to reddit.')
-<<<<<<< HEAD
-  reddit = praw.Reddit('nyknicks-automod', user_agent='python-praw')
-=======
   reddit = praw.Reddit('nyknicks-automod')
->>>>>>> master
-  
+
   logger.info('Querying reddit settings.')
   subreddit = reddit.subreddit(subreddit_name)
   descr = subreddit.mod.settings()['description']
