@@ -22,6 +22,7 @@ sidebar.
         client_secret=(from reddit.com/prefs/apps)
         password=(mod password)
         username=nyknicks-automod
+        user_agent=python-praw
 
 ## Running locally:
 
