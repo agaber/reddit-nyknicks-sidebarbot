@@ -26,7 +26,7 @@ class GameThreadBot:
   def __init__(self, now: datetime, subreddit_name: str):
     self.now = now
     self.reddit = praw.Reddit('nyknicks-automod')
-    self.subreddit_name = subreddit_name
+    self.subreddit = self.reddit.subreddit(subreddit_name)
 
   def run(self):
     season_year = nba_data.current_year()
@@ -37,13 +37,12 @@ class GameThreadBot:
       logger.info('Nothing to do. Goodbye.')
       return
 
-    boxscore = _get_boxscore(game)
+    boxscore = self._get_boxscore(game)
     teams = nba_data.teams(season_year)
-    title, body = _build_game_thread_text(boxscore, teams) \
+    title, body = self._build_game_thread_text(boxscore, teams) \
         if action == Action.DO_GAME_THREAD \
-        else _build_postgame_thread_text(boxscore, teams)
-
-    _create_or_update_game_thread(action, title, body)
+        else self._build_postgame_thread_text(boxscore, teams)
+    self._create_or_update_game_thread(action, title, body)
 
   def _get_boxscore(self, game):
     game_start = game['startDateEastern']
@@ -140,8 +139,23 @@ class GameThreadBot:
   def _build_postgame_thread_text(self, boxscore, teams):
     pass
 
-  def _create_or_update_game_thread(action, title, body):
-    pass
+  def _create_or_update_game_thread(self, act, title, body):
+    thread = None
+
+    q = '[Game Thread]' if act == Action.DO_GAME_THREAD else '[Post-Game Thread]'
+    found = self.subreddit.search(q, sort='new', time_filter='day')
+    for submission in found:
+      if submission.author == 'Automoderator':
+        thread = submission
+        break
+
+    if thread == None:
+      thread = self.subreddit.submit(title, selftext=body, send_replies=False)
+      thread.mod.distinguish(how="yes")
+      thread.mod.sticky()
+    else:
+      # update
+      pass
 
 
 if __name__ == '__main__':

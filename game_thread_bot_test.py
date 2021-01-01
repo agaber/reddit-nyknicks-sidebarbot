@@ -8,10 +8,6 @@ from services import nba_data
 import unittest
 
 class GameThreadBotTest(unittest.TestCase):
-  mock_reddit = MagicMock(['subreddit'])
-
-  def setUp(self):
-    self.mock_reddit.reset_mock()
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
@@ -92,34 +88,74 @@ class GameThreadBotTest(unittest.TestCase):
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_build_game_thread_text(self, mock_get, mock_praw):
-    self.maxDiff = None
-    now = datetime(2020, 12, 31, 0, 0, 0, 0, UTC)
-    boxscore = nba_data.boxscore('20201231', '0022000066')
-    teams = nba_data.teams('2020')
+  def test_run_createGameThread(self, mock_get, mock_praw):
+    # 1 hour before tip-off.
+    now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
+    mock_subreddit = self.mock_subreddit(mock_praw)
+    mock_subreddit.search.return_value = [FakeThread(author='macdoogles')]
+    mock_mod = MagicMock(['distinguish', 'sticky'])
+    mock_subreddit.submit.return_value = MagicMock(mod=mock_mod)
 
-    bot = GameThreadBot(now, 'sub')
-    (title, body) = bot._build_game_thread_text(boxscore, teams)
+    # Execute.
+    GameThreadBot(now, 'NYKnicks').run()
 
-    self.assertEqual(
-      title, 
-      '[Game Thread] The New York Knicks (2-3) @ The Toronto Raptors (0-2) '
-      '- (December 30, 2020)')
-    
-    self.assertEqual(body, """
+    # Verify.
+    mock_subreddit.search.assert_called_once_with(
+        '[Game Thread]',  sort='new', time_filter='day')
+
+    expected_title = ('[Game Thread] The New York Knicks (2-1) @ The Cleveland '
+        'Cavaliers (3-2) - (December 29, 2020)');
+
+    expected_body = """
 ##General Information
 **TIME**|**BROADCAST**|**Location and Subreddit**|
 :------------|:------------------------------------|:-------------------|
-07:30 PM Eastern   |Knicks Broadcast: MSG            |Tampa, FL USA|
-06:30 PM Central   |Raptors Broadcast: Sportsnet|Amalie Arena|
-05:30 PM Mountain |National Broadcast: -        |r/NYKnicks|
-04:30 PM Pacific   |                                                 |r/torontoraptors|
+07:00 PM Eastern   |Knicks Broadcast: MSG            |Cleveland, OH USA|
+06:00 PM Central   |Cavaliers Broadcast: Fox Sports Ohio|Rocket Mortgage FieldHouse|
+05:00 PM Mountain |National Broadcast: -        |r/NYKnicks|
+04:00 PM Pacific   |                                                 |r/clevelandcavs|
 -----
 [Reddit Stream](https://reddit-stream.com/comments/auto) (You must click this link from the comment page.)
-""")
+"""
 
-  def mock_praw(*args, **kwargs):
+    mock_subreddit.submit.assert_called_once_with(
+      expected_title,
+      selftext=expected_body,
+      send_replies=False)
+    mock_mod.distinguish.assert_called_once_with(how='yes')
+    mock_mod.sticky.assert_called_once()
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_run_updateGameThread(self, mock_get, mock_praw):
+    # 1 hour before tip-off.
+    now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
+    mock_subreddit = self.mock_subreddit(mock_praw)
+    mock_subreddit.search.return_value = [
+      FakeThread(author='macdoogles'), 
+      FakeThread(author='Automoderator'),
+    ]
+
+    # Execute.
+    GameThreadBot(now, 'NYKnicks').run()
+
+    # Verify.
+    mock_subreddit.search.assert_called_once_with(
+        '[Game Thread]',  sort='new', time_filter='day')
+    mock_subreddit.submit.assert_not_called()
+    # TODO: implement and test this.
+
+  def mock_subreddit(self, mock_praw):
+    mock_subreddit = MagicMock(['search', 'submit'])
+    mock_reddit = MagicMock(['subreddit'])
+    mock_reddit.subreddit.return_value = mock_subreddit
     mock_praw.return_value = mock_reddit
+    return mock_subreddit
+
+
+class FakeThread:
+  def __init__(self, author):
+    self.author = author
 
 
 if __name__ == '__main__':
