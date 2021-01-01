@@ -31,8 +31,7 @@ class GameThreadBot:
   def run(self):
     season_year = nba_data.current_year()
     schedule = nba_data.schedule('knicks', season_year)
-    game = self._get_current_game(schedule)
-    action = self._get_action(game)
+    (action, game) = self._get_current_game(schedule)
     
     if action == Action.DO_NOTHING:
       logger.info('Nothing to do. Goodbye.')
@@ -52,47 +51,35 @@ class GameThreadBot:
     return nba_data.boxscore(game_start, game_id)
     
   def _get_current_game(self, schedule):
-    """Returns the nba_data game object we want to focus on right now.
-    This implementation searches for a game that looks like it might be on the
-    same day (within X number of hours because technically night games can spill
-    over into the next day). This solution won't work for double-headers.
+    """Returns the nba_data game object we want to focus on right now (or None)
+    and an enum describing what we should do with it (create a game thread or
+    post game thread or do nothing).
 
-    This implementation also relies heavily on NBA's lastStandardGamePlayedIndex
-    field to tell us where to start looking, rather than scanning the entire
-    schedule.
+    This implementation searches for a game that looks like it might be on the
+    same day. It relies heavily on  NBA's lastStandardGamePlayedIndex field to 
+    tell us  where to start looking, rather than scanning the entire schedule.
     """
     last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
     games = schedule['league']['standard']
 
-    # If the previous game was less than 6 hours ago, then use that.
-    # It assumes that two games will never be closer than six hours apart.
-    previous_game = games[last_played_idx]
-    previous_gametime = dateutil.parser.parse(previous_game['startTimeUTC'])
-    if previous_gametime + timedelta(hours=6) >= self.now:
-      return previous_game
+    # Check the game after lastStandardGamePlayedIndex. If we are an hour before
+    # tip-off or later and there's no score, then we want to make a game thread.
+    if len(games) > last_played_idx + 1:
+      game = games[last_played_idx + 1]
+      gametime = dateutil.parser.parse(game['startTimeUTC'])
+      has_score = bool(game['vTeam']['score'] + game['hTeam']['score'])
+      if gametime - timedelta(hours=1) <= self.now and not has_score:
+        return (Action.DO_GAME_THREAD, game)
 
-    # Season is over.
-    if len(games) < last_played_idx + 1:
-      return None
-
-    # If the next game starts in an hour then use that
-    next_game = games[last_played_idx + 1]
-    next_gametime = dateutil.parser.parse(next_game['startTimeUTC'])
-    if next_gametime - timedelta(hours=1) <= self.now:
-      return next_game
-    
-    # Should never get this far.
-    return None
-
-  def _get_action(self, game):
+    # If the previous game was finished 6 hours ago or less, then use that to
+    # make a post game thread.
+    game = games[last_played_idx]
     gametime = dateutil.parser.parse(game['startTimeUTC'])
     has_score = bool(game['vTeam']['score'] + game['hTeam']['score'])
-    if gametime - timedelta(hours=1) <= self.now and not has_score:
-      return Action.DO_GAME_THREAD
-    elif gametime + timedelta(hours=6) >= self.now and has_score:
-      return Action.DO_POST_GAME_THREAD
-    else:
-      return Action.DO_NOTHING
+    if gametime + timedelta(hours=6) >= self.now and has_score:
+      return (Action.DO_POST_GAME_THREAD, game)
+
+    return (Action.DO_NOTHING, None)
 
   def _build_game_thread_text(self, boxscore, teams):
     basicGameData = boxscore['basicGameData']

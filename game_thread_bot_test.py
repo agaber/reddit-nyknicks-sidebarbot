@@ -15,92 +15,80 @@ class GameThreadBotTest(unittest.TestCase):
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_current_game_oneHourBeforeTipoff(self, mock_get, mock_praw):  
-    now = datetime(2020, 12, 30, 11, 0, 0, 0, UTC)
+  def test_get_current_game_tooEarly_doNothing(self, mock_get, mock_praw):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 29, 12, 0, 0, 0, UTC)
     schedule = nba_data.schedule('knicks', '2020')
-
-    bot = GameThreadBot(now, 'subredditName')
-    current_game = bot._get_current_game(schedule)
-    
-    self.assertEqual(current_game['gameUrlCode'], '20201229/NYKCLE')
-
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_current_game_gameStarted(self, mock_get, mock_praw):  
-    now = datetime(2020, 12, 30, 1, 0, 0, 0, UTC)
-    schedule = nba_data.schedule('knicks', '2020')
-
-    bot = GameThreadBot(now, 'subredditName')
-    current_game = bot._get_current_game(schedule)
-    
-    self.assertEqual(current_game['gameUrlCode'], '20201229/NYKCLE')
-
-  # TODO: Mock post game (get post game data and figure out how to override test data)
-
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_action_tooEarly_doNothing(self, mock_get, mock_praw):
-    now = datetime(2020, 12, 30, 1, 0, 0, 0, UTC)
-    game = {
-      'startTimeUTC': '2020-12-30T04:30:00.000Z',
-      'statusNum': 1,
-      'vTeam': {'score': ''},
-      'hTeam': {'score': ''},
-    }
-    action = GameThreadBot(now, 'subredditName')._get_action(game)
+    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
+    self.assertIsNone(game)
     self.assertEqual(action, Action.DO_NOTHING)
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_action_beforeGame_gameThread(self, mock_get, mock_praw):
-    now = datetime(2020, 12, 30, 3, 30, 0, 0, UTC)
-    game = {
-      'startTimeUTC': '2020-12-30T04:30:00.000Z',
-      'statusNum': 1,
-      'vTeam': {'score': ''},
-      'hTeam': {'score': ''},
-    }
-    action = GameThreadBot(now, 'subredditName')._get_action(game)
+  def test_get_current_game_1HourBefore_doGameThread(self, mock_get, mock_praw):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
+    schedule = nba_data.schedule('knicks', '2020')
+    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
     self.assertEqual(action, Action.DO_GAME_THREAD)
+    self.assertEqual(game['gameUrlCode'], '20201229/NYKCLE')
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_action_duringGame_gameThread(self, mock_get, mock_praw):
-    now = datetime(2020, 12, 30, 6, 0, 0, 0, UTC)
-    game = {
-      'startTimeUTC': '2020-12-30T04:30:00.000Z',
-      'statusNum': 1,
-      'vTeam': {'score': ''},
-      'hTeam': {'score': ''},
-    }
-    action = GameThreadBot(now, 'subredditName')._get_action(game)
+  def test_get_current_game_gameStarted_doGameThread(self, mock_get, mock_praw):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 30, 1, 0, 0, 0, UTC)
+    schedule = nba_data.schedule('knicks', '2020')
+    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
     self.assertEqual(action, Action.DO_GAME_THREAD)
+    self.assertEqual(game['gameUrlCode'], '20201229/NYKCLE')
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_action_afterGame_postGameThread(self, mock_get, mock_praw):
-    now = datetime(2020, 12, 30, 8, 0, 0, 0, UTC)
-    game = {
-      'startTimeUTC': '2020-12-30T04:30:00.000Z',
-      'statusNum': 3,
-      'vTeam': {'score': '100'},
-      'hTeam': {'score': '101'},
-    }
-    action = GameThreadBot(now, 'subredditName')._get_action(game)
+  def test_get_current_game_afterGame_postGameThread(self, mock_get, mock_praw):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+    schedule = nba_data.schedule('knicks', '2020')
+    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
     self.assertEqual(action, Action.DO_POST_GAME_THREAD)
+    self.assertEqual(game['gameUrlCode'], '20201227/MILNYK')
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_action_tooLate_doNothing(self, mock_get, mock_praw):
-    now = datetime(2020, 12, 31, 0, 0, 0, 0, UTC)
-    game = {
-      'startTimeUTC': '2020-12-30T04:30:00.000Z',
-      'statusNum': 3,
-      'vTeam': {'score': '100'},
-      'hTeam': {'score': '101'},
-    }
-    action = GameThreadBot(now, 'subredditName')._get_action(game)
+  def test_get_current_game_tooLate_doNothing(self, mock_get, mock_praw):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 28, 7, 0, 0, 0, UTC)
+    schedule = nba_data.schedule('knicks', '2020')
+    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
     self.assertEqual(action, Action.DO_NOTHING)
+    self.assertIsNone(game)
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_get_current_game_seasonOver_doNothing(self, mock_get, mock_praw):
+    now = datetime(2021, 2, 10, 12, 0, 0, 0, UTC)
+    schedule = {
+      "league": {
+        "lastStandardGamePlayedIndex": 0,
+        "standard": [
+          {
+            'gameUrlCode': '20201231/NYKTOR',
+            'startTimeUTC': '2021-01-01T00:30:00.000Z',
+            'statusNum': 3,
+            'vTeam': {'score': '83'},
+            'hTeam': {'score': '100'},
+          },
+        ],
+      }
+    }
+    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
+    self.assertEqual(action, Action.DO_NOTHING)
+    self.assertIsNone(game)
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
