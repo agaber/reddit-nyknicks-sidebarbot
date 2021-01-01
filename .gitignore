@@ -9,4 +9,6 @@ __pycache__/
 # Distribution / packaging
 env/
 
+# IntelliJ
 .idea/
+venv/
