@@ -1,3 +1,12 @@
+"""
+A command line tool that manages game threads on the New York Knicks subreddit.
+
+The tool is meant to be run as a cron job, but it also contains a reusable class
+that can be used in other contexts (i.e., an AppEngine/GCE web server). The tool
+will run once and then terminate. In many cases it will have nothing to do. To
+run this on a continuous basis, try using crontab (see the README.md).
+"""
+
 from constants import CENTRAL_TIMEZONE, EASTERN_TIMEZONE, MOUNTAIN_TIMEZONE, PACIFIC_TIMEZONE, TEAM_SUB_MAP, UTC
 from datetime import date, timedelta, datetime
 from enum import Enum, unique
@@ -137,6 +146,7 @@ class GameThreadBot:
     return (title, body)
 
   def _build_postgame_thread_text(self, boxscore, teams):
+    # TODO: implement post game threads
     pass
 
   def _create_or_update_game_thread(self, act, title, body):
