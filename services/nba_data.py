@@ -7,6 +7,25 @@ logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('sidebarbot')
 
 
+def boxscore(start_date_est, game_id):
+  """
+  Fetches the box score from the NBA Data API.
+
+  Parameters
+  ----------
+  start_date_est: str
+    The "startDateEastern" field provided by the schedule API, which is also just
+    the time of tip off in EST timezone in the format of yyyyMMdd.
+  game_id: str
+    Another string provided by the schedule API for the game in question.
+  """
+  logger.info('Fetching boxscore for {date} and {game_id}.')
+  r = requests.get(
+      f'http://data.nba.net/prod/v1/{start_date_est}/{game_id}_boxscore.json')
+  r.raise_for_status()
+  return json.loads(r.content.decode('utf-8'))
+
+
 def conference_standings():
   logger.info('Fetching conference standings.')
   r = requests.get(

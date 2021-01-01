@@ -25,6 +25,13 @@ def mocked_requests_get(*args, **kwargs):
 
 
 class NbaDataTest(unittest.TestCase):
+  @patch('requests.get', side_effect=mocked_requests_get)
+  def test_boxscore(self, mock_get):
+    boxscore = nba_data.boxscore('20201231', '0022000066')
+    # Just verify a few properties instead of the entire large response.
+    self.assertEqual(boxscore['basicGameData']['gameUrlCode'], '20201231/NYKTOR')
+    mock_get.assert_called_once_with(
+        'http://data.nba.net/prod/v1/20201231/0022000066_boxscore.json')
 
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_conference_standings(self, mock_get):
