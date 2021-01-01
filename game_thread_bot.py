@@ -8,16 +8,15 @@ run this on a continuous basis, try using crontab (see the README.md).
 """
 
 from constants import CENTRAL_TIMEZONE, EASTERN_TIMEZONE, MOUNTAIN_TIMEZONE, PACIFIC_TIMEZONE, TEAM_SUB_MAP, UTC
-from datetime import date, timedelta, datetime
-from enum import Enum, unique
+from datetime import timedelta, datetime
+from enum import Enum
 from optparse import OptionParser
-from pytz import timezone
 from services import nba_data
 
 import dateutil.parser
-import logging
 import logging.config
 import praw
+import sys
 import traceback
 
 logging.config.fileConfig('logging.conf')

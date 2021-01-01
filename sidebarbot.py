@@ -2,14 +2,10 @@ from constants import EASTERN_TIMEZONE, TEAM_SUB_MAP, UTC
 from datetime import datetime, timedelta
 from optparse import OptionParser
 from services import nba_data
-from time import sleep
 
 import dateutil.parser
-import logging
 import logging.config
 import praw
-import pytz
-import re
 import sys
 import traceback
 
@@ -18,7 +14,6 @@ logger = logging.getLogger('sidebarbot')
 
 
 def build_roster(year):
-  current_year = nba_data.current_year()
   players = nba_data.players(year)
   roster = nba_data.roster('knicks', year)
   team_players = filter(lambda player: player['personId'] in roster, players)
