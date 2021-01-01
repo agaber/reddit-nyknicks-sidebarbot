@@ -76,7 +76,7 @@ class GameThreadBot:
       gametime = dateutil.parser.parse(game['startTimeUTC'])
       has_score = bool(game['vTeam']['score'] + game['hTeam']['score'])
       if gametime - timedelta(hours=1) <= self.now and not has_score:
-        return (Action.DO_GAME_THREAD, game)
+        return Action.DO_GAME_THREAD, game
 
     # If the previous game was finished 6 hours ago or less, then use that to
     # make a post game thread.
@@ -84,39 +84,39 @@ class GameThreadBot:
     gametime = dateutil.parser.parse(game['startTimeUTC'])
     has_score = bool(game['vTeam']['score'] + game['hTeam']['score'])
     if gametime + timedelta(hours=6) >= self.now and has_score:
-      return (Action.DO_POST_GAME_THREAD, game)
+      return Action.DO_POST_GAME_THREAD, game
 
-    return (Action.DO_NOTHING, None)
+    return Action.DO_NOTHING, None
 
   def _build_game_thread_text(self, boxscore, teams):
-    basicGameData = boxscore['basicGameData']
+    basic_game_data = boxscore['basicGameData']
 
-    if basicGameData['hTeam']['triCode'] == 'NYK':
+    if basic_game_data['hTeam']['triCode'] == 'NYK':
       us = 'hTeam'
       them = 'vTeam'
-      homeAwaySign = 'vs'
+      home_away_sign = 'vs'
     else:
       us = 'vTeam'
       them = 'hTeam'
-      homeAwaySign = '@'
+      home_away_sign = '@'
 
-    broadcasters = basicGameData['watch']['broadcast']['broadcasters']
-    nationalBroadcaster = '-' if len(broadcasters['national']) == 0 \
+    broadcasters = basic_game_data['watch']['broadcast']['broadcasters']
+    national_broadcaster = 'N/A' if len(broadcasters['national']) == 0 \
         else broadcasters['national'][0]['longName']
-    knicksBroadcaster = broadcasters[us][0]['longName']
-    otherBroadcaster = broadcasters[them][0]['longName']
+    knicks_broadcaster = broadcasters[us][0]['longName']
+    other_broadcaster = broadcasters[them][0]['longName']
 
-    knicksWinLossRecord = f"({basicGameData[us]['win']}-{basicGameData['hTeam']['loss']})"
-    otherWinLossRecord = f"({basicGameData[them]['win']}-{basicGameData['vTeam']['loss']})"
-    otherSubreddit = TEAM_SUB_MAP[teams[basicGameData[them]['teamId']]['nickname']]
-    otherTeamName = teams[basicGameData[them]['teamId']]['fullName']
-    otherTeamNickname = teams[basicGameData[them]['teamId']]['nickname']
-    location = (f'{basicGameData["arena"]["city"]}, ' +
-        f'{basicGameData["arena"]["stateAbbr"]} ' +
-        f'{basicGameData["arena"]["country"]}')
-    arena = basicGameData['arena']['name']
+    knicks_record = f"({basic_game_data[us]['win']}-{basic_game_data['hTeam']['loss']})"
+    other_record = f"({basic_game_data[them]['win']}-{basic_game_data['vTeam']['loss']})"
+    other_subreddit = TEAM_SUB_MAP[teams[basic_game_data[them]['teamId']]['nickname']]
+    other_team_name = teams[basic_game_data[them]['teamId']]['fullName']
+    other_team_nickname = teams[basic_game_data[them]['teamId']]['nickname']
+    location = (f'{basic_game_data["arena"]["city"]}, ' +
+        f'{basic_game_data["arena"]["stateAbbr"]} ' +
+        basic_game_data["arena"]["country"])
+    arena = basic_game_data['arena']['name']
 
-    start_time_utc = dateutil.parser.parse(basicGameData['startTimeUTC'])
+    start_time_utc = dateutil.parser.parse(basic_game_data['startTimeUTC'])
     eastern = start_time_utc.astimezone(EASTERN_TIMEZONE).strftime('%I:%M %p')
     central = start_time_utc.astimezone(CENTRAL_TIMEZONE).strftime('%I:%M %p')
     mountain = start_time_utc.astimezone(MOUNTAIN_TIMEZONE).strftime('%I:%M %p')
@@ -126,10 +126,10 @@ class GameThreadBot:
 ##General Information
 **TIME**|**BROADCAST**|**Location and Subreddit**|
 :------------|:------------------------------------|:-------------------|
-{eastern} Eastern   |Knicks Broadcast: {knicksBroadcaster}            |{location}|
-{central} Central   |{otherTeamNickname} Broadcast: {otherBroadcaster}|{arena}|
-{mountain} Mountain |National Broadcast: {nationalBroadcaster}        |r/NYKnicks|
-{pacific} Pacific   |                                                 |r/{otherSubreddit}|
+{eastern} Eastern   | National Broadcast: {national_broadcaster}           | {location}|
+{central} Central   | Knicks Broadcast: {knicks_broadcaster}               | {arena}|
+{mountain} Mountain | {other_team_nickname} Broadcast: {other_broadcaster} | r/NYKnicks|
+{pacific} Pacific   |                                                      | r/{other_subreddit}|
 -----
 [Reddit Stream](https://reddit-stream.com/comments/auto) (You must click this link from the comment page.)
 """
@@ -138,8 +138,8 @@ class GameThreadBot:
     # https://github.com/HokageEzio/nbaspurs-bot/blob/master/sidebar-nbaspurs.py#L393
 
     dateTitle = self.now.astimezone(EASTERN_TIMEZONE).strftime('%B %d, %Y')
-    title = (f'[Game Thread] The New York Knicks {knicksWinLossRecord} ' +
-        f'{homeAwaySign} The {otherTeamName} {otherWinLossRecord} - ' +
+    title = (f'[Game Thread] The New York Knicks {knicks_record} ' +
+        f'{home_away_sign} The {other_team_name} {other_record} - ' +
         f'({dateTitle})')
 
     return (title, body)

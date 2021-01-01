@@ -164,10 +164,10 @@ EXPECTED_GAMETHREAD_TEXT = """
 ##General Information
 **TIME**|**BROADCAST**|**Location and Subreddit**|
 :------------|:------------------------------------|:-------------------|
-07:00 PM Eastern   |Knicks Broadcast: MSG            |Cleveland, OH USA|
-06:00 PM Central   |Cavaliers Broadcast: Fox Sports Ohio|Rocket Mortgage FieldHouse|
-05:00 PM Mountain |National Broadcast: -        |r/NYKnicks|
-04:00 PM Pacific   |                                                 |r/clevelandcavs|
+07:00 PM Eastern   | National Broadcast: N/A           | Cleveland, OH USA|
+06:00 PM Central   | Knicks Broadcast: MSG               | Rocket Mortgage FieldHouse|
+05:00 PM Mountain | Cavaliers Broadcast: Fox Sports Ohio | r/NYKnicks|
+04:00 PM Pacific   |                                                      | r/clevelandcavs|
 -----
 [Reddit Stream](https://reddit-stream.com/comments/auto) (You must click this link from the comment page.)
 """
