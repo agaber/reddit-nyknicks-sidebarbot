@@ -120,11 +120,10 @@ class GameThreadBotTest(unittest.TestCase):
     # 1 hour before tip-off.
     now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
     mock_subreddit = self.mock_subreddit(mock_praw)
+
+    shitpost = FakeThread(author='macdoogles', selftext='better shut up')
     gamethread = FakeThread(author='nyknicks-automod', selftext="we did it!")
-    mock_subreddit.search.return_value = [
-      FakeThread(author='macdoogles', selftext='better shut up'), 
-      gamethread,
-    ]
+    mock_subreddit.search.return_value = [shitpost, gamethread]
 
     # Execute.
     GameThreadBot(now, 'NYKnicks').run()
@@ -134,6 +133,7 @@ class GameThreadBotTest(unittest.TestCase):
         '[Game Thread]',  sort='new', time_filter='day')
     mock_subreddit.submit.assert_not_called()
     self.assertEqual(gamethread.selftext, EXPECTED_GAMETHREAD_TEXT)
+    self.assertEqual(shitpost.selftext, 'better shut up')
 
   def mock_subreddit(self, mock_praw):
     mock_subreddit = MagicMock(['search', 'submit'])
