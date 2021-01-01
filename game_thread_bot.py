@@ -145,7 +145,7 @@ class GameThreadBot:
     q = '[Game Thread]' if act == Action.DO_GAME_THREAD else '[Post-Game Thread]'
     found = self.subreddit.search(q, sort='new', time_filter='day')
     for submission in found:
-      if submission.author == 'Automoderator':
+      if submission.author == 'nyknicks-automod':
         thread = submission
         break
 
@@ -153,9 +153,11 @@ class GameThreadBot:
       thread = self.subreddit.submit(title, selftext=body, send_replies=False)
       thread.mod.distinguish(how="yes")
       thread.mod.sticky()
+      thread.mod.suggested_sort('new')
     else:
-      # update
-      pass
+      if thread.selftext == body:
+        logger.info('Game thread text did not change. Not updating.')
+      thread.edit(body)
 
 
 if __name__ == '__main__':
