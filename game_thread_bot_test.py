@@ -101,7 +101,11 @@ class GameThreadBotTest(unittest.TestCase):
     bot = GameThreadBot(now, 'sub')
     (title, body) = bot._build_game_thread_text(boxscore, teams)
 
-    self.assertEqual(title, '[Game Thread] The New York Knicks (2-3) @ The Toronto Raptors (0-2) - (December 30, 2020)')
+    self.assertEqual(
+      title, 
+      '[Game Thread] The New York Knicks (2-3) @ The Toronto Raptors (0-2) '
+      '- (December 30, 2020)')
+    
     self.assertEqual(body, """
 ##General Information
 **TIME**|**BROADCAST**|**Location and Subreddit**|

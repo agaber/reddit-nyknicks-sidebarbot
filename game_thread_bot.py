@@ -11,8 +11,8 @@ import logging.config
 import praw
 import traceback
 
-logging.config.fileConfig("logging.conf")
-logger = logging.getLogger("gdtbot")
+logging.config.fileConfig('logging.conf')
+logger = logging.getLogger('gdtbot')
 
 
 class Action(Enum):
@@ -32,7 +32,7 @@ class GameThreadBot:
     season_year = nba_data.current_year()
     schedule = nba_data.schedule('knicks', season_year)
     (action, game) = self._get_current_game(schedule)
-    
+
     if action == Action.DO_NOTHING:
       logger.info('Nothing to do. Goodbye.')
       return
@@ -49,14 +49,14 @@ class GameThreadBot:
     game_start = game['startDateEastern']
     game_id = game['gameId']
     return nba_data.boxscore(game_start, game_id)
-    
+
   def _get_current_game(self, schedule):
     """Returns the nba_data game object we want to focus on right now (or None)
     and an enum describing what we should do with it (create a game thread or
     post game thread or do nothing).
 
     This implementation searches for a game that looks like it might be on the
-    same day. It relies heavily on  NBA's lastStandardGamePlayedIndex field to 
+    same day. It relies heavily on NBA's lastStandardGamePlayedIndex field to
     tell us  where to start looking, rather than scanning the entire schedule.
     """
     last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
@@ -84,17 +84,17 @@ class GameThreadBot:
   def _build_game_thread_text(self, boxscore, teams):
     basicGameData = boxscore['basicGameData']
 
-    if basicGameData['hTeam']['triCode'] == "NYK":
+    if basicGameData['hTeam']['triCode'] == 'NYK':
       us = 'hTeam'
       them = 'vTeam'
-      homeAwaySign = "vs"
+      homeAwaySign = 'vs'
     else:
       us = 'vTeam'
       them = 'hTeam'
-      homeAwaySign = "@"
+      homeAwaySign = '@'
 
     broadcasters = basicGameData['watch']['broadcast']['broadcasters']
-    nationalBroadcaster = "-" if len(broadcasters['national']) == 0 \
+    nationalBroadcaster = '-' if len(broadcasters['national']) == 0 \
         else broadcasters['national'][0]['longName']
     knicksBroadcaster = broadcasters[us][0]['longName']
     otherBroadcaster = broadcasters[them][0]['longName']
@@ -104,16 +104,16 @@ class GameThreadBot:
     otherSubreddit = TEAM_SUB_MAP[teams[basicGameData[them]['teamId']]['nickname']]
     otherTeamName = teams[basicGameData[them]['teamId']]['fullName']
     otherTeamNickname = teams[basicGameData[them]['teamId']]['nickname']
-    location = (f'{basicGameData["arena"]["city"]}, '
-        + f'{basicGameData["arena"]["stateAbbr"]} '
-        + f'{basicGameData["arena"]["country"]}')
+    location = (f'{basicGameData["arena"]["city"]}, ' +
+        f'{basicGameData["arena"]["stateAbbr"]} ' +
+        f'{basicGameData["arena"]["country"]}')
     arena = basicGameData['arena']['name']
-    
+
     start_time_utc = dateutil.parser.parse(basicGameData['startTimeUTC'])
-    eastern = start_time_utc.astimezone(EASTERN_TIMEZONE).strftime("%I:%M %p")
-    central = start_time_utc.astimezone(CENTRAL_TIMEZONE).strftime("%I:%M %p")
-    mountain = start_time_utc.astimezone(MOUNTAIN_TIMEZONE).strftime("%I:%M %p")
-    pacific = start_time_utc.astimezone(PACIFIC_TIMEZONE).strftime("%I:%M %p")
+    eastern = start_time_utc.astimezone(EASTERN_TIMEZONE).strftime('%I:%M %p')
+    central = start_time_utc.astimezone(CENTRAL_TIMEZONE).strftime('%I:%M %p')
+    mountain = start_time_utc.astimezone(MOUNTAIN_TIMEZONE).strftime('%I:%M %p')
+    pacific = start_time_utc.astimezone(PACIFIC_TIMEZONE).strftime('%I:%M %p')
 
     body = f"""
 ##General Information
@@ -130,10 +130,10 @@ class GameThreadBot:
     # TODO: Add in-game stats:
     # https://github.com/HokageEzio/nbaspurs-bot/blob/master/sidebar-nbaspurs.py#L393
 
-    dateTitle = self.now.astimezone(EASTERN_TIMEZONE).strftime("%B %d, %Y")
-    title = (f'[Game Thread] The New York Knicks {knicksWinLossRecord} '
-        + f'{homeAwaySign} The {otherTeamName} {otherWinLossRecord} - '
-        + f'({dateTitle})')
+    dateTitle = self.now.astimezone(EASTERN_TIMEZONE).strftime('%B %d, %Y')
+    title = (f'[Game Thread] The New York Knicks {knicksWinLossRecord} ' +
+        f'{homeAwaySign} The {otherTeamName} {otherWinLossRecord} - ' +
+        f'({dateTitle})')
 
     return (title, body)
 
@@ -143,8 +143,8 @@ class GameThreadBot:
   def _create_or_update_game_thread(action, title, body):
     pass
 
-   
-if __name__ == "__main__":
+
+if __name__ == '__main__':
   parser = OptionParser()
   (options, args) = parser.parse_args()
 
@@ -160,4 +160,3 @@ if __name__ == "__main__":
     bot.run()
   except:
     logger.error(traceback.format_exc())
-  
