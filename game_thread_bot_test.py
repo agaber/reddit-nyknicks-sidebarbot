@@ -142,6 +142,13 @@ class GameThreadBotTest(unittest.TestCase):
     mock_praw.return_value = mock_reddit
     return mock_subreddit
 
+  # $ python3 game_thread_bot_test.py GameThreadBotTest.test_run_gamethread_prodReddit
+  # CAUTION: THIS WILL USE REAL REDDIT WITH FAKE NBA DATA!!!
+  # @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  # def test_run_gamethread_prodReddit(self, mock_get):
+  #   now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
+  #   GameThreadBot(now, 'knicklejerk').run()
+
 
 class FakeThread:
   def __init__(self, author, selftext=''):
