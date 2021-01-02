@@ -108,9 +108,9 @@ class GameThreadBotTest(unittest.TestCase):
         'Cavaliers (3-2) - (December 29, 2020)');
     
     mock_subreddit.submit.assert_called_once_with(
-      expected_title,
-      selftext=EXPECTED_GAMETHREAD_TEXT,
-      send_replies=False)
+        expected_title,
+        selftext=EXPECTED_GAMETHREAD_TEXT,
+        send_replies=False)
     mock_submit_mod.distinguish.assert_called_once_with(how='yes')
     mock_submit_mod.sticky.assert_called_once()
     mock_submit_mod.suggested_sort.assert_called_once_with('new')

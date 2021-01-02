@@ -142,7 +142,7 @@ class GameThreadBot:
 
   def _build_postgame_thread_text(self, boxscore, teams):
     # TODO: implement post game threads
-    pass
+    return '', ''
 
   def _create_or_update_game_thread(self, act, title, body):
     thread = None
