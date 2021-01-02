@@ -106,7 +106,7 @@ class GameThreadBotTest(unittest.TestCase):
 
     expected_title = ('[Game Thread] The New York Knicks (2-1) @ The Cleveland '
         'Cavaliers (3-2) - (December 29, 2020)');
-   
+  
     mock_subreddit.submit.assert_called_once_with(
         expected_title,
         selftext=EXPECTED_GAMETHREAD_TEXT,
@@ -381,8 +381,8 @@ EXPECTED_GAMETHREAD_TEXT = """##### General Information
 """
 
 EXPECTED_POSTGAME_TEXT = """
-||   
-|:-:|  
+||  
+|:-:| 
 |[](/r/MkeBucks) **110 -  130** [](/r/NYKnicks)|
 |**Box Scores: [NBA](https://www.nba.com/game/MIL-vs-NYK-0022000036) & [Yahoo](http://sports.yahoo.com/nba/milwaukee-bucks-new-york-knicks-2020122718)**|
 
@@ -409,7 +409,7 @@ EXPECTED_POSTGAME_TEXT = """
 |:--|:--|:--|:--|:--|:--|
 |Milwaukee Bucks|+2|8|60|20|12|
 |New York Knicks|+28|11|48|15|5|
-   
+  
 **TEAM LEADERS**
 
 |**Team**|**Points**|**Rebounds**|**Assists**|

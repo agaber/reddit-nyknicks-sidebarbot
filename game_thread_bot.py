@@ -247,8 +247,8 @@ class GameThreadBot:
                 f'{basicGameData["startDateEastern"]}'
                 f'{YAHOO_TEAM_CODES[hTeamBasicData["triCode"]]}')
     body = f"""
-||   
-|:-:|  
+||  
+|:-:| 
 |[](/r/{vTeamLogo}) **{vTeamScore} -  {hTeamScore}** [](/r/{hTeamLogo})|
 |**Box Scores: [NBA]({nbaUrl}) & [Yahoo]({yahooUrl})**|
 """
@@ -336,7 +336,7 @@ class GameThreadBot:
       hfb=allStats["hTeam"]["fastBreakPoints"]
     )
 
-    body += """ 
+    body += """
 **TEAM LEADERS**
 
 |**Team**|**Points**|**Rebounds**|**Assists**|
@@ -483,17 +483,13 @@ class GameThreadBot:
     with 4 quarters even if some columns are blank."""
 
     basic_game_data = boxscore["basicGameData"]
-
     home_team = basic_game_data["hTeam"]
     home_team_name = teams[home_team['teamId']]['fullName']
-    home_linescore = home_team["linescore"]
-
     road_team = basic_game_data["vTeam"]
     road_team_name = teams[road_team['teamId']]['fullName']
-    road_linescore = road_team["linescore"]
 
-    assert len(home_linescore) == len(road_linescore)
-    num_periods = len(home_linescore)
+    assert len(home_team["linescore"]) == len(road_team["linescore"])
+    num_periods = len(home_team["linescore"])
     if num_periods == 0:
       return None
 
@@ -505,8 +501,8 @@ class GameThreadBot:
       period = i + 1
       header1 += f'**Q{period}**|' if period < 5 else f'**OT{period - 4}**|'
       header2 += ':--|'
-      home_team_line += f'{self._period_points(home_linescore, period)}|'
-      road_team_line += f'{self._period_points(road_linescore, period)}|'
+      home_team_line += f'{self._period_points(home_team["linescore"], period)}|'
+      road_team_line += f'{self._period_points(road_team["linescore"], period)}|'
 
     # Totals
     header1 += '**Total**|'
@@ -536,6 +532,9 @@ class GameThreadBot:
         thread = submission
         break
 
+    # TODO: Maybe also check the create time; it's possible that a back-to-back
+    # situation could cause this to update a previous game thread instead.
+    # def _is_obsolete(self, thread)
     if thread is None:
       thread = self.subreddit.submit(title, selftext=body, send_replies=False)
       thread.mod.distinguish(how="yes")
