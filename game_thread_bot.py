@@ -117,12 +117,15 @@ class GameThreadBot:
                 f'{basic_game_data["arena"]["stateAbbr"]} ' +
                 basic_game_data["arena"]["country"])
     arena = basic_game_data['arena']['name']
-
     start_time_utc = dateutil.parser.parse(basic_game_data['startTimeUTC'])
-    eastern = self._build_time_str(start_time_utc, EASTERN_TIMEZONE)
-    central = self._build_time_str(start_time_utc, CENTRAL_TIMEZONE)
-    mountain = self._build_time_str(start_time_utc, MOUNTAIN_TIMEZONE)
-    pacific = self._build_time_str(start_time_utc, PACIFIC_TIMEZONE)
+
+    def time_str(timezone):
+      return start_time_utc.astimezone(timezone).strftime('%I:%M %p')
+
+    eastern = time_str(EASTERN_TIMEZONE)
+    central = time_str(CENTRAL_TIMEZONE)
+    mountain = time_str(MOUNTAIN_TIMEZONE)
+    pacific = time_str(PACIFIC_TIMEZONE)
 
     body = '##### General Information\n\n'
     body += '**TIME**|**BROADCAST**|**Location and Subreddit**|\n'
@@ -148,7 +151,6 @@ class GameThreadBot:
     return title, body
 
   def _build_postgame_thread_text(self, boxscore, teams):
-    basic_game_data = boxscore['basicGameData']
     title = self._build_postgame_title(boxscore, teams)
     body = self._build_boxscore_text(boxscore, teams)
     return title, body
@@ -216,10 +218,6 @@ class GameThreadBot:
         return random.choice(DEFEAT_SYNONYMS[:3])
 
     return random.choice(DEFEAT_SYNONYMS[:2])
-
-  @staticmethod
-  def _build_time_str(time_utc, timezone):
-    return time_utc.astimezone(timezone).strftime('%I:%M %p')
 
   def _build_boxscore_text(self, boxscore, teams):
     """Builds up the post game selftext.
