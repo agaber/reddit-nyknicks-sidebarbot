@@ -241,8 +241,8 @@ class GameThreadBot:
                 f'{basicGameData["startDateEastern"]}'
                 f'{YAHOO_TEAM_CODES[hTeamBasicData["triCode"]]}')
     body = f"""
-||    
-|:-:|   
+||   
+|:-:|  
 |[](/r/{vTeamLogo}) **{vTeamScore} -  {hTeamScore}** [](/r/{hTeamLogo})|
 |**Box Scores: [NBA]({nbaUrl}) & [Yahoo]({yahooUrl})**|
 """
@@ -330,7 +330,7 @@ class GameThreadBot:
       hfb=allStats["hTeam"]["fastBreakPoints"]
     )
 
-    body += """  
+    body += """ 
 **TEAM LEADERS**
 
 |**Team**|**Points**|**Rebounds**|**Assists**|
@@ -471,6 +471,11 @@ class GameThreadBot:
     return body
 
   def _build_linescore(self, boxscore, teams):
+    """Builds a table of points scored in each quarter, including overtime.
+
+    Will return None if there's no data, otherwise it will always print a table
+    with 4 quarters even if some columns are blank."""
+
     basic_game_data = boxscore["basicGameData"]
 
     home_team = basic_game_data["hTeam"]
@@ -488,15 +493,14 @@ class GameThreadBot:
 
     header1 = """|**Team**|"""
     header2 = '|:---|'
-
     home_team_line = f'|{home_team_name}|'
     road_team_line = f'|{road_team_name}|'
     for i in range(0, max(4, num_periods)):
       period = i + 1
       header1 += f'**Q{period}**|' if period < 5 else f'**OT {period - 4}**|'
       header2 += ':--|'
-      home_team_line += f'{self._get_period_points(home_linescore, period)}|'
-      road_team_line += f'{self._get_period_points(road_linescore, period)}|'
+      home_team_line += f'{self._period_points(home_linescore, period)}|'
+      road_team_line += f'{self._period_points(road_linescore, period)}|'
 
     # Totals
     header1 += '**Total**|'
@@ -513,7 +517,7 @@ class GameThreadBot:
     return str(someStat)
 
   @staticmethod
-  def _get_period_points(linescore, period):
+  def _period_points(linescore, period):
     return linescore[(period - 1)]['score'] \
       if len(linescore) > period - 1 else '-'
 
