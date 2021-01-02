@@ -124,17 +124,22 @@ class GameThreadBot:
     mountain = self._build_time_str(start_time_utc, MOUNTAIN_TIMEZONE)
     pacific = self._build_time_str(start_time_utc, PACIFIC_TIMEZONE)
 
-    body = f"""
-##General Information
-**TIME**|**BROADCAST**|**Location and Subreddit**|
-:------------|:------------------------------------|:-------------------|
-{eastern} Eastern   | National Broadcast: {national_broadcaster}           | {location}|
-{central} Central   | Knicks Broadcast: {knicks_broadcaster}               | {arena}|
-{mountain} Mountain | {other_team_nickname} Broadcast: {other_broadcaster} | r/NYKnicks|
-{pacific} Pacific   |                                                      | r/{other_subreddit}|
------
-[Reddit Stream](https://reddit-stream.com/comments/auto) (You must click this link from the comment page.)
-"""
+    body = '##### General Information\n\n'
+    body += '**TIME**|**BROADCAST**|**Location and Subreddit**|\n'
+    body += ':------------|:------------------------------------|:-------------------|\n'
+    body += f'{eastern} Eastern   | National Broadcast: {national_broadcaster}           | {location}|\n'
+    body += f'{central} Central   | Knicks Broadcast: {knicks_broadcaster}               | {arena}|\n'
+    body += f'{mountain} Mountain | {other_team_nickname} Broadcast: {other_broadcaster} | r/NYKnicks|\n'
+    body += f'{pacific} Pacific   |                                                      | r/{other_subreddit}|\n'
+
+    linescore = self._build_linescore(boxscore, teams)
+    if linescore is not None:
+      body += '\n##### Score\n\n'
+      body += linescore
+
+    body += '\n-----\n\n'
+    body += '[Reddit Stream](https://reddit-stream.com/comments/auto) '
+    body += '(You must click this link from the comment page.)\n'
 
     title = (f'{GAME_THREAD_PREFIX} The New York Knicks {knicks_record} ' +
              f'{home_away_sign} The {other_team_name} {other_record} - ' +

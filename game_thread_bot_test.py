@@ -141,7 +141,7 @@ class GameThreadBotTest(unittest.TestCase):
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
   def test_run_createPostGameThread(
         self, mock_get, mock_random, mock_praw):
-    # 3.5 hours before tip-off.
+    # 3.5 hours after tip-off.
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     mock_random.return_value = 'defeat'
@@ -161,8 +161,6 @@ class GameThreadBotTest(unittest.TestCase):
     expected_title = ('[Post Game Thread] The New York Knicks (1-2) defeat the '
                       'Milwaukee Bucks (1-2), 130-110');
 
-    expected_selftext = ''
-
     mock_subreddit.submit.assert_called_once_with(
         expected_title,
         selftext=EXPECTED_POSTGAME_TEXT,
@@ -171,12 +169,49 @@ class GameThreadBotTest(unittest.TestCase):
     mock_submit_mod.sticky.assert_called_once()
     mock_submit_mod.suggested_sort.assert_called_once_with('new')
 
-  # TODO: many more tests needed for the title generation
+  @patch('praw.Reddit')
+  @patch('random.choice')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_run_updatePostGameThread(
+          self, mock_get, mock_random, mock_praw):
+    # 3.5 hours after tip-off.
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    mock_random.return_value = 'defeat'
+    mock_subreddit = self.mock_subreddit(mock_praw)
+
+    shitpost = FakeThread(author='macdoogles', selftext='better shut up')
+    gamethread = FakeThread(author='nyknicks-automod', selftext="we did it!")
+    mock_subreddit.search.return_value = [shitpost, gamethread]
+
+    # Execute.
+    GameThreadBot(now, 'subname').run()
+
+    # Verify.
+    mock_subreddit.search.assert_called_once_with(
+      POST_GAME_PREFIX,  sort='new', time_filter='day')
+    mock_subreddit.submit.assert_not_called()
+    self.assertEqual(gamethread.selftext, EXPECTED_POSTGAME_TEXT)
+    self.assertEqual(shitpost.selftext, 'better shut up')
+
+  # TODO: many more tests needed for post game title generation
   # - with 1 OT
   # - with many OTs
   # - road team wins
+  # - home team wins
   # - will most likely need to call _build_postgame_thread_text directly for that
   #   in order to mock out the nba data API calls
+
+  # TODO: add linescore tests
+  # - with no data
+  # - with only 1, 2, 3, quarters of data
+  # - with one overtime
+  # - with two overtimes
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_build_linescore_withNoData_returnNone(self, mock_get, mock_praw):
+    pass
 
   def mock_subreddit(self, mock_praw):
     mock_subreddit = MagicMock(['search', 'submit'])
@@ -202,15 +237,24 @@ class FakeThread:
     self.selftext = selftext
 
 
-EXPECTED_GAMETHREAD_TEXT = """
-##General Information
+EXPECTED_GAMETHREAD_TEXT = """##### General Information
+
 **TIME**|**BROADCAST**|**Location and Subreddit**|
 :------------|:------------------------------------|:-------------------|
 07:00 PM Eastern   | National Broadcast: N/A           | Cleveland, OH USA|
 06:00 PM Central   | Knicks Broadcast: MSG               | Rocket Mortgage FieldHouse|
 05:00 PM Mountain | Cavaliers Broadcast: Fox Sports Ohio | r/NYKnicks|
 04:00 PM Pacific   |                                                      | r/clevelandcavs|
+
+##### Score
+
+|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|
+|:---|:--|:--|:--|:--|:--|
+|New York Knicks|29|24|18|24|95|
+|Cleveland Cavaliers|15|31|18|22|86|
+
 -----
+
 [Reddit Stream](https://reddit-stream.com/comments/auto) (You must click this link from the comment page.)
 """
 
