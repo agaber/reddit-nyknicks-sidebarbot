@@ -23,12 +23,6 @@ logging.config.fileConfig('logging.conf')
 logger = logging.getLogger('gdtbot')
 
 
-class Action(Enum):
-  DO_GAME_THREAD = 1
-  DO_POST_GAME_THREAD = 2
-  DO_NOTHING = 3
-
-
 class GameThreadBot:
 
   def __init__(self, now: datetime, subreddit_name: str):
@@ -74,7 +68,7 @@ class GameThreadBot:
     if len(games) > last_played_idx + 1:
       game = games[last_played_idx + 1]
       gametime = dateutil.parser.parse(game['startTimeUTC'])
-      has_score = bool(game['vTeam']['score'] + game['hTeam']['score'])
+      has_score = bool(game['vTeam']['score']) or bool(game['hTeam']['score'])
       if gametime - timedelta(hours=1) <= self.now and not has_score:
         return Action.DO_GAME_THREAD, game
 
@@ -89,6 +83,12 @@ class GameThreadBot:
     return Action.DO_NOTHING, None
 
   def _build_game_thread_text(self, boxscore, teams):
+    """Builds the title and selftext for a game thread (not post game). This just
+    builds strings and it doesn't actually interact with Reddit.
+
+    This is heavily inspired by
+    https://github.com/HokageEzio/KnicksGDT/blob/9f90e04e88047cb25d3bfd1c36fb08757b4ccea6/Knicks%20Bot.py#L132.
+    """
     basic_game_data = boxscore['basicGameData']
 
     if basic_game_data['hTeam']['triCode'] == 'NYK':
@@ -117,10 +117,10 @@ class GameThreadBot:
     arena = basic_game_data['arena']['name']
 
     start_time_utc = dateutil.parser.parse(basic_game_data['startTimeUTC'])
-    eastern = start_time_utc.astimezone(EASTERN_TIMEZONE).strftime('%I:%M %p')
-    central = start_time_utc.astimezone(CENTRAL_TIMEZONE).strftime('%I:%M %p')
-    mountain = start_time_utc.astimezone(MOUNTAIN_TIMEZONE).strftime('%I:%M %p')
-    pacific = start_time_utc.astimezone(PACIFIC_TIMEZONE).strftime('%I:%M %p')
+    eastern = _time_str(start_time_utc, EASTERN_TIMEZONE)
+    central = _time_str(start_time_utc, CENTRAL_TIMEZONE)
+    mountain = _time_str(start_time_utc, MOUNTAIN_TIMEZONE)
+    pacific = _time_str(start_time_utc, PACIFIC_TIMEZONE)
 
     body = f"""
 ##General Information
@@ -134,15 +134,11 @@ class GameThreadBot:
 [Reddit Stream](https://reddit-stream.com/comments/auto) (You must click this link from the comment page.)
 """
 
-    # TODO: Add in-game stats:
-    # https://github.com/HokageEzio/nbaspurs-bot/blob/master/sidebar-nbaspurs.py#L393
-
-    dateTitle = self.now.astimezone(EASTERN_TIMEZONE).strftime('%B %d, %Y')
     title = (f'[Game Thread] The New York Knicks {knicks_record} ' +
         f'{home_away_sign} The {other_team_name} {other_record} - ' +
-        f'({dateTitle})')
+        f'({self.now.astimezone(EASTERN_TIMEZONE).strftime("%B %d, %Y")})')
 
-    return (title, body)
+    return title, body
 
   def _build_postgame_thread_text(self, boxscore, teams):
     # TODO: implement post game threads
@@ -152,21 +148,30 @@ class GameThreadBot:
     thread = None
 
     q = '[Game Thread]' if act == Action.DO_GAME_THREAD else '[Post-Game Thread]'
-    found = self.subreddit.search(q, sort='new', time_filter='day')
-    for submission in found:
+    for submission in self.subreddit.search(q, sort='new', time_filter='day'):
       if submission.author == 'nyknicks-automod':
         thread = submission
         break
 
-    if thread == None:
+    if thread is None:
       thread = self.subreddit.submit(title, selftext=body, send_replies=False)
       thread.mod.distinguish(how="yes")
       thread.mod.sticky()
       thread.mod.suggested_sort('new')
+    elif thread.selftext == body:
+      logger.info('Game thread text did not change. Not updating.')
     else:
-      if thread.selftext == body:
-        logger.info('Game thread text did not change. Not updating.')
       thread.edit(body)
+
+
+class Action(Enum):
+  DO_GAME_THREAD = 1
+  DO_POST_GAME_THREAD = 2
+  DO_NOTHING = 3
+
+
+def _time_str(time_utc, timezone):
+  return time_utc.astimezone(timezone).strftime('%I:%M %p')
 
 
 if __name__ == '__main__':
@@ -181,6 +186,7 @@ if __name__ == '__main__':
   logger.info(f'Using subreddit: {subreddit_name}')
 
   try:
+    # TODO: Make the username configurable too.
     bot = GameThreadBot(datetime.now(UTC), subreddit_name)
     bot.run()
   except:

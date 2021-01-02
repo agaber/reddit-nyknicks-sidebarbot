@@ -193,6 +193,7 @@ if __name__ == "__main__":
     logger.error(f'Invalid command line arguments: {args}')
     raise SystemExit(f'Usage: {sys.argv[0]} subreddit')
 
+  # TODO: Make the username configurable too.
   subreddit_name = args[0]
   logger.info(f'Using subreddit: {subreddit_name}')
 

@@ -98,7 +98,7 @@ class GameThreadBotTest(unittest.TestCase):
     mock_subreddit.submit.return_value = MagicMock(mod=mock_submit_mod)
 
     # Execute.
-    GameThreadBot(now, 'NYKnicks').run()
+    GameThreadBot(now, 'subname').run()
 
     # Verify.
     mock_subreddit.search.assert_called_once_with(
@@ -127,7 +127,7 @@ class GameThreadBotTest(unittest.TestCase):
     mock_subreddit.search.return_value = [shitpost, gamethread]
 
     # Execute.
-    GameThreadBot(now, 'NYKnicks').run()
+    GameThreadBot(now, 'subname').run()
 
     # Verify.
     mock_subreddit.search.assert_called_once_with(
@@ -171,6 +171,7 @@ EXPECTED_GAMETHREAD_TEXT = """
 -----
 [Reddit Stream](https://reddit-stream.com/comments/auto) (You must click this link from the comment page.)
 """
+
 
 if __name__ == '__main__':
   unittest.main()
