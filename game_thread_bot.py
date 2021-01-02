@@ -7,7 +7,7 @@ will run once and then terminate. In many cases it will have nothing to do. To
 run this on a continuous basis, try using crontab (see the README.md).
 """
 
-from constants import CENTRAL_TIMEZONE, EASTERN_TIMEZONE, MOUNTAIN_TIMEZONE, PACIFIC_TIMEZONE, TEAM_SUB_MAP, UTC
+from constants import CENTRAL_TIMEZONE, EASTERN_TIMEZONE, GAME_THREAD_PREFIX, MOUNTAIN_TIMEZONE, PACIFIC_TIMEZONE, POST_GAME_PREFIX, TEAM_SUB_MAP, UTC
 from datetime import timedelta, datetime
 from enum import Enum
 from optparse import OptionParser
@@ -134,7 +134,7 @@ class GameThreadBot:
 [Reddit Stream](https://reddit-stream.com/comments/auto) (You must click this link from the comment page.)
 """
 
-    title = (f'[Game Thread] The New York Knicks {knicks_record} ' +
+    title = (f'{GAME_THREAD_PREFIX} The New York Knicks {knicks_record} ' +
         f'{home_away_sign} The {other_team_name} {other_record} - ' +
         f'({self.now.astimezone(EASTERN_TIMEZONE).strftime("%B %d, %Y")})')
 
@@ -147,7 +147,7 @@ class GameThreadBot:
   def _create_or_update_game_thread(self, act, title, body):
     thread = None
 
-    q = '[Game Thread]' if act == Action.DO_GAME_THREAD else '[Post-Game Thread]'
+    q = GAME_THREAD_PREFIX if act == Action.DO_GAME_THREAD else POST_GAME_PREFIX
     for submission in self.subreddit.search(q, sort='new', time_filter='day'):
       if submission.author == 'nyknicks-automod':
         thread = submission

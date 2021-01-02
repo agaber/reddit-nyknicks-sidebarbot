@@ -39,3 +39,5 @@ TEAM_SUB_MAP = {
   'Wizards': 'washingtonwizards',
 }
 
+GAME_THREAD_PREFIX = '[Game Thread]'
+POST_GAME_PREFIX = '[Post Game Thread]'

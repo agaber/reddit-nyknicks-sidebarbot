@@ -1,4 +1,4 @@
-from constants import UTC
+from constants import GAME_THREAD_PREFIX, POST_GAME_PREFIX, UTC
 from datetime import datetime
 from game_thread_bot import Action, GameThreadBot 
 from services import nba_data_test
@@ -102,7 +102,7 @@ class GameThreadBotTest(unittest.TestCase):
 
     # Verify.
     mock_subreddit.search.assert_called_once_with(
-        '[Game Thread]',  sort='new', time_filter='day')
+        GAME_THREAD_PREFIX,  sort='new', time_filter='day')
 
     expected_title = ('[Game Thread] The New York Knicks (2-1) @ The Cleveland '
         'Cavaliers (3-2) - (December 29, 2020)');
@@ -131,10 +131,38 @@ class GameThreadBotTest(unittest.TestCase):
 
     # Verify.
     mock_subreddit.search.assert_called_once_with(
-        '[Game Thread]',  sort='new', time_filter='day')
+        GAME_THREAD_PREFIX,  sort='new', time_filter='day')
     mock_subreddit.submit.assert_not_called()
     self.assertEqual(gamethread.selftext, EXPECTED_GAMETHREAD_TEXT)
     self.assertEqual(shitpost.selftext, 'better shut up')
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_run_createPostGameThread(self, mock_get, mock_praw):
+    # 3.5 hours before tip-off.
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+    mock_subreddit = self.mock_subreddit(mock_praw)
+    mock_subreddit.search.return_value = [FakeThread(author='macdoogles')]
+    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
+    mock_subreddit.submit.return_value = MagicMock(mod=mock_submit_mod)
+
+    # Execute.
+    GameThreadBot(now, 'subname').run()
+
+    # Verify.
+    mock_subreddit.search.assert_called_once_with(
+        POST_GAME_PREFIX,  sort='new', time_filter='day')
+
+    # expected_title = ('[Post Game Thread] The New York Knicks (2-1) @ The Cleveland '
+    #                   'Cavaliers (3-2) - (December 29, 2020)');
+    #
+    # mock_subreddit.submit.assert_called_once_with(
+    #     expected_title,
+    #     selftext=EXPECTED_GAMETHREAD_TEXT,
+    #     send_replies=False)
+    # mock_submit_mod.distinguish.assert_called_once_with(how='yes')
+    # mock_submit_mod.sticky.assert_called_once()
+    # mock_submit_mod.suggested_sort.assert_called_once_with('new')
 
   def mock_subreddit(self, mock_praw):
     mock_subreddit = MagicMock(['search', 'submit'])

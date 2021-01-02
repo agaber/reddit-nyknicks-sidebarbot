@@ -20,6 +20,7 @@ def boxscore(start_date_est, game_id):
     Another string provided by the schedule API for the game in question.
   """
   logger.info(f'Fetching boxscore for {start_date_est} and {game_id}.')
+  print(f'http://data.nba.net/prod/v1/{start_date_est}/{game_id}_boxscore.json')
   r = requests.get(
       f'http://data.nba.net/prod/v1/{start_date_est}/{game_id}_boxscore.json')
   r.raise_for_status()
