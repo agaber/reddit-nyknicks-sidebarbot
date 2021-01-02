@@ -135,7 +135,7 @@ class GameThreadBot:
     linescore = self._build_linescore(boxscore, teams)
     if linescore is not None:
       body += '\n##### Score\n\n'
-      body += linescore
+      body += f'{linescore}\n'
 
     body += '\n-----\n\n'
     body += '[Reddit Stream](https://reddit-stream.com/comments/auto) '
@@ -224,7 +224,8 @@ class GameThreadBot:
   def _build_boxscore_text(self, boxscore, teams):
     """Builds up the post game selftext.
 
-     Ported over from the Spurs bot (https://bit.ly/3n8HYdA).
+     Ported over from the Spurs bot (https://bit.ly/3n8HYdA) with minimal
+     changes.
     """
 
     basicGameData = boxscore["basicGameData"]
@@ -269,7 +270,7 @@ class GameThreadBot:
     )
 
     # Line score
-    body += '\n\n' + self._build_linescore(boxscore, teams)
+    body += f'\n\n{self._build_linescore(boxscore, teams)}\n'
 
     # Team stats
     allStats = boxscore["stats"]
@@ -502,7 +503,7 @@ class GameThreadBot:
     road_team_line = f'|{road_team_name}|'
     for i in range(0, max(4, num_periods)):
       period = i + 1
-      header1 += f'**Q{period}**|' if period < 5 else f'**OT {period - 4}**|'
+      header1 += f'**Q{period}**|' if period < 5 else f'**OT{period - 4}**|'
       header2 += ':--|'
       home_team_line += f'{self._period_points(home_linescore, period)}|'
       road_team_line += f'{self._period_points(road_linescore, period)}|'
@@ -513,7 +514,7 @@ class GameThreadBot:
     home_team_line += f'{home_team["score"]}|'
     road_team_line += f'{road_team["score"]}|'
 
-    return f'{header1}\n{header2}\n{road_team_line}\n{home_team_line}\n'
+    return f'{header1}\n{header2}\n{road_team_line}\n{home_team_line}'
 
   @staticmethod
   def _plusminus(someStat):

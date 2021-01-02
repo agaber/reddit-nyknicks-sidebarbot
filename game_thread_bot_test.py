@@ -202,23 +202,145 @@ class GameThreadBotTest(unittest.TestCase):
   # - will most likely need to call _build_postgame_thread_text directly for that
   #   in order to mock out the nba data API calls
 
-  # TODO: add linescore tests
-  # - with no data
-  # - with only 1, 2, 3, quarters of data
-  # - with one overtime
-  # - with two overtimes
-
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
   def test_build_linescore_withNoData_returnNone(self, mock_get, mock_praw):
-    pass
+    teams = nba_data.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
-  def mock_subreddit(self, mock_praw):
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore['basicGameData']['vTeam']['linescore'] = []
+    boxscore['basicGameData']['hTeam']['linescore'] = []
+
+    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+
+    self.assertIsNone(linescore)
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_build_linescore_withOneQuarter(self, mock_get, mock_praw):
+    teams = nba_data.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(boxscore, [27], [30])
+
+    # Execute
+    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+        linescore,
+        ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
+         '|:---|:--|:--|:--|:--|:--|\n'
+         '|Milwaukee Bucks|27|-|-|-|27|\n'
+         '|New York Knicks|30|-|-|-|30|'))
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_build_linescore_withTwoQuarters(self, mock_get, mock_praw):
+    teams = nba_data.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(boxscore, [27, 18], [30, 31])
+
+    # Execute
+    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+      linescore,
+      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
+       '|:---|:--|:--|:--|:--|:--|\n'
+       '|Milwaukee Bucks|27|18|-|-|45|\n'
+       '|New York Knicks|30|31|-|-|61|'))
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_build_linescore_withThreeQuarters(self, mock_get, mock_praw):
+    teams = nba_data.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(boxscore, [27, 18, 30], [30, 31, 35])
+
+    # Execute
+    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+      linescore,
+      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
+       '|:---|:--|:--|:--|:--|:--|\n'
+       '|Milwaukee Bucks|27|18|30|-|75|\n'
+       '|New York Knicks|30|31|35|-|96|'))
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_build_linescore_withOneOvertime(self, mock_get, mock_praw):
+    teams = nba_data.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(
+        boxscore,
+        home_scores=[27, 18, 30, 40, 15],
+        road_scores=[30, 31, 35, 19, 16])
+
+    # Execute
+    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+      linescore,
+      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**OT1**|**Total**|\n'
+       '|:---|:--|:--|:--|:--|:--|:--|\n'
+       '|Milwaukee Bucks|27|18|30|40|15|130|\n'
+       '|New York Knicks|30|31|35|19|16|131|'))
+
+  @patch('praw.Reddit')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_build_linescore_withTwoOvertimes(self, mock_get, mock_praw):
+    teams = nba_data.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(
+      boxscore,
+      home_scores=[27, 18, 30, 40, 15, 10],
+      road_scores=[30, 31, 35, 19, 15, 13])
+
+    # Execute
+    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+      linescore,
+      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**OT1**|**OT2**|**Total**|\n'
+       '|:---|:--|:--|:--|:--|:--|:--|:--|\n'
+       '|Milwaukee Bucks|27|18|30|40|15|10|140|\n'
+       '|New York Knicks|30|31|35|19|15|13|143|'))
+
+  @staticmethod
+  def mock_subreddit(mock_praw):
     mock_subreddit = MagicMock(['search', 'submit'])
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
     mock_praw.return_value = mock_reddit
     return mock_subreddit
+
+  @staticmethod
+  def update_boxscore(boxscore, home_scores, road_scores):
+    def score(scores):
+      return [{'score': str(s)} for s in scores]
+    boxscore['basicGameData']['vTeam']['linescore'] = score(home_scores)
+    boxscore['basicGameData']['hTeam']['linescore'] = score(road_scores)
+    boxscore['basicGameData']['vTeam']['score'] = str(sum(home_scores))
+    boxscore['basicGameData']['hTeam']['score'] = str(sum(road_scores))
+    boxscore['basicGameData']['period']['current'] = str(len(home_scores))
+    return boxscore
 
   # $ python3 game_thread_bot_test.py GameThreadBotTest.test_run_gamethread_prodReddit
   # CAUTION: THIS WILL USE REAL REDDIT WITH FAKE NBA DATA!!!
