@@ -225,7 +225,7 @@ class GameThreadBotTest(unittest.TestCase):
 
     # Read a real boxscore response and modify it for our test case.
     boxscore = nba_data.boxscore('20201227', '0022000036')
-    boxscore = self.update_boxscore(boxscore, [27], [30])
+    boxscore = self.update_boxscore(boxscore, [27, 0, 0, 0], [30, 0, 0, 0], 1)
 
     # Execute
     linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
@@ -245,7 +245,7 @@ class GameThreadBotTest(unittest.TestCase):
 
     # Read a real boxscore response and modify it for our test case.
     boxscore = nba_data.boxscore('20201227', '0022000036')
-    boxscore = self.update_boxscore(boxscore, [27, 18], [30, 31])
+    boxscore = self.update_boxscore(boxscore, [27, 18, 0, 0], [30, 31, 0, 0], 2)
 
     # Execute
     linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
@@ -265,7 +265,8 @@ class GameThreadBotTest(unittest.TestCase):
 
     # Read a real boxscore response and modify it for our test case.
     boxscore = nba_data.boxscore('20201227', '0022000036')
-    boxscore = self.update_boxscore(boxscore, [27, 18, 30], [30, 31, 35])
+    boxscore = self.update_boxscore(
+      boxscore, [27, 18, 30, 0], [30, 31, 35, 0], 3)
 
     # Execute
     linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
@@ -288,7 +289,8 @@ class GameThreadBotTest(unittest.TestCase):
     boxscore = self.update_boxscore(
         boxscore,
         home_scores=[27, 18, 30, 40, 15],
-        road_scores=[30, 31, 35, 19, 16])
+        road_scores=[30, 31, 35, 19, 16],
+        period=4)  # I don't actually know what this value will be for OT.
 
     # Execute
     linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
@@ -311,7 +313,8 @@ class GameThreadBotTest(unittest.TestCase):
     boxscore = self.update_boxscore(
       boxscore,
       home_scores=[27, 18, 30, 40, 15, 10],
-      road_scores=[30, 31, 35, 19, 15, 13])
+      road_scores=[30, 31, 35, 19, 15, 13],
+      period=4)
 
     # Execute
     linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
@@ -332,14 +335,14 @@ class GameThreadBotTest(unittest.TestCase):
     return mock_subreddit
 
   @staticmethod
-  def update_boxscore(boxscore, home_scores, road_scores):
+  def update_boxscore(boxscore, home_scores, road_scores, period):
     def score(scores):
       return [{'score': str(s)} for s in scores]
     boxscore['basicGameData']['vTeam']['linescore'] = score(home_scores)
     boxscore['basicGameData']['hTeam']['linescore'] = score(road_scores)
     boxscore['basicGameData']['vTeam']['score'] = str(sum(home_scores))
     boxscore['basicGameData']['hTeam']['score'] = str(sum(road_scores))
-    boxscore['basicGameData']['period']['current'] = str(len(home_scores))
+    boxscore['basicGameData']['period']['current'] = period
     return boxscore
 
   # $ python3 game_thread_bot_test.py GameThreadBotTest.test_run_gamethread_prodReddit
@@ -354,6 +357,7 @@ class FakeThread:
   def __init__(self, author, selftext=''):
     self.author = author
     self.selftext = selftext
+    self.title = "Don't care; just don't blow up when it tries to log"
 
   def edit(self, selftext):
     self.selftext = selftext

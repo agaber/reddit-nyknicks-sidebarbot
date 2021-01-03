@@ -481,13 +481,18 @@ class GameThreadBot:
     with 4 quarters even if some columns are blank."""
 
     basic_game_data = boxscore["basicGameData"]
+    current_period = int(basic_game_data['period']['current'])
+
     home_team = basic_game_data["hTeam"]
+    home_score = home_team["linescore"]
     home_team_name = teams[home_team['teamId']]['fullName']
+
     road_team = basic_game_data["vTeam"]
+    road_score = road_team["linescore"]
     road_team_name = teams[road_team['teamId']]['fullName']
 
-    assert len(home_team["linescore"]) == len(road_team["linescore"])
-    num_periods = len(home_team["linescore"])
+    assert len(home_score) == len(road_score)
+    num_periods = len(home_score)
     if num_periods == 0:
       return None
 
@@ -499,8 +504,8 @@ class GameThreadBot:
       period = i + 1
       header1 += f'**Q{period}**|' if period < 5 else f'**OT{period - 4}**|'
       header2 += ':--|'
-      home_team_line += f'{self._period_points(home_team["linescore"], period)}|'
-      road_team_line += f'{self._period_points(road_team["linescore"], period)}|'
+      home_team_line += f'{self._points(home_score, current_period, period)}|'
+      road_team_line += f'{self._points(road_score, current_period, period)}|'
 
     # Totals
     header1 += '**Total**|'
@@ -517,9 +522,28 @@ class GameThreadBot:
     return str(someStat)
 
   @staticmethod
-  def _period_points(linescore, period):
-    return linescore[(period - 1)]['score'] \
-      if len(linescore) > period - 1 else '-'
+  def _points(linescore, current_period, requested_period):
+    """Returns a string for the number of points in a quarter, of '-' if the
+    quarter hasn't started yet.
+
+    Parameters
+    ----------
+    linescore: object
+      NBA data object for the linescore
+    current_period: int
+      The period/quarter NBA says the game is currently in.
+    requested_period: int
+      The period the caller wants to display.
+    """
+    points = linescore[(requested_period - 1)]['score'] \
+      if len(linescore) > requested_period - 1 else '-'
+    # Display a hyphen for quarters that haven't started yet even though they
+    # report it with a score of 0. Always display overtime data if present.
+    if (points == '0'
+            and requested_period > current_period
+            and current_period <= 4):
+      points = '-'
+    return points
 
   def _create_or_update_game_thread(self, act, title, body):
     thread = None
@@ -538,10 +562,12 @@ class GameThreadBot:
       thread.mod.distinguish(how="yes")
       thread.mod.sticky()
       thread.mod.suggested_sort('new')
+      logger.info(f'Created a new thread with title {thread.title}.')
     elif thread.selftext == body:
-      logger.info('Game thread text did not change. Not updating.')
+      logger.info(f'Text of "{thread.title}" did not change. Not updating.')
     else:
       thread.edit(body)
+      logger.info(f'Updated "{thread.title}".')
 
 
 class Action(Enum):
