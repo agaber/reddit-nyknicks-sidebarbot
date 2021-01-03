@@ -1,5 +1,5 @@
 from constants import GAME_THREAD_PREFIX, POST_GAME_PREFIX, UTC
-from datetime import datetime
+from datetime import datetime, timedelta
 from game_thread_bot import Action, GameThreadBot
 from services import nba_data_test
 from unittest.mock import MagicMock, patch
@@ -94,11 +94,12 @@ class GameThreadBotTest(unittest.TestCase):
     now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
     mock_subreddit = self.mock_subreddit(mock_praw)
     mock_subreddit.new.return_value = [
-      FakeThread(author='macdoogles', title="shitpost"),
-      FakeThread(author='nyknicks-automod', title="not a post game thread"),
+      FakeThread(author='macdoogles', title="shitpost", created_utc=now),
+      FakeThread(author='nyknicks-automod', title="nope", created_utc=now),
     ]
     mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
-    mock_subreddit.submit.return_value = MagicMock(mod=mock_submit_mod)
+    mock_subreddit.submit.return_value = MagicMock(
+      mod=mock_submit_mod, title='game thread')
 
     # Execute.
     GameThreadBot(now, 'subname').run()
@@ -124,13 +125,19 @@ class GameThreadBotTest(unittest.TestCase):
     now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
     mock_subreddit = self.mock_subreddit(mock_praw)
 
-    shitpost = FakeThread(author='macdoogles', selftext='better shut up')
+    shitpost = FakeThread(
+        author='macdoogles',
+        created_utc=now,
+        selftext='better shut up',
+        title='no u')
     otherthread = FakeThread(
         author='nyknicks-automod',
+        created_utc=now,
         selftext="it's happening!",
         title="This is not the thread you're looking for")
     gamethread = FakeThread(
         author='nyknicks-automod',
+        created_utc=now,
         selftext='we did it!',
         title=f'{GAME_THREAD_PREFIX} A classic match of Good vs. Evil')
     mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
@@ -156,9 +163,12 @@ class GameThreadBotTest(unittest.TestCase):
     mock_random.return_value = 'defeat'
 
     mock_subreddit = self.mock_subreddit(mock_praw)
-    mock_subreddit.new.return_value = [FakeThread(author='macdoogles')]
+    mock_subreddit.new.return_value = [
+      FakeThread(author='macdoogles', created_utc=now)
+    ]
     mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
-    mock_subreddit.submit.return_value = MagicMock(mod=mock_submit_mod)
+    mock_subreddit.submit.return_value = MagicMock(
+      mod=mock_submit_mod, title='post game thread')
 
     # Execute.
     GameThreadBot(now, 'subname').run()
@@ -188,13 +198,19 @@ class GameThreadBotTest(unittest.TestCase):
     mock_random.return_value = 'defeat'
     mock_subreddit = self.mock_subreddit(mock_praw)
 
-    shitpost = FakeThread(author='macdoogles', selftext='better shut up')
+    shitpost = FakeThread(
+        author='macdoogles',
+        created_utc=now,
+        selftext='better shut up',
+        title='u mad bro?')
     otherthread = FakeThread(
       author='nyknicks-automod',
+      created_utc=now,
       selftext="it's happening!",
       title="This is not the thread you're looking for")
     gamethread = FakeThread(
       author='nyknicks-automod',
+      created_utc=now,
       selftext='we did it!',
       title=f'{POST_GAME_PREFIX} Knicks win!')
     mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
@@ -209,7 +225,53 @@ class GameThreadBotTest(unittest.TestCase):
     self.assertEqual(shitpost.selftext, 'better shut up')
     self.assertEqual(otherthread.selftext, "it's happening!")
 
-  # TODO: many more tests needed for post game title generation
+  @patch('praw.Reddit')
+  @patch('random.choice')
+  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  def test_run_withObsoletePost_createNewPostGameThread(
+          self, mock_get, mock_random, mock_praw):
+    # 3.5 hours after tip-off.
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    mock_random.return_value = 'defeat'
+    mock_subreddit = self.mock_subreddit(mock_praw)
+
+    shitpost = FakeThread(
+      author='macdoogles',
+      created_utc=now,
+      selftext='better shut up',
+      title='u mad bro?')
+    otherthread = FakeThread(
+      author='nyknicks-automod',
+      created_utc=now,
+      selftext="it's happening!",
+      title="This is not the thread you're looking for")
+    # This thread would otherwise match but it is too old and should be ignored.
+    gamethread = FakeThread(
+      author='nyknicks-automod',
+      created_utc=now - timedelta(hours=10),
+      selftext='we did it!',
+      title=f'{POST_GAME_PREFIX} Knicks win!')
+    mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
+    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
+    mock_subreddit.submit.return_value = MagicMock(
+      mod=mock_submit_mod, title='post game thread')
+
+    # Execute.
+    GameThreadBot(now, 'subname').run()
+
+    # Verify.
+    expected_title = ('[Post Game Thread] The New York Knicks (1-2) defeat the '
+                      'Milwaukee Bucks (1-2), 130-110');
+    mock_subreddit.submit.assert_called_once_with(
+      expected_title,
+      selftext=EXPECTED_POSTGAME_TEXT,
+      send_replies=False)
+    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
+    mock_submit_mod.sticky.assert_called_once()
+    mock_submit_mod.suggested_sort.assert_called_once_with('new')
+
+  # TODO: More tests needed for post game title generation:
   # - with 1 OT
   # - with many OTs
   # - road team wins
@@ -369,8 +431,9 @@ class GameThreadBotTest(unittest.TestCase):
 
 
 class FakeThread:
-  def __init__(self, author, selftext='', title=''):
+  def __init__(self, author, created_utc: datetime, selftext='', title=''):
     self.author = author
+    self.created_utc = created_utc.timestamp()
     self.selftext = selftext
     self.title = title
 
