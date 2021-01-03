@@ -365,12 +365,12 @@ class FakeThread:
 
 EXPECTED_GAMETHREAD_TEXT = """##### General Information
 
-**TIME**|**BROADCAST**|**Location and Subreddit**|
-:------------|:------------------------------------|:-------------------|
-07:00 PM Eastern   | National Broadcast: N/A           | Cleveland, OH USA|
-06:00 PM Central   | Knicks Broadcast: MSG               | Rocket Mortgage FieldHouse|
-05:00 PM Mountain | Cavaliers Broadcast: Fox Sports Ohio | r/NYKnicks|
-04:00 PM Pacific   |                                                      | r/clevelandcavs|
+**TIME**|**BROADCAST**|**Media**|**Location and Subreddit**|
+:------------|:------------------------------------|:------------------------------------|:-------------------|
+07:00 PM Eastern   | National Broadcast: N/A           |[Game Preview](https://www.nba.com/game/nyk-vs-cle-0022000046)| Cleveland, OH USA|
+06:00 PM Central   | Knicks Broadcast: MSG               |[Play By Play](https://www.nba.com/game/nyk-vs-cle-0022000046/play-by-play)| Rocket Mortgage FieldHouse|
+05:00 PM Mountain | Cavaliers Broadcast: Fox Sports Ohio |[Box Score](https://www.nba.com/game/nyk-vs-cle-0022000046/box-score#box-score)| r/NYKnicks|
+04:00 PM Pacific   | [NBA League Pass](https://www.nba.com/game/nyk-vs-cle-0022000046?watch)                   || r/clevelandcavs|
 
 ##### Score
 

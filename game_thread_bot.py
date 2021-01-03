@@ -92,10 +92,12 @@ class GameThreadBot:
     This is heavily inspired by https://bit.ly/3hBwfmC.
     """
     basic_game_data = boxscore['basicGameData']
+    hteam = basic_game_data['hTeam']
+    vteam = basic_game_data['vTeam']
 
-    if basic_game_data['hTeam']['triCode'] == 'NYK':
+    if hteam['triCode'] == 'NYK':
       us = 'hTeam'
-      them = 'vTeam'
+      them = 'vteam'
       home_away_sign = 'vs'
     else:
       us = 'vTeam'
@@ -108,8 +110,8 @@ class GameThreadBot:
     knicks_broadcaster = broadcasters[us][0]['longName']
     other_broadcaster = broadcasters[them][0]['longName']
 
-    knicks_record = f"({basic_game_data[us]['win']}-{basic_game_data['hTeam']['loss']})"
-    other_record = f"({basic_game_data[them]['win']}-{basic_game_data['vTeam']['loss']})"
+    knicks_record = f"({basic_game_data[us]['win']}-{hteam['loss']})"
+    other_record = f"({basic_game_data[them]['win']}-{vteam['loss']})"
     other_subreddit = TEAM_SUB_MAP[teams[basic_game_data[them]['teamId']]['nickname']]
     other_team_name = teams[basic_game_data[them]['teamId']]['fullName']
     other_team_nickname = teams[basic_game_data[them]['teamId']]['nickname']
@@ -127,13 +129,21 @@ class GameThreadBot:
     mountain = time_str(MOUNTAIN_TIMEZONE)
     pacific = time_str(PACIFIC_TIMEZONE)
 
+    urlpart = (
+        f'{vteam["triCode"].lower()}-vs-{hteam["triCode"].lower()}-'
+        f'{basic_game_data["gameId"]}')
+    nba_pass_link = f'https://www.nba.com/game/{urlpart}?watch'
+    preview_link = f'https://www.nba.com/game/{urlpart}'
+    play_link = f'https://www.nba.com/game/{urlpart}/play-by-play'
+    box_link = f'https://www.nba.com/game/{urlpart}/box-score#box-score'
+
     body = '##### General Information\n\n'
-    body += '**TIME**|**BROADCAST**|**Location and Subreddit**|\n'
-    body += ':------------|:------------------------------------|:-------------------|\n'
-    body += f'{eastern} Eastern   | National Broadcast: {national_broadcaster}           | {location}|\n'
-    body += f'{central} Central   | Knicks Broadcast: {knicks_broadcaster}               | {arena}|\n'
-    body += f'{mountain} Mountain | {other_team_nickname} Broadcast: {other_broadcaster} | r/NYKnicks|\n'
-    body += f'{pacific} Pacific   |                                                      | r/{other_subreddit}|\n'
+    body += '**TIME**|**BROADCAST**|**Media**|**Location and Subreddit**|\n'
+    body += ':------------|:------------------------------------|:------------------------------------|:-------------------|\n'
+    body += f'{eastern} Eastern   | National Broadcast: {national_broadcaster}           |[Game Preview]({preview_link})| {location}|\n'
+    body += f'{central} Central   | Knicks Broadcast: {knicks_broadcaster}               |[Play By Play]({play_link})| {arena}|\n'
+    body += f'{mountain} Mountain | {other_team_nickname} Broadcast: {other_broadcaster} |[Box Score]({box_link})| r/NYKnicks|\n'
+    body += f'{pacific} Pacific   | [NBA League Pass]({nba_pass_link})                   || r/{other_subreddit}|\n'
 
     linescore = self._build_linescore(boxscore, teams)
     if linescore is not None:
