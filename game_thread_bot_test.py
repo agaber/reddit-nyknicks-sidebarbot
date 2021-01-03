@@ -382,7 +382,7 @@ EXPECTED_GAMETHREAD_TEXT = """##### General Information
 
 **TIME**|**BROADCAST**|**Media**|**Location and Subreddit**|
 :------------|:------------------------------------|:------------------------------------|:-------------------|
-07:00 PM Eastern   | National Broadcast: N/A           |[Game Preview](https://www.nba.com/game/nyk-vs-cle-0022000046)| Cleveland, OH USA|
+07:00 PM Eastern   | National Broadcast: N/A           |[Game Preview](https://www.nba.com/game/nyk-vs-cle-0022000046)| Cleveland, OH|
 06:00 PM Central   | Knicks Broadcast: MSG               |[Play By Play](https://www.nba.com/game/nyk-vs-cle-0022000046/play-by-play)| Rocket Mortgage FieldHouse|
 05:00 PM Mountain | Cavaliers Broadcast: Fox Sports Ohio |[Box Score](https://www.nba.com/game/nyk-vs-cle-0022000046/box-score#box-score)| r/NYKnicks|
 04:00 PM Pacific   | [NBA League Pass](https://www.nba.com/game/nyk-vs-cle-0022000046?watch)                   || r/clevelandcavs|
@@ -399,25 +399,25 @@ EXPECTED_GAMETHREAD_TEXT = """##### General Information
 [Reddit Stream](https://reddit-stream.com/comments/auto) (You must click this link from the comment page.)
 """
 
-EXPECTED_POSTGAME_TEXT = """
-||  
-|:-:| 
-|[](/r/MkeBucks) **110 -  130** [](/r/NYKnicks)|
-|**Box Scores: [NBA](https://www.nba.com/game/MIL-vs-NYK-0022000036) & [Yahoo](http://sports.yahoo.com/nba/milwaukee-bucks-new-york-knicks-2020122718)**|
+EXPECTED_POSTGAME_TEXT = """##### Game Summary
 
-||
-|:-:|
-|**GAME SUMMARY**|
-|**Location:** Madison Square Garden(0), **Clock:** |
-|**Officials:** Scott Wall, Zach Zarba and Evan Scott|
+|||
+|:--|:--|
+|**Score**|[](/r/MkeBucks) **110 -  130** [](/r/NYKnicks)|
+|**Box Score**|[NBA](https://www.nba.com/game/MIL-vs-NYK-0022000036), [Yahoo](http://sports.yahoo.com/nba/milwaukee-bucks-new-york-knicks-2020122718)|
+|**Location**|New York, NY|
+|**Arena**|Madison Square Garden|
+|**Attendance**|No in-person attendance|
+|**Officials**|Scott Wall, Zach Zarba, Evan Scott|
 
+##### Line Score
 
 |**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|
 |:---|:--|:--|:--|:--|:--|
 |Milwaukee Bucks|27|18|30|35|110|
 |New York Knicks|30|31|35|34|130|
 
-**TEAM STATS**
+##### Team Stats
 
 |**Team**|**PTS**|**FG**|**FG%**|**3P**|**3P%**|**FT**|**FT%**|**OREB**|**TREB**|**AST**|**PF**|**STL**|**TO**|**BLK**|
 |:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
@@ -429,14 +429,14 @@ EXPECTED_POSTGAME_TEXT = """
 |Milwaukee Bucks|+2|8|60|20|12|
 |New York Knicks|+28|11|48|15|5|
   
-**TEAM LEADERS**
+##### Team Leaders
 
 |**Team**|**Points**|**Rebounds**|**Assists**|
 |:--|:--|:--|:--|
 |Milwaukee Bucks|**27** Giannis Antetokounmpo|**13** Giannis Antetokounmpo|**5** Giannis Antetokounmpo|
 |New York Knicks|**29** Julius Randle|**14** Julius Randle|**7** Julius Randle|
 
-**PLAYER STATS**
+##### Player Stats
 
 **[](/MIL) BUCKS**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
 |:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|

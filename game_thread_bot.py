@@ -115,9 +115,7 @@ class GameThreadBot:
     other_subreddit = TEAM_SUB_MAP[teams[basic_game_data[them]['teamId']]['nickname']]
     other_team_name = teams[basic_game_data[them]['teamId']]['fullName']
     other_team_nickname = teams[basic_game_data[them]['teamId']]['nickname']
-    location = (f'{basic_game_data["arena"]["city"]}, ' +
-                f'{basic_game_data["arena"]["stateAbbr"]} ' +
-                basic_game_data["arena"]["country"])
+    location = self._build_location_string(basic_game_data)
     arena = basic_game_data['arena']['name']
     start_time_utc = dateutil.parser.parse(basic_game_data['startTimeUTC'])
 
@@ -159,6 +157,14 @@ class GameThreadBot:
              f'({self.now.astimezone(EASTERN_TIMEZONE).strftime("%B %d, %Y")})')
 
     return title, body
+
+  @staticmethod
+  def _build_location_string(basic_game_data):
+    city = basic_game_data["arena"]["city"]
+    state = basic_game_data["arena"]["stateAbbr"]
+    location = f'{city}, {state}'
+    country = basic_game_data["arena"]["country"]
+    return location if country == 'USA' else f'{location} {country}'
 
   def _build_postgame_thread_text(self, boxscore, teams):
     title = self._build_postgame_title(boxscore, teams)
@@ -253,37 +259,32 @@ class GameThreadBot:
                 f'{hTeamFullName.lower().replace(" ", "-")}-'
                 f'{basicGameData["startDateEastern"]}'
                 f'{YAHOO_TEAM_CODES[hTeamBasicData["triCode"]]}')
-    body = f"""
-||  
-|:-:| 
-|[](/r/{vTeamLogo}) **{vTeamScore} -  {hTeamScore}** [](/r/{hTeamLogo})|
-|**Box Scores: [NBA]({nbaUrl}) & [Yahoo]({yahooUrl})**|
-"""
+    arena = basicGameData["arena"]["name"]
+    attendance = basicGameData["attendance"]
+    officials = ', '.join([o["firstNameLastName"] for o in basicGameData["officials"]["formatted"]])
 
     # Game summary
-    body += """
-||
-|:-:|
-|**GAME SUMMARY**|
-|**Location:** {arena}({attendance}), **Clock:** {clock}|
-|**Officials:** {referee1}, {referee2} and {referee3}|
-""".format(
-      arena=basicGameData["arena"]["name"],
-      attendance=basicGameData["attendance"],
-      clock=basicGameData["clock"],
-      referee1=basicGameData["officials"]["formatted"][0]["firstNameLastName"],
-      referee2=basicGameData["officials"]["formatted"][1]["firstNameLastName"],
-      referee3=basicGameData["officials"]["formatted"][2]["firstNameLastName"]
-    )
+    body = f"""##### Game Summary
+
+|||
+|:--|:--|
+|**Score**|[](/r/{vTeamLogo}) **{vTeamScore} -  {hTeamScore}** [](/r/{hTeamLogo})|
+|**Box Score**|[NBA]({nbaUrl}), [Yahoo]({yahooUrl})|
+|**Location**|{self._build_location_string(basicGameData)}|
+|**Arena**|{arena}|
+|**Attendance**|{attendance if attendance != '0' else 'No in-person attendance'}|
+|**Officials**|{officials}|
+"""
 
     # Line score
-    body += f'\n\n{self._build_linescore(boxscore, teams)}\n'
+    body += '\n##### Line Score\n'
+    body += f'\n{self._build_linescore(boxscore, teams)}\n'
 
     # Team stats
     allStats = boxscore["stats"]
     playerStats = allStats["activePlayers"]
     body += """
-**TEAM STATS**
+##### Team Stats
 
 |**Team**|**PTS**|**FG**|**FG%**|**3P**|**3P%**|**FT**|**FT%**|**OREB**|**TREB**|**AST**|**PF**|**STL**|**TO**|**BLK**|
 |:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
@@ -344,7 +345,7 @@ class GameThreadBot:
     )
 
     body += """
-**TEAM LEADERS**
+##### Team Leaders
 
 |**Team**|**Points**|**Rebounds**|**Assists**|
 |:--|:--|:--|:--|
@@ -374,7 +375,7 @@ class GameThreadBot:
     )
 
     body += """
-**PLAYER STATS**
+##### Player Stats
 
 **[](/{vTeamLogo}) {vTeamName}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
 |:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
