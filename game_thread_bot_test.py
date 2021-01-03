@@ -248,7 +248,7 @@ class GameThreadBotTest(unittest.TestCase):
     self.assertEqual(
         linescore,
         ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
-         '|:---|:--|:--|:--|:--|:--|\n'
+         '|:---|:--:|:--:|:--:|:--:|:--:|\n'
          '|Milwaukee Bucks|27|-|-|-|27|\n'
          '|New York Knicks|30|-|-|-|30|'))
 
@@ -268,7 +268,7 @@ class GameThreadBotTest(unittest.TestCase):
     self.assertEqual(
       linescore,
       ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
-       '|:---|:--|:--|:--|:--|:--|\n'
+       '|:---|:--:|:--:|:--:|:--:|:--:|\n'
        '|Milwaukee Bucks|27|18|-|-|45|\n'
        '|New York Knicks|30|31|-|-|61|'))
 
@@ -289,7 +289,7 @@ class GameThreadBotTest(unittest.TestCase):
     self.assertEqual(
       linescore,
       ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
-       '|:---|:--|:--|:--|:--|:--|\n'
+       '|:---|:--:|:--:|:--:|:--:|:--:|\n'
        '|Milwaukee Bucks|27|18|30|-|75|\n'
        '|New York Knicks|30|31|35|-|96|'))
 
@@ -313,7 +313,7 @@ class GameThreadBotTest(unittest.TestCase):
     self.assertEqual(
       linescore,
       ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**OT1**|**Total**|\n'
-       '|:---|:--|:--|:--|:--|:--|:--|\n'
+       '|:---|:--:|:--:|:--:|:--:|:--:|:--:|\n'
        '|Milwaukee Bucks|27|18|30|40|15|130|\n'
        '|New York Knicks|30|31|35|19|16|131|'))
 
@@ -337,7 +337,7 @@ class GameThreadBotTest(unittest.TestCase):
     self.assertEqual(
       linescore,
       ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**OT1**|**OT2**|**Total**|\n'
-       '|:---|:--|:--|:--|:--|:--|:--|:--|\n'
+       '|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|\n'
        '|Milwaukee Bucks|27|18|30|40|15|10|140|\n'
        '|New York Knicks|30|31|35|19|15|13|143|'))
 
@@ -390,7 +390,7 @@ EXPECTED_GAMETHREAD_TEXT = """##### General Information
 ##### Score
 
 |**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|
-|:---|:--|:--|:--|:--|:--|
+|:---|:--:|:--:|:--:|:--:|:--:|
 |New York Knicks|29|24|18|24|95|
 |Cleveland Cavaliers|15|31|18|22|86|
 
@@ -413,7 +413,7 @@ EXPECTED_POSTGAME_TEXT = """##### Game Summary
 ##### Line Score
 
 |**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|
-|:---|:--|:--|:--|:--|:--|
+|:---|:--:|:--:|:--:|:--:|:--:|
 |Milwaukee Bucks|27|18|30|35|110|
 |New York Knicks|30|31|35|34|130|
 

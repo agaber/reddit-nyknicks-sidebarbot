@@ -513,13 +513,13 @@ class GameThreadBot:
     for i in range(0, max(4, num_periods)):
       period = i + 1
       header1 += f'**Q{period}**|' if period < 5 else f'**OT{period - 4}**|'
-      header2 += ':--|'
+      header2 += ':--:|'
       home_team_line += f'{self._points(home_score, current_period, period)}|'
       road_team_line += f'{self._points(road_score, current_period, period)}|'
 
     # Totals
     header1 += '**Total**|'
-    header2 += ':--|'
+    header2 += ':--:|'
     home_team_line += f'{home_team["score"]}|'
     road_team_line += f'{road_team["score"]}|'
 
