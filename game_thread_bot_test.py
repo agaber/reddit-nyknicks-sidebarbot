@@ -422,13 +422,6 @@ class GameThreadBotTest(unittest.TestCase):
     boxscore['basicGameData']['period']['current'] = period
     return boxscore
 
-  # $ python3 game_thread_bot_test.py GameThreadBotTest.test_run_gamethread_prodReddit
-  # CAUTION: THIS WILL USE REAL REDDIT WITH FAKE NBA DATA!!!
-  # @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  # def test_run_gamethread_prodReddit(self, mock_get):
-  #   now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
-  #   GameThreadBot(now, 'knicklejerk').run()
-
 
 class FakeThread:
   def __init__(self, author, created_utc: datetime, selftext='', title=''):
@@ -471,6 +464,8 @@ EXPECTED_POSTGAME_TEXT = """##### Game Summary
 |**Location**|New York, NY|
 |**Arena**|Madison Square Garden|
 |**Attendance**|No in-person attendance|
+|**Start Time**|December 27, 2020 7:30 PM EST|
+|**Game Duration**|2 hours and 19 minutes|
 |**Officials**|Scott Wall, Zach Zarba, Evan Scott|
 
 ##### Line Score

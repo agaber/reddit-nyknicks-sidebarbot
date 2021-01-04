@@ -261,7 +261,14 @@ class GameThreadBot:
                 f'{YAHOO_TEAM_CODES[hTeamBasicData["triCode"]]}')
     arena = basicGameData["arena"]["name"]
     attendance = basicGameData["attendance"]
-    officials = ', '.join([o["firstNameLastName"] for o in basicGameData["officials"]["formatted"]])
+    officials = ', '.join([o["firstNameLastName"]
+        for o in basicGameData["officials"]["formatted"]])
+    start_time_est = (dateutil.parser.parse(basicGameData['startTimeUTC'])
+        .astimezone(EASTERN_TIMEZONE).strftime('%B %d, %Y %-I:%M %p %Z'))
+    duration = (f'{basicGameData["gameDuration"]["hours"]} hours and '
+                f'{basicGameData["gameDuration"]["minutes"]} minutes')
+    duration = duration.replace(' and 0 minutes', '')
+    duration = duration.replace(' and 1 minutes', ' and 1 minute')
 
     # Game summary
     body = f"""##### Game Summary
@@ -273,6 +280,8 @@ class GameThreadBot:
 |**Location**|{self._build_location_string(basicGameData)}|
 |**Arena**|{arena}|
 |**Attendance**|{attendance if attendance != '0' else 'No in-person attendance'}|
+|**Start Time**|{start_time_est}|
+|**Game Duration**|{duration}|
 |**Officials**|{officials}|
 """
 
