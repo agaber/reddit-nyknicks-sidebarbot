@@ -1,73 +1,87 @@
 from constants import GAME_THREAD_PREFIX, POST_GAME_PREFIX, UTC
 from datetime import datetime, timedelta
 from game_thread_bot import Action, GameThreadBot
-from services import nba_data_test
+from services.fake_nba_service import FakeNbaService
+from services.nba_service import NbaService
 from unittest.mock import MagicMock, patch
 
-from services import nba_data
+import logging.config
 import unittest
 
 
 class GameThreadBotTest(unittest.TestCase):
 
   @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_current_game_tooEarly_doNothing(self, mock_get, mock_praw):
+  def setUp(self, mock_praw):
+    logging.basicConfig(level=logging.ERROR)
+    self.logger = logging.getLogger(__name__)
+    self.fake_nba_service = FakeNbaService()
+    self.mock_praw = mock_praw
+    self.mock_reddit = MagicMock(['subreddit', 'user'])
+    self.mock_reddit.user = FakeUser('nyknicks-automod')
+    self.mock_praw.return_value = self.mock_reddit
+    self.mock_subreddit = MagicMock(['new', 'search', 'submit'])
+    self.mock_reddit.subreddit.return_value = self.mock_subreddit
+
+  def tearDown(self):
+    self.mock_praw.reset_mock()
+    self.mock_reddit.reset_mock()
+    self.mock_subreddit.reset_mock()
+
+  def bot(self, now: datetime):
+    return GameThreadBot(
+        logger=self.logger,
+        nba_service=self.fake_nba_service,
+        now=now,
+        reddit=self.mock_reddit,
+        subreddit_name='test_NYKnicks')
+
+  def test_get_current_game_tooEarly_doNothing(self):
     # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
     # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
     now = datetime(2020, 12, 29, 12, 0, 0, 0, UTC)
-    schedule = nba_data.schedule('knicks', '2020')
-    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
     self.assertIsNone(game)
     self.assertEqual(action, Action.DO_NOTHING)
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_current_game_1HourBefore_doGameThread(self, mock_get, mock_praw):
+  def test_get_current_game_1HourBefore_doGameThread(self):
     # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
     # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
     now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
-    schedule = nba_data.schedule('knicks', '2020')
-    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
     self.assertEqual(action, Action.DO_GAME_THREAD)
     self.assertEqual(game['gameUrlCode'], '20201229/NYKCLE')
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_current_game_gameStarted_doGameThread(self, mock_get, mock_praw):
+  def test_get_current_game_gameStarted_doGameThread(self):
     # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
     # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
     now = datetime(2020, 12, 30, 1, 0, 0, 0, UTC)
-    schedule = nba_data.schedule('knicks', '2020')
-    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
     self.assertEqual(action, Action.DO_GAME_THREAD)
     self.assertEqual(game['gameUrlCode'], '20201229/NYKCLE')
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_current_game_afterGame_postGameThread(self, mock_get, mock_praw):
+  def test_get_current_game_afterGame_postGameThread(self):
     # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
     # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-    schedule = nba_data.schedule('knicks', '2020')
-    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
     self.assertEqual(action, Action.DO_POST_GAME_THREAD)
     self.assertEqual(game['gameUrlCode'], '20201227/MILNYK')
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_current_game_tooLate_doNothing(self, mock_get, mock_praw):
+  def test_get_current_game_tooLate_doNothing(self):
     # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
     # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
     now = datetime(2020, 12, 28, 7, 0, 0, 0, UTC)
-    schedule = nba_data.schedule('knicks', '2020')
-    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
     self.assertEqual(action, Action.DO_NOTHING)
     self.assertIsNone(game)
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_get_current_game_seasonOver_doNothing(self, mock_get, mock_praw):
+  def test_get_current_game_seasonOver_doNothing(self):
     now = datetime(2021, 2, 10, 12, 0, 0, 0, UTC)
     schedule = {
       "league": {
@@ -83,34 +97,31 @@ class GameThreadBotTest(unittest.TestCase):
         ],
       }
     }
-    (action, game) = GameThreadBot(now, 'NYKnicks')._get_current_game(schedule)
+    (action, game) = self.bot(now)._get_current_game(schedule)
     self.assertEqual(action, Action.DO_NOTHING)
     self.assertIsNone(game)
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_run_createGameThread(self, mock_get, mock_praw):
+  def test_run_createGameThread(self):
     # 1 hour before tip-off.
     now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
-    mock_subreddit = self.mock_subreddit(mock_praw)
-    mock_subreddit.new.return_value = [
+    self.mock_subreddit.new.return_value = [
       FakeThread(author='macdoogles', title="shitpost", created_utc=now),
       FakeThread(author='nyknicks-automod', title="nope", created_utc=now),
     ]
     mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
-    mock_subreddit.submit.return_value = MagicMock(
+    self.mock_subreddit.submit.return_value = MagicMock(
       mod=mock_submit_mod, title='game thread')
 
     # Execute.
-    GameThreadBot(now, 'subname').run()
+    self.bot(now).run()
 
     # Verify.
-    mock_subreddit.new.assert_called_once()
+    self.mock_subreddit.new.assert_called_once()
 
     expected_title = ('[Game Thread] The New York Knicks (2-1) @ The Cleveland '
         'Cavaliers (3-2) - (December 29, 2020)');
   
-    mock_subreddit.submit.assert_called_once_with(
+    self.mock_subreddit.submit.assert_called_once_with(
         expected_title,
         selftext=EXPECTED_GAMETHREAD_TEXT,
         send_replies=False)
@@ -118,12 +129,9 @@ class GameThreadBotTest(unittest.TestCase):
     mock_submit_mod.sticky.assert_called_once()
     mock_submit_mod.suggested_sort.assert_called_once_with('new')
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_run_updateGameThread(self, mock_get, mock_praw):
+  def test_run_updateGameThread(self):
     # 1 hour before tip-off.
     now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
-    mock_subreddit = self.mock_subreddit(mock_praw)
 
     shitpost = FakeThread(
         author='macdoogles',
@@ -140,46 +148,42 @@ class GameThreadBotTest(unittest.TestCase):
         created_utc=now,
         selftext='we did it!',
         title=f'{GAME_THREAD_PREFIX} A classic match of Good vs. Evil')
-    mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
+    self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
 
     # Execute.
-    GameThreadBot(now, 'subname').run()
+    self.bot(now).run()
 
     # Verify.
-    mock_subreddit.new.assert_called_once()
-    mock_subreddit.submit.assert_not_called()
+    self.mock_subreddit.new.assert_called_once()
+    self.mock_subreddit.submit.assert_not_called()
     self.assertEqual(gamethread.selftext, EXPECTED_GAMETHREAD_TEXT)
     self.assertEqual(shitpost.selftext, 'better shut up')
     self.assertEqual(otherthread.selftext, "it's happening!")
 
-  @patch('praw.Reddit')
   @patch('random.choice')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_run_createPostGameThread(
-        self, mock_get, mock_random, mock_praw):
+  def test_run_createPostGameThread(self, mock_random):
     # 3.5 hours after tip-off.
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     mock_random.return_value = 'defeat'
 
-    mock_subreddit = self.mock_subreddit(mock_praw)
-    mock_subreddit.new.return_value = [
+    self.mock_subreddit.new.return_value = [
       FakeThread(author='macdoogles', created_utc=now)
     ]
     mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
-    mock_subreddit.submit.return_value = MagicMock(
+    self.mock_subreddit.submit.return_value = MagicMock(
       mod=mock_submit_mod, title='post game thread')
 
     # Execute.
-    GameThreadBot(now, 'subname').run()
+    self.bot(now).run()
 
     # Verify.
-    mock_subreddit.new.assert_called_once()
+    self.mock_subreddit.new.assert_called_once()
 
     expected_title = ('[Post Game Thread] The New York Knicks (1-2) defeat the '
                       'Milwaukee Bucks (1-2), 130-110');
 
-    mock_subreddit.submit.assert_called_once_with(
+    self.mock_subreddit.submit.assert_called_once_with(
         expected_title,
         selftext=EXPECTED_POSTGAME_TEXT,
         send_replies=False)
@@ -187,16 +191,12 @@ class GameThreadBotTest(unittest.TestCase):
     mock_submit_mod.sticky.assert_called_once()
     mock_submit_mod.suggested_sort.assert_called_once_with('new')
 
-  @patch('praw.Reddit')
   @patch('random.choice')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_run_updatePostGameThread(
-          self, mock_get, mock_random, mock_praw):
+  def test_run_updatePostGameThread(self, mock_random):
     # 3.5 hours after tip-off.
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     mock_random.return_value = 'defeat'
-    mock_subreddit = self.mock_subreddit(mock_praw)
 
     shitpost = FakeThread(
         author='macdoogles',
@@ -213,28 +213,24 @@ class GameThreadBotTest(unittest.TestCase):
       created_utc=now,
       selftext='we did it!',
       title=f'{POST_GAME_PREFIX} Knicks win!')
-    mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
+    self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
 
     # Execute.
-    GameThreadBot(now, 'subname').run()
+    self.bot(now).run()
 
     # Verify.
-    mock_subreddit.new.assert_called_once()
-    mock_subreddit.submit.assert_not_called()
+    self.mock_subreddit.new.assert_called_once()
+    self.mock_subreddit.submit.assert_not_called()
     self.assertEqual(gamethread.selftext, EXPECTED_POSTGAME_TEXT)
     self.assertEqual(shitpost.selftext, 'better shut up')
     self.assertEqual(otherthread.selftext, "it's happening!")
 
-  @patch('praw.Reddit')
   @patch('random.choice')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_run_withObsoletePost_createNewPostGameThread(
-          self, mock_get, mock_random, mock_praw):
+  def test_run_withObsoletePost_createNewPostGameThread(self, mock_random):
     # 3.5 hours after tip-off.
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     mock_random.return_value = 'defeat'
-    mock_subreddit = self.mock_subreddit(mock_praw)
 
     shitpost = FakeThread(
       author='macdoogles',
@@ -252,18 +248,18 @@ class GameThreadBotTest(unittest.TestCase):
       created_utc=now - timedelta(hours=10),
       selftext='we did it!',
       title=f'{POST_GAME_PREFIX} Knicks win!')
-    mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
+    self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
     mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
-    mock_subreddit.submit.return_value = MagicMock(
+    self.mock_subreddit.submit.return_value = MagicMock(
       mod=mock_submit_mod, title='post game thread')
 
     # Execute.
-    GameThreadBot(now, 'subname').run()
+    self.bot(now).run()
 
     # Verify.
     expected_title = ('[Post Game Thread] The New York Knicks (1-2) defeat the '
                       'Milwaukee Bucks (1-2), 130-110');
-    mock_subreddit.submit.assert_called_once_with(
+    self.mock_subreddit.submit.assert_called_once_with(
       expected_title,
       selftext=EXPECTED_POSTGAME_TEXT,
       send_replies=False)
@@ -279,33 +275,29 @@ class GameThreadBotTest(unittest.TestCase):
   # - will most likely need to call _build_postgame_thread_text directly for that
   #   in order to mock out the nba data API calls
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_build_linescore_withNoData_returnNone(self, mock_get, mock_praw):
-    teams = nba_data.teams('2020')
+  def test_build_linescore_withNoData_returnNone(self):
+    teams = self.fake_nba_service.teams('2020')
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     # Read a real boxscore response and modify it for our test case.
-    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
     boxscore['basicGameData']['vTeam']['linescore'] = []
     boxscore['basicGameData']['hTeam']['linescore'] = []
 
-    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
 
     self.assertIsNone(linescore)
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_build_linescore_withOneQuarter(self, mock_get, mock_praw):
-    teams = nba_data.teams('2020')
+  def test_build_linescore_withOneQuarter(self):
+    teams = self.fake_nba_service.teams('2020')
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     # Read a real boxscore response and modify it for our test case.
-    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
     boxscore = self.update_boxscore(boxscore, [27, 0, 0, 0], [30, 0, 0, 0], 1)
 
     # Execute
-    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
 
     self.assertEqual(
         linescore,
@@ -314,18 +306,16 @@ class GameThreadBotTest(unittest.TestCase):
          '|Milwaukee Bucks|27|-|-|-|27|\n'
          '|New York Knicks|30|-|-|-|30|'))
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_build_linescore_withTwoQuarters(self, mock_get, mock_praw):
-    teams = nba_data.teams('2020')
+  def test_build_linescore_withTwoQuarters(self):
+    teams = self.fake_nba_service.teams('2020')
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     # Read a real boxscore response and modify it for our test case.
-    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
     boxscore = self.update_boxscore(boxscore, [27, 18, 0, 0], [30, 31, 0, 0], 2)
 
     # Execute
-    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
 
     self.assertEqual(
       linescore,
@@ -334,19 +324,17 @@ class GameThreadBotTest(unittest.TestCase):
        '|Milwaukee Bucks|27|18|-|-|45|\n'
        '|New York Knicks|30|31|-|-|61|'))
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_build_linescore_withThreeQuarters(self, mock_get, mock_praw):
-    teams = nba_data.teams('2020')
+  def test_build_linescore_withThreeQuarters(self):
+    teams = self.fake_nba_service.teams('2020')
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     # Read a real boxscore response and modify it for our test case.
-    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
     boxscore = self.update_boxscore(
-      boxscore, [27, 18, 30, 0], [30, 31, 35, 0], 3)
+        boxscore, [27, 18, 30, 0], [30, 31, 35, 0], 3)
 
     # Execute
-    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
 
     self.assertEqual(
       linescore,
@@ -355,14 +343,12 @@ class GameThreadBotTest(unittest.TestCase):
        '|Milwaukee Bucks|27|18|30|-|75|\n'
        '|New York Knicks|30|31|35|-|96|'))
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_build_linescore_withOneOvertime(self, mock_get, mock_praw):
-    teams = nba_data.teams('2020')
+  def test_build_linescore_withOneOvertime(self):
+    teams = self.fake_nba_service.teams('2020')
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     # Read a real boxscore response and modify it for our test case.
-    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
     boxscore = self.update_boxscore(
         boxscore,
         home_scores=[27, 18, 30, 40, 15],
@@ -370,7 +356,7 @@ class GameThreadBotTest(unittest.TestCase):
         period=4)  # I don't actually know what this value will be for OT.
 
     # Execute
-    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
 
     self.assertEqual(
       linescore,
@@ -379,14 +365,12 @@ class GameThreadBotTest(unittest.TestCase):
        '|Milwaukee Bucks|27|18|30|40|15|130|\n'
        '|New York Knicks|30|31|35|19|16|131|'))
 
-  @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
-  def test_build_linescore_withTwoOvertimes(self, mock_get, mock_praw):
-    teams = nba_data.teams('2020')
+  def test_build_linescore_withTwoOvertimes(self):
+    teams = self.fake_nba_service.teams('2020')
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
 
     # Read a real boxscore response and modify it for our test case.
-    boxscore = nba_data.boxscore('20201227', '0022000036')
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
     boxscore = self.update_boxscore(
       boxscore,
       home_scores=[27, 18, 30, 40, 15, 10],
@@ -394,7 +378,7 @@ class GameThreadBotTest(unittest.TestCase):
       period=4)
 
     # Execute
-    linescore = GameThreadBot(now, 'knickssub')._build_linescore(boxscore, teams)
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
 
     self.assertEqual(
       linescore,
@@ -402,14 +386,6 @@ class GameThreadBotTest(unittest.TestCase):
        '|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|\n'
        '|Milwaukee Bucks|27|18|30|40|15|10|140|\n'
        '|New York Knicks|30|31|35|19|15|13|143|'))
-
-  @staticmethod
-  def mock_subreddit(mock_praw):
-    mock_subreddit = MagicMock(['new', 'search', 'submit'])
-    mock_reddit = MagicMock(['subreddit'])
-    mock_reddit.subreddit.return_value = mock_subreddit
-    mock_praw.return_value = mock_reddit
-    return mock_subreddit
 
   @staticmethod
   def update_boxscore(boxscore, home_scores, road_scores, period):
@@ -432,6 +408,19 @@ class FakeThread:
 
   def edit(self, selftext):
     self.selftext = selftext
+
+
+class FakeMe:
+  def __init__(self, name):
+    self.name = name
+
+
+class FakeUser:
+  def __init__(self, name):
+    self._me = FakeMe(name)
+
+  def me(self, use_cache=True):
+    return self._me if not use_cache else None
 
 
 EXPECTED_GAMETHREAD_TEXT = """##### General Information

@@ -1,7 +1,7 @@
 from constants import EASTERN_TIMEZONE, TEAM_SUB_MAP, UTC
 from datetime import datetime, timedelta
 from optparse import OptionParser
-from services import nba_data
+from services.nba_service import NbaService
 
 import dateutil.parser
 import logging.config
@@ -9,13 +9,9 @@ import praw
 import sys
 import traceback
 
-logging.config.fileConfig('logging.conf')
-logger = logging.getLogger('sidebarbot')
-
-
-def build_roster(year):
-  players = nba_data.players(year)
-  roster = nba_data.roster('knicks', year)
+def build_roster(nba_service, year):
+  players = nba_service.players(year)
+  roster = nba_service.roster('knicks', year)
   team_players = filter(lambda player: player['personId'] in roster, players)
 
   rows = []
@@ -33,9 +29,9 @@ def build_roster(year):
   return '\n'.join(rows)
 
 
-def build_schedule(now, teams, year):
+def build_schedule(logger, nba_service, now, teams, year):
   today = now.astimezone(EASTERN_TIMEZONE).date()
-  schedule = nba_data.schedule('knicks', year)
+  schedule = nba_service.schedule('knicks', year)
 
   logger.info('Building schedule text.')
   # FYI: We want to show to a show a total of 12 games: 
@@ -82,15 +78,15 @@ def build_schedule(now, teams, year):
   return '\n'.join(rows)
 
 
-def build_standings(teams):
-  standings = nba_data.conference_standings()
+def build_standings(logger, nba_service, teams):
+  standings = nba_service.conference_standings()
   logger.info('Building standings text.')
   division = standings['conference']['east']
   return print_standings(teams, division)
 
 
-def build_tank_standings(teams):
-  standings = nba_data.conference_standings()
+def build_tank_standings(logger, nba_service, teams):
+  standings = nba_service.conference_standings()
   logger.info('Building tank standings text.')
   rows = standings['conference']['east']
   rows = rows + standings['conference']['west']
@@ -136,7 +132,7 @@ def winloss(knicks_score, opp_score):
       if kscore > oscore else 'L %s-%s' % (oscore, kscore))
 
 
-def execute(now, subreddit_name, tanking, user='nyknicks-automod'):
+def execute(logger, now, subreddit_name, tanking, user='nyknicks-automod'):
   """
     The main starting point (after command line args are parsed) that initiates
     all of the work this bot will do. It intereacts with reddit and the NBA Data
@@ -145,6 +141,7 @@ def execute(now, subreddit_name, tanking, user='nyknicks-automod'):
 
     Parameters
     ----------
+    logger : logging.Logger
     now : datetime
       The current time, preferably in UTC.
     subreddit_name : string
@@ -157,12 +154,14 @@ def execute(now, subreddit_name, tanking, user='nyknicks-automod'):
       The Reddit account username for the bot to run as. This praw.ini config
       file should also have an entry for this username.
   """
-  current_year = nba_data.current_year()
-  roster = build_roster(current_year)
-  teams = nba_data.teams(current_year)
-  schedule = build_schedule(now, teams, current_year)
-  standings = build_tank_standings(teams) \
-      if tanking else build_standings(teams)
+  nba_service = NbaService(logger)
+
+  current_year = nba_service.current_year()
+  roster = build_roster(nba_service, current_year)
+  teams = nba_service.teams(current_year)
+  schedule = build_schedule(logger, nba_service, now, teams, current_year)
+  standings = build_tank_standings(logger, nba_service, teams) \
+      if tanking else build_standings(logger, nba_service, teams)
 
   logger.info('Logging in to reddit.')
   reddit = praw.Reddit(user)
@@ -199,6 +198,9 @@ if __name__ == "__main__":
       metavar='[username]')
   (options, args) = parser.parse_args()
 
+  logging.config.fileConfig('logging.conf')
+  logger = logging.getLogger('sidebarbot')
+
   if len(args) != 1:
     logger.error(f'Invalid command line arguments: {args}')
     raise SystemExit(f'Usage: {sys.argv[0]} subreddit')
@@ -213,6 +215,6 @@ if __name__ == "__main__":
   logger.info(f'Print tank standings: {tank_standings}')
 
   try:
-    execute(datetime.now(UTC), subreddit_name, tank_standings, username)
+    execute(logger, datetime.now(UTC), subreddit_name, tank_standings, username)
   except:
     logger.error(traceback.format_exc())

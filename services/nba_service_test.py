@@ -1,6 +1,7 @@
-from services import nba_data
+from services.nba_service import NbaService
 from unittest.mock import patch
 
+import logging.config
 import os.path
 import unittest
 
@@ -24,10 +25,14 @@ def mocked_requests_get(*args, **kwargs):
   return MockResponse(None, 404)
 
 
-class NbaDataTest(unittest.TestCase):
+class NbaServiceTest(unittest.TestCase):
+  def setUp(self):
+    logging.basicConfig(level=logging.ERROR)
+    self.nba_service = NbaService(logging.getLogger(__name__))
+
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_boxscore(self, mock_get):
-    boxscore = nba_data.boxscore('20201231', '0022000066')
+    boxscore = self.nba_service.boxscore('20201231', '0022000066')
     # Just verify a few properties instead of the entire large response.
     self.assertEqual(boxscore['basicGameData']['gameUrlCode'], '20201231/NYKTOR')
     mock_get.assert_called_once_with(
@@ -35,7 +40,7 @@ class NbaDataTest(unittest.TestCase):
 
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_conference_standings(self, mock_get):
-    standings = nba_data.conference_standings()
+    standings = self.nba_service.conference_standings()
     # Just verify a few properties instead of the entire large response.
     self.assertEqual(2017, standings['seasonYear'])
     teamIds = list(map(lambda t: t['teamId'], standings['conference']['east']))
@@ -45,13 +50,13 @@ class NbaDataTest(unittest.TestCase):
 
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_current_year(self, mock_get):
-    self.assertEqual(nba_data.current_year(), 2020)
+    self.assertEqual(self.nba_service.current_year(), 2020)
     mock_get.assert_called_once_with(
         'http://data.nba.net/10s/prod/v1/today.json')
 
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_players(self, mock_get):
-    response = nba_data.players('2020')
+    response = self.nba_service.players('2020')
     # Just verify a few properties instead of the entire large response.
     actual_names = list(
         map(lambda player: player['temporaryDisplayName'], response))
@@ -72,7 +77,7 @@ class NbaDataTest(unittest.TestCase):
 
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_roster(self, mock_get):
-    response = nba_data.roster('knicks', '2020')
+    response = self.nba_service.roster('knicks', '2020')
     expected = set(['1629628', '1629649', '203493', '202692'])
     self.assertEqual(response, expected)
     mock_get.assert_called_once_with(
@@ -80,7 +85,7 @@ class NbaDataTest(unittest.TestCase):
 
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_schedule(self, mock_get):
-    response = nba_data.schedule('knicks', '2020')
+    response = self.nba_service.schedule('knicks', '2020')
     # Just verify a few properties instead of the entire large response.
     actual = list(map(lambda s: s['gameId'], response['league']['standard']))
     expected = ['0012000002', '0012000015', '0012000028']
@@ -90,7 +95,7 @@ class NbaDataTest(unittest.TestCase):
 
   @patch('requests.get', side_effect=mocked_requests_get)
   def test_teams(self, mock_get):
-    teams = nba_data.teams('2020')
+    teams = self.nba_service.teams('2020')
     # Just spot check a few properties instead of the entire large response.
     self.assertEqual('Atlanta Hawks', teams['1610612737']['fullName'])
     self.assertEqual('Hawks', teams['1610612737']['nickname'])

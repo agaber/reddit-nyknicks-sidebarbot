@@ -4,9 +4,10 @@ calls to the Reddit and NBA Data APIs.
 """
 
 from datetime import datetime
-from services import nba_data_test
+from services import nba_service_test
 from unittest.mock import MagicMock, patch
 
+import logging.config
 import sidebarbot
 import unittest
 
@@ -105,8 +106,12 @@ bye
 
 class SidebarBotTest(unittest.TestCase):
 
+  def setUp(self):
+    logging.basicConfig(level=logging.ERROR)
+    self.logger = logging.getLogger(__name__)
+
   @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  @patch('requests.get', side_effect=nba_service_test.mocked_requests_get)
   def test_execute_newChanges_updatesDescription(self, mock_get, mock_praw):
     # Expect it to lookup the initial description from the reddit API.
     mock_mod = MagicMock()
@@ -118,14 +123,14 @@ class SidebarBotTest(unittest.TestCase):
     now = datetime(2020, 12, 29, 17, 12, 52, 305157, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute(now, 'subredditName', False)
+    sidebarbot.execute(self.logger, now, 'subredditName', False)
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
     mock_mod.update.assert_called_with(description=EXPECTED_UPDATED_DESCR)
 
   @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  @patch('requests.get', side_effect=nba_service_test.mocked_requests_get)
   def test_execute_noChanges_doesNotUpdateDescrip(self, mock_get, mock_praw):
     # Expect it to lookup the initial description from the reddit API.
     mock_mod = MagicMock()
@@ -137,14 +142,14 @@ class SidebarBotTest(unittest.TestCase):
     now = datetime(2020, 12, 29, 17, 12, 52, 305157, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute(now, 'subredditName', False)
+    sidebarbot.execute(self.logger, now, 'subredditName', False)
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
     mock_mod.update.assert_not_called()
 
   @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  @patch('requests.get', side_effect=nba_service_test.mocked_requests_get)
   def test_execute_tankChanges_updatesDescription(self, mock_get, mock_praw):
     # Expect it to lookup the initial description from the reddit API.
     mock_mod = MagicMock()
@@ -156,7 +161,7 @@ class SidebarBotTest(unittest.TestCase):
     now = datetime(2020, 12, 29, 17, 12, 52, 305157, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute(now, 'subredditName', True)
+    sidebarbot.execute(self.logger, now, 'subredditName', True)
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
@@ -179,7 +184,7 @@ class SidebarBotTest(unittest.TestCase):
 [](#EndStandings)""")
 
   @patch('praw.Reddit')
-  @patch('requests.get', side_effect=nba_data_test.mocked_requests_get)
+  @patch('requests.get', side_effect=nba_service_test.mocked_requests_get)
   def test_execute_scheduleWithYesterdayTomorrow(self, mock_get, mock_praw):
     # Expect it to lookup the initial description from the reddit API.
     mock_mod = MagicMock()
@@ -191,7 +196,7 @@ class SidebarBotTest(unittest.TestCase):
     now = datetime(2020, 12, 28, 10, 00, 00, 00, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute(now, 'subredditName', False)
+    sidebarbot.execute(self.logger, now, 'subredditName', False)
 
     # Verify.
     mock_mod.update.assert_called_with(
