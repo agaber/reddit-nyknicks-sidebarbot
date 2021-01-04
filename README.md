@@ -40,7 +40,7 @@ Reddit bots that automate various things for
 
 These bots are meant to be run from a command line terminal. They do something
 once and then terminate. They are [cron jobs](https://en.wikipedia.org/wiki/Cron), 
-not [daemons](https://en.wikipedia.org/wiki/Daemon_(computing) like a lot of
+not [daemons](https://en.wikipedia.org/wiki/Daemon_(computing)) like a lot of
 other bots; meaning they don't stay running forever in an infinite loop. So to 
 make these programs consistently update Reddit, I use crontabs on Linux:
 
