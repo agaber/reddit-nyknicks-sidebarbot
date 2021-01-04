@@ -28,10 +28,12 @@ logger = logging.getLogger('gdtbot')
 
 class GameThreadBot:
 
-  def __init__(self, now: datetime, subreddit_name: str):
+  def __init__(
+        self, now: datetime, subreddit_name: str, user='nyknicks-automod'):
     self.now = now
-    self.reddit = praw.Reddit('nyknicks-automod')
+    self.reddit = praw.Reddit(user)
     self.subreddit = self.reddit.subreddit(subreddit_name)
+    self.user = user
 
   def run(self):
     season_year = nba_data.current_year()
@@ -577,7 +579,7 @@ class GameThreadBot:
       # Need to make sure that we don't incorrectly update an old/obsolete post.
       created_utc = datetime.fromtimestamp(submission.created_utc, UTC)
       is_obsolete = created_utc + timedelta(hours=MAX_POST_AGE_HOURS) < self.now
-      is_bot_post = submission.author == 'nyknicks-automod'
+      is_bot_post = submission.author == self.user
       if submission.title.startswith(q) and is_bot_post and not is_obsolete:
         thread = submission
         break
@@ -607,6 +609,12 @@ class Action(Enum):
 
 if __name__ == '__main__':
   parser = OptionParser()
+  parser.add_option(
+      "-u",
+      "--user",
+      dest="username",
+      help="Reddit account for the bot to run as.",
+      metavar='[username]')
   (options, args) = parser.parse_args()
 
   if len(args) != 1:
@@ -614,11 +622,11 @@ if __name__ == '__main__':
     raise SystemExit(f'Usage: {sys.argv[0]} subreddit')
 
   subreddit_name = args[0]
-  logger.info(f'Using subreddit: {subreddit_name}')
+  username = options.username if options.username else 'nyknicks-automod'
+  logger.info(f'Using subreddit "{subreddit_name}" and user "{username}".')
 
   try:
-    # TODO: Make the username configurable too.
-    bot = GameThreadBot(datetime.now(UTC), subreddit_name)
+    bot = GameThreadBot(datetime.now(UTC), subreddit_name, username)
     bot.run()
   except:
     logger.error(traceback.format_exc())
