@@ -579,7 +579,7 @@ class GameThreadBot:
       thread.mod.sticky()
       thread.mod.suggested_sort('new')
       logger.info(f'Created a new thread with title "{thread.title}".')
-    elif thread.selftext == body:
+    elif thread.selftext.strip() == body.strip():
       logger.info(f'Text of "{thread.title}" did not change. Not updating.')
     else:
       thread.edit(body)
