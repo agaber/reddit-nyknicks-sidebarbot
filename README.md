@@ -48,7 +48,7 @@ make these programs consistently update Reddit, I use crontabs on Linux:
     * * * * * cd /home/me/src/redditbots && python3 sidebarbot.py NYKnicks
     * * * * * cd /home/me/src/redditbots && python3 game_thread_bot.py NYKnicks
 
-Crontab should also work on Mac and with Windows Task Scheduer on Microsoft 
+Crontab should also work on Mac and with Windows Task Scheduler on Microsoft 
 Windows but I've never tried those things myself.
 
 As an aside, I have a Windows PC at home, but I run an Ubuntu Server using 
@@ -69,8 +69,80 @@ expensive to justify.
 * https://github.com/praw-dev
 * https://www.reddit.com/r/redditdev/
 
-## Known Issues
+## Known issues
 
 * This is using an outdated version of praw because the newer version
 (praw=7.1.0) doesn't seem to correctly update the sidebar. See 
 https://github.com/praw-dev/praw/issues/1613.
+
+## Contributing code changes
+
+#### Prerequisites
+
+You need to install git and have some familiarity with executing
+commands from a terminal.
+
+#### Instructions
+
+Just in general, to edit stuff on github there are 4 steps (there are other ways
+but this is one way I know how to do it):
+
+1. Fork
+
+   Go [here](https://github.com/agaber/reddit-nyknicks-sidebarbot) and click "Fork"
+   near the top left: 
+   
+1. Clone
+
+   Click Clone and copy the URL. On your computer, open a command line terminal
+   and run these commands:
+   
+       $ mkdir src
+       $ cd src
+       $ git clone [url you copied]
+       $ cd reddit-nyknicks-sidebarbot
+        
+1. Branch
+
+    Create a new branch (give it a descriptive name).
+    
+       $ git checkout -b my_cool_change
+
+1. Commit and push
+
+    Make some edits and then commit.
+    
+        $ git add -A .
+        $ git commit
+    
+    Enter a helpful description of your change. The first line should be a brief
+    high-level summary (it will be displayed in a bunch of places) but feel free
+    to add more paragraphs with useful information.
+    
+    Then push
+    
+        $ git push
+    
+    This will probably fail on the first try but it will tell you what to do in
+    the error message. It will be something like this:
+    
+        $ git push --set-upstream origin test_branch
+    
+1. Create a pull request
+
+    Go back to your forked repo on github. Click into the "Pull requests" tab and
+    then click "New pull request".
+    
+    After than select the options for merging your change into the original and
+    click "Create pull request".
+    
+    Your change will either be accepted or you will get some kind of comment.
+    
+#### Requirements
+
+1. Please, please, please make sure the unit tests still work with your new change
+(instructions for running tests are above) and please add new tests for new logic
+that you're adding.
+
+2. Please try to stick with two space indentation with white space
+(no tab chars).
