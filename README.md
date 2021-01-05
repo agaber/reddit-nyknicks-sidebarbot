@@ -89,13 +89,18 @@ but this is one way I know how to do it):
 
 1. Fork
 
-   Go [here](https://github.com/agaber/reddit-nyknicks-sidebarbot) and click "Fork"
-   near the top left: 
+   Go [here](https://github.com/agaber/reddit-nyknicks-sidebarbot) and click
+   "Fork" near the top left:
+   
+   ![Fork](https://i.imgur.com/TvuVRKp.png) 
    
 1. Clone
 
-   Click Clone and copy the URL. On your computer, open a command line terminal
-   and run these commands:
+   Click Clone and copy the URL. 
+   
+   ![Clone](https://i.imgur.com/taHxmrx.png)
+   
+   On your computer, open a command line terminal and run these commands:
    
        $ mkdir src
        $ cd src
@@ -133,10 +138,12 @@ but this is one way I know how to do it):
     Go back to your forked repo on github. Click into the "Pull requests" tab and
     then click "New pull request".
     
-    After than select the options for merging your change into the original and
+    ![Pull request](https://i.imgur.com/IIJ9twX.png)
+    
+    After that select the options for merging your change into the original and
     click "Create pull request".
     
-    Your change will either be accepted or you will get some kind of comment.
+    Your change will either be accepted or you will get some kind of feedback.
     
 #### Requirements
 
