@@ -3,7 +3,9 @@
 Reddit bots that automate various things for 
 [/r/nyknicks](https://www.reddit.com/r/NYKnicks/).
 
-## Prerequisites
+## Running locally
+
+#### Prerequisites
 
 * [Set up your python environment](https://cloud.google.com/python/setup)
 
@@ -16,7 +18,7 @@ Reddit bots that automate various things for
 
   The commands are similar on Linux with apt install.
 
-* A praw.ini file (not submitted) with the following contents:
+* Add a praw.ini file (not submitted) with the following contents:
 
         [nyknicks-automod]
         client_id=(from reddit.com/prefs/apps)
@@ -25,18 +27,21 @@ Reddit bots that automate various things for
         username=nyknicks-automod
         user_agent=python-praw
 
-## Running locally:
+* Add dependencies and log directory:
 
-    $ pip install -r requirements.txt
-    $ mkdir -p ~/.redditbot/logs
+        $ pip install -r requirements.txt    
+        $ mkdir -p ~/.redditbot/logs
+    
+#### Running it manually
+
     $ python3 sidebarbot.py NYKnicks
     $ python3 game_thread_bot.py NYKnicks
 
-## Unit tests
+#### Unit tests
 
     $ python3 -m unittest discover -s ./ -p '*_test.py'
 
-## Crontab
+#### Running it automatically with crontab
 
 These bots are meant to be run from a command line terminal. They do something
 once and then terminate. They are [cron jobs](https://en.wikipedia.org/wiki/Cron), 
