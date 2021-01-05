@@ -115,8 +115,8 @@ class GameThreadBot:
     knicks_broadcaster = broadcasters[us][0]['longName']
     other_broadcaster = broadcasters[them][0]['longName']
 
-    knicks_record = f"({basic_game_data[us]['win']}-{hteam['loss']})"
-    other_record = f"({basic_game_data[them]['win']}-{vteam['loss']})"
+    knicks_record = f"({basic_game_data[us]['win']}-{basic_game_data[us]['loss']})"
+    other_record = f"({basic_game_data[them]['win']}-{basic_game_data[them]['loss']})"
     other_subreddit = TEAM_SUB_MAP[teams[basic_game_data[them]['teamId']]['nickname']]
     other_team_name = teams[basic_game_data[them]['teamId']]['fullName']
     other_team_nickname = teams[basic_game_data[them]['teamId']]['nickname']

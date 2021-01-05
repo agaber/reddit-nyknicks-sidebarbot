@@ -118,8 +118,8 @@ class GameThreadBotTest(unittest.TestCase):
     # Verify.
     self.mock_subreddit.new.assert_called_once()
 
-    expected_title = ('[Game Thread] The New York Knicks (2-1) @ The Cleveland '
-        'Cavaliers (3-2) - (December 29, 2020)');
+    expected_title = ('[Game Thread] The New York Knicks (2-2) @ The Cleveland '
+        'Cavaliers (3-1) - (December 29, 2020)');
   
     self.mock_subreddit.submit.assert_called_once_with(
         expected_title,
