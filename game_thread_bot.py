@@ -46,6 +46,9 @@ DEFEAT_SYNONYMS = [
   'snap',
 ]
 
+# Will ignore posts older than this many hours
+MAX_POST_AGE_HOURS = 6
+
 
 class GameThreadBot:
 
@@ -622,10 +625,6 @@ class GameThreadBot:
     else:
       thread.edit(body)
       self.logger.info(f'Updated "{thread.title}".')
-
-
-# Will ignore posts older than this many hours
-MAX_POST_AGE_HOURS = 6
 
 
 class Action(Enum):
