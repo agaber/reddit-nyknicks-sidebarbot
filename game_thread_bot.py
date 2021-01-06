@@ -657,10 +657,10 @@ if __name__ == '__main__':
 
   now = datetime.now(UTC)
   # now = datetime(2021, 1, 1, 4, 4, 0, 0, UTC)
-  nba_service = NbaService(logger)
-  reddit = praw.Reddit(username)
 
   try:
+    nba_service = NbaService(logger)
+    reddit = praw.Reddit(username)
     bot = GameThreadBot(logger, nba_service, now, reddit, subreddit_name)
     bot.run()
   except:
