@@ -43,11 +43,11 @@ Reddit bots that automate various things for
 
 #### Running it automatically with crontab
 
-These bots are meant to be run from a command line terminal. They do something
-once and then terminate. They are [cron jobs](https://en.wikipedia.org/wiki/Cron), 
-not [daemons](https://en.wikipedia.org/wiki/Daemon_(computing)) like a lot of
-other bots; meaning they don't stay running forever in an infinite loop. So to 
-make these programs consistently update Reddit, I use crontabs on Linux:
+These bots should be run from a command line terminal. They do something once and
+then terminate. They are [cron jobs](https://en.wikipedia.org/wiki/Cron), not 
+[daemons](https://en.wikipedia.org/wiki/Daemon_(computing)) like a lot of other
+bots; meaning they don't stay running forever in an infinite loop. So to  make
+these programs consistently update Reddit, I use crontabs on Linux:
 
     $ crontab -e
     * * * * * cd /home/me/src/redditbots && python3 sidebarbot.py NYKnicks
@@ -156,5 +156,10 @@ but this is one way I know how to do it):
 (instructions for running tests are above) and please add new tests for new logic
 that you're adding.
 
-2. Please try to stick with two space indentation with white space
-(no tab chars).
+2. Please use consistent formatting:
+* Use white space for indentation (no tab characters).
+* 2 space indentation, 4 spaces for continuing lines.
+* 2 new lines before classes and top-level functions.
+* camel_case for functions & variables. CamelCase for classes.
+* Use a leading underscore for private members.
+* Lines should be under 80 characters long.

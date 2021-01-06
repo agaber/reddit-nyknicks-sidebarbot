@@ -1,6 +1,6 @@
 """
 Provides a facade class around the NBA Data APIs. It makes network calls to look
-up NBA data and returns their response. It encapsulates details around forming
+up NBA data and returns their responses. It encapsulates details around forming
 the correct request URLs and marshalling JSON responses into python objects.
 """
 

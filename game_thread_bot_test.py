@@ -1,427 +1,12 @@
-from constants import GAME_THREAD_PREFIX, POST_GAME_PREFIX, UTC
+from constants import UTC
 from datetime import datetime, timedelta
+from game_thread_bot import GAME_THREAD_PREFIX, POST_GAME_PREFIX
 from game_thread_bot import Action, GameThreadBot
 from services.fake_nba_service import FakeNbaService
-from services.nba_service import NbaService
 from unittest.mock import MagicMock, patch
 
 import logging.config
 import unittest
-
-
-class GameThreadBotTest(unittest.TestCase):
-
-  @patch('praw.Reddit')
-  def setUp(self, mock_praw):
-    logging.basicConfig(level=logging.ERROR)
-    self.logger = logging.getLogger(__name__)
-    self.fake_nba_service = FakeNbaService()
-    self.mock_praw = mock_praw
-    self.mock_reddit = MagicMock(['subreddit', 'user'])
-    self.mock_reddit.user = FakeUser('nyknicks-automod')
-    self.mock_praw.return_value = self.mock_reddit
-    self.mock_subreddit = MagicMock(['new', 'search', 'submit'])
-    self.mock_reddit.subreddit.return_value = self.mock_subreddit
-
-  def tearDown(self):
-    self.mock_praw.reset_mock()
-    self.mock_reddit.reset_mock()
-    self.mock_subreddit.reset_mock()
-
-  def bot(self, now: datetime):
-    return GameThreadBot(
-        logger=self.logger,
-        nba_service=self.fake_nba_service,
-        now=now,
-        reddit=self.mock_reddit,
-        subreddit_name='test_NYKnicks')
-
-  def test_get_current_game_tooEarly_doNothing(self):
-    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
-    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
-    now = datetime(2020, 12, 29, 12, 0, 0, 0, UTC)
-    schedule = self.fake_nba_service.schedule('knicks', '2020')
-    (action, game) = self.bot(now)._get_current_game(schedule)
-    self.assertIsNone(game)
-    self.assertEqual(action, Action.DO_NOTHING)
-
-  def test_get_current_game_1HourBefore_doGameThread(self):
-    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
-    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
-    now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
-    schedule = self.fake_nba_service.schedule('knicks', '2020')
-    (action, game) = self.bot(now)._get_current_game(schedule)
-    self.assertEqual(action, Action.DO_GAME_THREAD)
-    self.assertEqual(game['gameUrlCode'], '20201229/NYKCLE')
-
-  def test_get_current_game_gameStarted_doGameThread(self):
-    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
-    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
-    now = datetime(2020, 12, 30, 1, 0, 0, 0, UTC)
-    schedule = self.fake_nba_service.schedule('knicks', '2020')
-    (action, game) = self.bot(now)._get_current_game(schedule)
-    self.assertEqual(action, Action.DO_GAME_THREAD)
-    self.assertEqual(game['gameUrlCode'], '20201229/NYKCLE')
-
-  def test_get_current_game_afterGame_postGameThread(self):
-    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
-    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-    schedule = self.fake_nba_service.schedule('knicks', '2020')
-    (action, game) = self.bot(now)._get_current_game(schedule)
-    self.assertEqual(action, Action.DO_POST_GAME_THREAD)
-    self.assertEqual(game['gameUrlCode'], '20201227/MILNYK')
-
-  def test_get_current_game_tooLate_doNothing(self):
-    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
-    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
-    now = datetime(2020, 12, 28, 7, 0, 0, 0, UTC)
-    schedule = self.fake_nba_service.schedule('knicks', '2020')
-    (action, game) = self.bot(now)._get_current_game(schedule)
-    self.assertEqual(action, Action.DO_NOTHING)
-    self.assertIsNone(game)
-
-  def test_get_current_game_seasonOver_doNothing(self):
-    now = datetime(2021, 2, 10, 12, 0, 0, 0, UTC)
-    schedule = {
-      "league": {
-        "lastStandardGamePlayedIndex": 0,
-        "standard": [
-          {
-            'gameUrlCode': '20201231/NYKTOR',
-            'startTimeUTC': '2021-01-01T00:30:00.000Z',
-            'statusNum': 3,
-            'vTeam': {'score': '83'},
-            'hTeam': {'score': '100'},
-          },
-        ],
-      }
-    }
-    (action, game) = self.bot(now)._get_current_game(schedule)
-    self.assertEqual(action, Action.DO_NOTHING)
-    self.assertIsNone(game)
-
-  def test_run_createGameThread(self):
-    # 1 hour before tip-off.
-    now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
-    self.mock_subreddit.new.return_value = [
-      FakeThread(author='macdoogles', title="shitpost", created_utc=now),
-      FakeThread(author='nyknicks-automod', title="nope", created_utc=now),
-    ]
-    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
-    self.mock_subreddit.submit.return_value = MagicMock(
-      mod=mock_submit_mod, title='game thread')
-
-    # Execute.
-    self.bot(now).run()
-
-    # Verify.
-    self.mock_subreddit.new.assert_called_once()
-
-    expected_title = ('[Game Thread] The New York Knicks (2-2) @ The Cleveland '
-        'Cavaliers (3-1) - (December 29, 2020)');
-  
-    self.mock_subreddit.submit.assert_called_once_with(
-        expected_title,
-        selftext=EXPECTED_GAMETHREAD_TEXT,
-        send_replies=False)
-    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
-    mock_submit_mod.sticky.assert_called_once()
-    mock_submit_mod.suggested_sort.assert_called_once_with('new')
-
-  def test_run_updateGameThread(self):
-    # 1 hour before tip-off.
-    now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
-
-    shitpost = FakeThread(
-        author='macdoogles',
-        created_utc=now,
-        selftext='better shut up',
-        title='no u')
-    otherthread = FakeThread(
-        author='nyknicks-automod',
-        created_utc=now,
-        selftext="it's happening!",
-        title="This is not the thread you're looking for")
-    gamethread = FakeThread(
-        author='nyknicks-automod',
-        created_utc=now,
-        selftext='we did it!',
-        title=f'{GAME_THREAD_PREFIX} A classic match of Good vs. Evil')
-    self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
-
-    # Execute.
-    self.bot(now).run()
-
-    # Verify.
-    self.mock_subreddit.new.assert_called_once()
-    self.mock_subreddit.submit.assert_not_called()
-    self.assertEqual(gamethread.selftext, EXPECTED_GAMETHREAD_TEXT)
-    self.assertEqual(shitpost.selftext, 'better shut up')
-    self.assertEqual(otherthread.selftext, "it's happening!")
-
-  @patch('random.choice')
-  def test_run_createPostGameThread(self, mock_random):
-    # 3.5 hours after tip-off.
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
-    mock_random.return_value = 'defeat'
-
-    self.mock_subreddit.new.return_value = [
-      FakeThread(author='macdoogles', created_utc=now)
-    ]
-    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
-    self.mock_subreddit.submit.return_value = MagicMock(
-      mod=mock_submit_mod, title='post game thread')
-
-    # Execute.
-    self.bot(now).run()
-
-    # Verify.
-    self.mock_subreddit.new.assert_called_once()
-
-    expected_title = ('[Post Game Thread] The New York Knicks (1-2) defeat the '
-                      'Milwaukee Bucks (1-2), 130-110');
-
-    self.mock_subreddit.submit.assert_called_once_with(
-        expected_title,
-        selftext=EXPECTED_POSTGAME_TEXT,
-        send_replies=False)
-    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
-    mock_submit_mod.sticky.assert_called_once()
-    mock_submit_mod.suggested_sort.assert_called_once_with('new')
-
-  @patch('random.choice')
-  def test_run_updatePostGameThread(self, mock_random):
-    # 3.5 hours after tip-off.
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
-    mock_random.return_value = 'defeat'
-
-    shitpost = FakeThread(
-        author='macdoogles',
-        created_utc=now,
-        selftext='better shut up',
-        title='u mad bro?')
-    otherthread = FakeThread(
-      author='nyknicks-automod',
-      created_utc=now,
-      selftext="it's happening!",
-      title="This is not the thread you're looking for")
-    gamethread = FakeThread(
-      author='nyknicks-automod',
-      created_utc=now,
-      selftext='we did it!',
-      title=f'{POST_GAME_PREFIX} Knicks win!')
-    self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
-
-    # Execute.
-    self.bot(now).run()
-
-    # Verify.
-    self.mock_subreddit.new.assert_called_once()
-    self.mock_subreddit.submit.assert_not_called()
-    self.assertEqual(gamethread.selftext, EXPECTED_POSTGAME_TEXT)
-    self.assertEqual(shitpost.selftext, 'better shut up')
-    self.assertEqual(otherthread.selftext, "it's happening!")
-
-  @patch('random.choice')
-  def test_run_withObsoletePost_createNewPostGameThread(self, mock_random):
-    # 3.5 hours after tip-off.
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
-    mock_random.return_value = 'defeat'
-
-    shitpost = FakeThread(
-      author='macdoogles',
-      created_utc=now,
-      selftext='better shut up',
-      title='u mad bro?')
-    otherthread = FakeThread(
-      author='nyknicks-automod',
-      created_utc=now,
-      selftext="it's happening!",
-      title="This is not the thread you're looking for")
-    # This thread would otherwise match but it is too old and should be ignored.
-    gamethread = FakeThread(
-      author='nyknicks-automod',
-      created_utc=now - timedelta(hours=10),
-      selftext='we did it!',
-      title=f'{POST_GAME_PREFIX} Knicks win!')
-    self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
-    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
-    self.mock_subreddit.submit.return_value = MagicMock(
-      mod=mock_submit_mod, title='post game thread')
-
-    # Execute.
-    self.bot(now).run()
-
-    # Verify.
-    expected_title = ('[Post Game Thread] The New York Knicks (1-2) defeat the '
-                      'Milwaukee Bucks (1-2), 130-110');
-    self.mock_subreddit.submit.assert_called_once_with(
-      expected_title,
-      selftext=EXPECTED_POSTGAME_TEXT,
-      send_replies=False)
-    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
-    mock_submit_mod.sticky.assert_called_once()
-    mock_submit_mod.suggested_sort.assert_called_once_with('new')
-
-  # TODO: More tests needed for post game title generation:
-  # - with 1 OT
-  # - with many OTs
-  # - road team wins
-  # - home team wins
-  # - will most likely need to call _build_postgame_thread_text directly for that
-  #   in order to mock out the nba data API calls
-
-  def test_build_linescore_withNoData_returnNone(self):
-    teams = self.fake_nba_service.teams('2020')
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
-    # Read a real boxscore response and modify it for our test case.
-    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
-    boxscore['basicGameData']['vTeam']['linescore'] = []
-    boxscore['basicGameData']['hTeam']['linescore'] = []
-
-    linescore = self.bot(now)._build_linescore(boxscore, teams)
-
-    self.assertIsNone(linescore)
-
-  def test_build_linescore_withOneQuarter(self):
-    teams = self.fake_nba_service.teams('2020')
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
-    # Read a real boxscore response and modify it for our test case.
-    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
-    boxscore = self.update_boxscore(boxscore, [27, 0, 0, 0], [30, 0, 0, 0], 1)
-
-    # Execute
-    linescore = self.bot(now)._build_linescore(boxscore, teams)
-
-    self.assertEqual(
-        linescore,
-        ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
-         '|:---|:--:|:--:|:--:|:--:|:--:|\n'
-         '|Milwaukee Bucks|27|-|-|-|27|\n'
-         '|New York Knicks|30|-|-|-|30|'))
-
-  def test_build_linescore_withTwoQuarters(self):
-    teams = self.fake_nba_service.teams('2020')
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
-    # Read a real boxscore response and modify it for our test case.
-    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
-    boxscore = self.update_boxscore(boxscore, [27, 18, 0, 0], [30, 31, 0, 0], 2)
-
-    # Execute
-    linescore = self.bot(now)._build_linescore(boxscore, teams)
-
-    self.assertEqual(
-      linescore,
-      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
-       '|:---|:--:|:--:|:--:|:--:|:--:|\n'
-       '|Milwaukee Bucks|27|18|-|-|45|\n'
-       '|New York Knicks|30|31|-|-|61|'))
-
-  def test_build_linescore_withThreeQuarters(self):
-    teams = self.fake_nba_service.teams('2020')
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
-    # Read a real boxscore response and modify it for our test case.
-    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
-    boxscore = self.update_boxscore(
-        boxscore, [27, 18, 30, 0], [30, 31, 35, 0], 3)
-
-    # Execute
-    linescore = self.bot(now)._build_linescore(boxscore, teams)
-
-    self.assertEqual(
-      linescore,
-      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
-       '|:---|:--:|:--:|:--:|:--:|:--:|\n'
-       '|Milwaukee Bucks|27|18|30|-|75|\n'
-       '|New York Knicks|30|31|35|-|96|'))
-
-  def test_build_linescore_withOneOvertime(self):
-    teams = self.fake_nba_service.teams('2020')
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
-    # Read a real boxscore response and modify it for our test case.
-    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
-    boxscore = self.update_boxscore(
-        boxscore,
-        home_scores=[27, 18, 30, 40, 15],
-        road_scores=[30, 31, 35, 19, 16],
-        period=4)  # I don't actually know what this value will be for OT.
-
-    # Execute
-    linescore = self.bot(now)._build_linescore(boxscore, teams)
-
-    self.assertEqual(
-      linescore,
-      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**OT1**|**Total**|\n'
-       '|:---|:--:|:--:|:--:|:--:|:--:|:--:|\n'
-       '|Milwaukee Bucks|27|18|30|40|15|130|\n'
-       '|New York Knicks|30|31|35|19|16|131|'))
-
-  def test_build_linescore_withTwoOvertimes(self):
-    teams = self.fake_nba_service.teams('2020')
-    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
-    # Read a real boxscore response and modify it for our test case.
-    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
-    boxscore = self.update_boxscore(
-      boxscore,
-      home_scores=[27, 18, 30, 40, 15, 10],
-      road_scores=[30, 31, 35, 19, 15, 13],
-      period=4)
-
-    # Execute
-    linescore = self.bot(now)._build_linescore(boxscore, teams)
-
-    self.assertEqual(
-      linescore,
-      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**OT1**|**OT2**|**Total**|\n'
-       '|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|\n'
-       '|Milwaukee Bucks|27|18|30|40|15|10|140|\n'
-       '|New York Knicks|30|31|35|19|15|13|143|'))
-
-  @staticmethod
-  def update_boxscore(boxscore, home_scores, road_scores, period):
-    def score(scores):
-      return [{'score': str(s)} for s in scores]
-    boxscore['basicGameData']['vTeam']['linescore'] = score(home_scores)
-    boxscore['basicGameData']['hTeam']['linescore'] = score(road_scores)
-    boxscore['basicGameData']['vTeam']['score'] = str(sum(home_scores))
-    boxscore['basicGameData']['hTeam']['score'] = str(sum(road_scores))
-    boxscore['basicGameData']['period']['current'] = period
-    return boxscore
-
-
-class FakeThread:
-  def __init__(self, author, created_utc: datetime, selftext='', title=''):
-    self.author = author
-    self.created_utc = created_utc.timestamp()
-    self.selftext = selftext
-    self.title = title
-
-  def edit(self, selftext):
-    self.selftext = selftext
-
-
-class FakeMe:
-  def __init__(self, name):
-    self.name = name
-
-
-class FakeUser:
-  def __init__(self, name):
-    self._me = FakeMe(name)
-
-  def me(self, use_cache=True):
-    return self._me if not use_cache else None
-
 
 EXPECTED_GAMETHREAD_TEXT = """##### General Information
 
@@ -524,6 +109,415 @@ EXPECTED_POSTGAME_TEXT = """##### Game Summary
 |Omari Spellman||-|-|-|||||||||||
 |Obi Toppin||-|-|-|||||||||||
 """
+
+
+class GameThreadBotTest(unittest.TestCase):
+
+  @patch('praw.Reddit')
+  def setUp(self, mock_praw):
+    logging.basicConfig(level=logging.ERROR)
+    self.logger = logging.getLogger(__name__)
+    self.fake_nba_service = FakeNbaService()
+    self.mock_praw = mock_praw
+    self.mock_reddit = MagicMock(['subreddit', 'user'])
+    self.mock_reddit.user = FakeUser('nyknicks-automod')
+    self.mock_praw.return_value = self.mock_reddit
+    self.mock_subreddit = MagicMock(['new', 'search', 'submit'])
+    self.mock_reddit.subreddit.return_value = self.mock_subreddit
+
+  def bot(self, now: datetime):
+    return GameThreadBot(
+        logger=self.logger,
+        nba_service=self.fake_nba_service,
+        now=now,
+        reddit=self.mock_reddit,
+        subreddit_name='test_NYKnicks')
+
+  def test_run_createGameThread(self):
+    # 1 hour before tip-off.
+    now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
+    self.mock_subreddit.new.return_value = [
+      FakeThread(author='macdoogles', title="shitpost", created_utc=now),
+      FakeThread(author='nyknicks-automod', title="nope", created_utc=now),
+    ]
+    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
+    self.mock_subreddit.submit.return_value = MagicMock(
+        mod=mock_submit_mod, title='game thread')
+
+    # Execute.
+    self.bot(now).run()
+
+    # Verify.
+    self.mock_subreddit.new.assert_called_once()
+
+    expected_title = ('[Game Thread] The New York Knicks (2-2) @ The Cleveland '
+                      'Cavaliers (3-1) - (December 29, 2020)');
+
+    self.mock_subreddit.submit.assert_called_once_with(
+        expected_title,
+        selftext=EXPECTED_GAMETHREAD_TEXT,
+        send_replies=False)
+    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
+    mock_submit_mod.sticky.assert_called_once()
+    mock_submit_mod.suggested_sort.assert_called_once_with('new')
+
+  def test_run_updateGameThread(self):
+    # 1 hour before tip-off.
+    now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
+
+    shitpost = FakeThread(
+        author='macdoogles',
+        created_utc=now,
+        selftext='better shut up',
+        title='no u')
+    otherthread = FakeThread(
+        author='nyknicks-automod',
+        created_utc=now,
+        selftext="it's happening!",
+        title="This is not the thread you're looking for")
+    gamethread = FakeThread(
+        author='nyknicks-automod',
+        created_utc=now,
+        selftext='we did it!',
+        title=f'{GAME_THREAD_PREFIX} A classic match of Good vs. Evil')
+    self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
+
+    # Execute.
+    self.bot(now).run()
+
+    # Verify.
+    self.mock_subreddit.new.assert_called_once()
+    self.mock_subreddit.submit.assert_not_called()
+    self.assertEqual(gamethread.selftext, EXPECTED_GAMETHREAD_TEXT)
+    self.assertEqual(shitpost.selftext, 'better shut up')
+    self.assertEqual(otherthread.selftext, "it's happening!")
+
+  @patch('random.choice')
+  def test_run_createPostGameThread(self, mock_random):
+    # 3.5 hours after tip-off.
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    mock_random.return_value = 'defeat'
+
+    self.mock_subreddit.new.return_value = [
+      FakeThread(author='macdoogles', created_utc=now)
+    ]
+    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
+    self.mock_subreddit.submit.return_value = MagicMock(
+        mod=mock_submit_mod, title='post game thread')
+
+    # Execute.
+    self.bot(now).run()
+
+    # Verify.
+    self.mock_subreddit.new.assert_called_once()
+
+    expected_title = ('[Post Game Thread] The New York Knicks (1-2) defeat the '
+                      'Milwaukee Bucks (1-2), 130-110');
+
+    self.mock_subreddit.submit.assert_called_once_with(
+        expected_title,
+        selftext=EXPECTED_POSTGAME_TEXT,
+        send_replies=False)
+    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
+    mock_submit_mod.sticky.assert_called_once()
+    mock_submit_mod.suggested_sort.assert_called_once_with('new')
+
+  @patch('random.choice')
+  def test_run_updatePostGameThread(self, mock_random):
+    # 3.5 hours after tip-off.
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    mock_random.return_value = 'defeat'
+
+    shitpost = FakeThread(
+        author='macdoogles',
+        created_utc=now,
+        selftext='better shut up',
+        title='u mad bro?')
+    otherthread = FakeThread(
+        author='nyknicks-automod',
+        created_utc=now,
+        selftext="it's happening!",
+        title="This is not the thread you're looking for")
+    gamethread = FakeThread(
+        author='nyknicks-automod',
+        created_utc=now,
+        selftext='we did it!',
+        title=f'{POST_GAME_PREFIX} Knicks win!')
+    self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
+
+    # Execute.
+    self.bot(now).run()
+
+    # Verify.
+    self.mock_subreddit.new.assert_called_once()
+    self.mock_subreddit.submit.assert_not_called()
+    self.assertEqual(gamethread.selftext, EXPECTED_POSTGAME_TEXT)
+    self.assertEqual(shitpost.selftext, 'better shut up')
+    self.assertEqual(otherthread.selftext, "it's happening!")
+
+  @patch('random.choice')
+  def test_run_withObsoletePost_createNewPostGameThread(self, mock_random):
+    # 3.5 hours after tip-off.
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    mock_random.return_value = 'defeat'
+
+    shitpost = FakeThread(
+        author='macdoogles',
+        created_utc=now,
+        selftext='better shut up',
+        title='u mad bro?')
+    otherthread = FakeThread(
+        author='nyknicks-automod',
+        created_utc=now,
+        selftext="it's happening!",
+        title="This is not the thread you're looking for")
+    # This thread would otherwise match but it is too old and should be ignored.
+    gamethread = FakeThread(
+        author='nyknicks-automod',
+        created_utc=now - timedelta(hours=10),
+        selftext='we did it!',
+        title=f'{POST_GAME_PREFIX} Knicks win!')
+    self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
+    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
+    self.mock_subreddit.submit.return_value = MagicMock(
+      mod=mock_submit_mod, title='post game thread')
+
+    # Execute.
+    self.bot(now).run()
+
+    # Verify.
+    expected_title = ('[Post Game Thread] The New York Knicks (1-2) defeat the '
+                      'Milwaukee Bucks (1-2), 130-110');
+    self.mock_subreddit.submit.assert_called_once_with(
+        expected_title,
+        selftext=EXPECTED_POSTGAME_TEXT,
+        send_replies=False)
+    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
+    mock_submit_mod.sticky.assert_called_once()
+    mock_submit_mod.suggested_sort.assert_called_once_with('new')
+
+  # TODO: More tests needed for post game title generation:
+  # - with 1 OT
+  # - with many OTs
+  # - road team wins
+  # - home team wins
+  # - will most likely need to call _build_postgame_thread_text directly for that
+  #   in order to mock out the nba data API calls
+
+  def test_get_current_game_tooEarly_doNothing(self):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 29, 12, 0, 0, 0, UTC)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
+    self.assertIsNone(game)
+    self.assertEqual(action, Action.DO_NOTHING)
+
+  def test_get_current_game_1HourBefore_doGameThread(self):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
+    self.assertEqual(action, Action.DO_GAME_THREAD)
+    self.assertEqual(game['gameUrlCode'], '20201229/NYKCLE')
+
+  def test_get_current_game_gameStarted_doGameThread(self):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 30, 1, 0, 0, 0, UTC)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
+    self.assertEqual(action, Action.DO_GAME_THREAD)
+    self.assertEqual(game['gameUrlCode'], '20201229/NYKCLE')
+
+  def test_get_current_game_afterGame_postGameThread(self):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
+    self.assertEqual(action, Action.DO_POST_GAME_THREAD)
+    self.assertEqual(game['gameUrlCode'], '20201227/MILNYK')
+
+  def test_get_current_game_tooLate_doNothing(self):
+    # Previous game (20201227/MILNYK) started at 2020-12-28T00:30:00.000Z.
+    # Next game (20201229/NYKCLE) starts at 2020-12-30T00:00:00.000Z.
+    now = datetime(2020, 12, 28, 7, 0, 0, 0, UTC)
+    schedule = self.fake_nba_service.schedule('knicks', '2020')
+    (action, game) = self.bot(now)._get_current_game(schedule)
+    self.assertEqual(action, Action.DO_NOTHING)
+    self.assertIsNone(game)
+
+  def test_get_current_game_seasonOver_doNothing(self):
+    now = datetime(2021, 2, 10, 12, 0, 0, 0, UTC)
+    schedule = {
+      "league": {
+        "lastStandardGamePlayedIndex": 0,
+        "standard": [
+          {
+            'gameUrlCode': '20201231/NYKTOR',
+            'startTimeUTC': '2021-01-01T00:30:00.000Z',
+            'statusNum': 3,
+            'vTeam': {'score': '83'},
+            'hTeam': {'score': '100'},
+          },
+        ],
+      }
+    }
+    (action, game) = self.bot(now)._get_current_game(schedule)
+    self.assertEqual(action, Action.DO_NOTHING)
+    self.assertIsNone(game)
+
+  def test_build_linescore_withNoData_returnNone(self):
+    teams = self.fake_nba_service.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
+    boxscore['basicGameData']['vTeam']['linescore'] = []
+    boxscore['basicGameData']['hTeam']['linescore'] = []
+
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
+
+    self.assertIsNone(linescore)
+
+  def test_build_linescore_withOneQuarter(self):
+    teams = self.fake_nba_service.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(boxscore, [27, 0, 0, 0], [30, 0, 0, 0], 1)
+
+    # Execute
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+        linescore,
+        ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
+         '|:---|:--:|:--:|:--:|:--:|:--:|\n'
+         '|Milwaukee Bucks|27|-|-|-|27|\n'
+         '|New York Knicks|30|-|-|-|30|'))
+
+  def test_build_linescore_withTwoQuarters(self):
+    teams = self.fake_nba_service.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(boxscore, [27, 18, 0, 0], [30, 31, 0, 0], 2)
+
+    # Execute
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+        linescore,
+        ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
+         '|:---|:--:|:--:|:--:|:--:|:--:|\n'
+         '|Milwaukee Bucks|27|18|-|-|45|\n'
+         '|New York Knicks|30|31|-|-|61|'))
+
+  def test_build_linescore_withThreeQuarters(self):
+    teams = self.fake_nba_service.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(
+        boxscore, [27, 18, 30, 0], [30, 31, 35, 0], 3)
+
+    # Execute
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+        linescore,
+        ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
+         '|:---|:--:|:--:|:--:|:--:|:--:|\n'
+         '|Milwaukee Bucks|27|18|30|-|75|\n'
+         '|New York Knicks|30|31|35|-|96|'))
+
+  def test_build_linescore_withOneOvertime(self):
+    teams = self.fake_nba_service.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(
+        boxscore,
+        home_scores=[27, 18, 30, 40, 15],
+        road_scores=[30, 31, 35, 19, 16],
+        period=4)  # I don't actually know what this value will be for OT.
+
+    # Execute
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+      linescore,
+      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**OT1**|**Total**|\n'
+       '|:---|:--:|:--:|:--:|:--:|:--:|:--:|\n'
+       '|Milwaukee Bucks|27|18|30|40|15|130|\n'
+       '|New York Knicks|30|31|35|19|16|131|'))
+
+  def test_build_linescore_withTwoOvertimes(self):
+    teams = self.fake_nba_service.teams('2020')
+    now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
+
+    # Read a real boxscore response and modify it for our test case.
+    boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
+    boxscore = self.update_boxscore(
+        boxscore,
+        home_scores=[27, 18, 30, 40, 15, 10],
+        road_scores=[30, 31, 35, 19, 15, 13],
+        period=4)
+
+    # Execute
+    linescore = self.bot(now)._build_linescore(boxscore, teams)
+
+    self.assertEqual(
+      linescore,
+      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**OT1**|**OT2**|**Total**|\n'
+       '|:---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|\n'
+       '|Milwaukee Bucks|27|18|30|40|15|10|140|\n'
+       '|New York Knicks|30|31|35|19|15|13|143|'))
+
+  @staticmethod
+  def update_boxscore(boxscore, home_scores, road_scores, period):
+    def score(scores):
+      return [{'score': str(s)} for s in scores]
+    boxscore['basicGameData']['vTeam']['linescore'] = score(home_scores)
+    boxscore['basicGameData']['hTeam']['linescore'] = score(road_scores)
+    boxscore['basicGameData']['vTeam']['score'] = str(sum(home_scores))
+    boxscore['basicGameData']['hTeam']['score'] = str(sum(road_scores))
+    boxscore['basicGameData']['period']['current'] = period
+    return boxscore
+
+
+class FakeThread:
+  def __init__(self, author, created_utc: datetime, selftext='', title=''):
+    self.author = author
+    self.created_utc = created_utc.timestamp()
+    self.selftext = selftext
+    self.title = title
+
+  def edit(self, selftext):
+    self.selftext = selftext
+
+
+class FakeMe:
+  def __init__(self, name):
+    self.name = name
+
+
+class FakeUser:
+  def __init__(self, name):
+    self._me = FakeMe(name)
+
+  def me(self, use_cache=True):
+    return self._me if not use_cache else None
 
 
 if __name__ == '__main__':

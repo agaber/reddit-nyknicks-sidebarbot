@@ -1,4 +1,5 @@
 """
+An implementation of NbaService that returns fake data.
 """
 
 from services.nba_service import NbaService

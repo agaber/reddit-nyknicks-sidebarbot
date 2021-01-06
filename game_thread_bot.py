@@ -7,9 +7,8 @@ will run once and then terminate. In many cases it will have nothing to do. To
 run this on a continuous basis, try using crontab (see the README.md).
 """
 
-from constants import CENTRAL_TIMEZONE, DEFEAT_SYNONYMS, EASTERN_TIMEZONE
-from constants import GAME_THREAD_PREFIX, MOUNTAIN_TIMEZONE, PACIFIC_TIMEZONE
-from constants import POST_GAME_PREFIX, TEAM_SUB_MAP, UTC, YAHOO_TEAM_CODES
+from constants import CENTRAL_TIMEZONE, EASTERN_TIMEZONE, MOUNTAIN_TIMEZONE
+from constants import PACIFIC_TIMEZONE, TEAM_SUB_MAP, UTC, YAHOO_TEAM_CODES
 from datetime import datetime, timedelta
 from enum import Enum
 from optparse import OptionParser
@@ -21,6 +20,31 @@ import praw
 import random
 import sys
 import traceback
+
+GAME_THREAD_PREFIX = '[Game Thread]'
+
+POST_GAME_PREFIX = '[Post Game Thread]'
+
+DEFEAT_SYNONYMS = [
+  'defeat',
+  'beat',
+  'triumph over',
+  'blow out',
+  'level out',
+  'destroy',
+  'crush',
+  'walk all over',
+  'exterminate',
+  'slaughter',
+  'massacre'
+  'obliterate',
+  'eviscerate',
+  'annihilate',
+  'edge out',
+  'steal one against',
+  'hang on to defeat',
+  'snap',
+]
 
 
 class GameThreadBot:
@@ -111,7 +135,7 @@ class GameThreadBot:
 
     broadcasters = basic_game_data['watch']['broadcast']['broadcasters']
     national_broadcaster = 'N/A' if len(broadcasters['national']) == 0 \
-      else broadcasters['national'][0]['longName']
+        else broadcasters['national'][0]['longName']
     knicks_broadcaster = broadcasters[us][0]['longName']
     other_broadcaster = broadcasters[them][0]['longName']
 
@@ -216,8 +240,8 @@ class GameThreadBot:
   def _build_defeat_synonym(basic_game_data, teams):
     """Says 'defeated' in creative and random ways.
 
-    Ported from https://bit.ly/3o6QvPB."""
-
+    Ported from https://bit.ly/3o6QvPB.
+    """
     home_team_name = teams[basic_game_data['hTeam']['teamId']]['fullName']
     if home_team_name == "knicks":
       us_score = int(basic_game_data["hTeam"]["score"])
@@ -245,7 +269,6 @@ class GameThreadBot:
 
      Ported over from the Spurs bot (https://bit.ly/3n8HYdA).
     """
-
     basicGameData = boxscore["basicGameData"]
 
     # Header

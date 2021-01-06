@@ -1,3 +1,7 @@
+"""
+Constants that may be shared across bots.
+"""
+
 from pytz import timezone
 
 EASTERN_TIMEZONE = timezone('US/Eastern')
@@ -38,30 +42,6 @@ TEAM_SUB_MAP = {
   'Warriors': 'warriors',
   'Wizards': 'washingtonwizards',
 }
-
-GAME_THREAD_PREFIX = '[Game Thread]'
-POST_GAME_PREFIX = '[Post Game Thread]'
-
-DEFEAT_SYNONYMS = [
-  'defeat',
-  'beat',
-  'triumph over',
-  'blow out',
-  'level out',
-  'destroy',
-  'crush',
-  'walk all over',
-  'exterminate',
-  'slaughter',
-  'massacre'
-  'obliterate',
-  'eviscerate',
-  'annihilate',
-  'edge out',
-  'steal one against',
-  'hang on to defeat',
-  'snap',
-]
 
 YAHOO_TEAM_CODES = {
   'ATL': '01',
