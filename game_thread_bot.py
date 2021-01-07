@@ -129,7 +129,7 @@ class GameThreadBot:
 
     if hteam['triCode'] == 'NYK':
       us = 'hTeam'
-      them = 'vteam'
+      them = 'vTeam'
       home_away_sign = 'vs'
     else:
       us = 'vTeam'
