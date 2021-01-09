@@ -140,7 +140,7 @@ class GameThreadBotTest(unittest.TestCase):
       FakeThread(author='macdoogles', title="shitpost", created_utc=now),
       FakeThread(author='nyknicks-automod', title="nope", created_utc=now),
     ]
-    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
+    mock_submit_mod = MagicMock(['distinguish', 'sticky'])
     self.mock_subreddit.submit.return_value = MagicMock(
         mod=mock_submit_mod, title='game thread')
 
@@ -159,7 +159,6 @@ class GameThreadBotTest(unittest.TestCase):
         send_replies=False)
     mock_submit_mod.distinguish.assert_called_once_with(how='yes')
     mock_submit_mod.sticky.assert_called_once()
-    mock_submit_mod.suggested_sort.assert_called_once_with('new')
 
   def test_run_updateGameThread(self):
     # 1 hour before tip-off.
@@ -202,7 +201,7 @@ class GameThreadBotTest(unittest.TestCase):
     self.mock_subreddit.new.return_value = [
       FakeThread(author='macdoogles', created_utc=now)
     ]
-    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
+    mock_submit_mod = MagicMock(['distinguish', 'sticky'])
     self.mock_subreddit.submit.return_value = MagicMock(
         mod=mock_submit_mod, title='post game thread')
 
@@ -221,7 +220,6 @@ class GameThreadBotTest(unittest.TestCase):
         send_replies=False)
     mock_submit_mod.distinguish.assert_called_once_with(how='yes')
     mock_submit_mod.sticky.assert_called_once()
-    mock_submit_mod.suggested_sort.assert_called_once_with('new')
 
   @patch('random.choice')
   def test_run_updatePostGameThread(self, mock_random):
@@ -281,7 +279,7 @@ class GameThreadBotTest(unittest.TestCase):
         selftext='we did it!',
         title=f'{POST_GAME_PREFIX} Knicks win!')
     self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
-    mock_submit_mod = MagicMock(['distinguish', 'sticky', 'suggested_sort'])
+    mock_submit_mod = MagicMock(['distinguish', 'sticky'])
     self.mock_subreddit.submit.return_value = MagicMock(
       mod=mock_submit_mod, title='post game thread')
 
@@ -297,7 +295,6 @@ class GameThreadBotTest(unittest.TestCase):
         send_replies=False)
     mock_submit_mod.distinguish.assert_called_once_with(how='yes')
     mock_submit_mod.sticky.assert_called_once()
-    mock_submit_mod.suggested_sort.assert_called_once_with('new')
 
   # TODO: More tests needed for post game title generation:
   # - with 1 OT

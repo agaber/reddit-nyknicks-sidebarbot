@@ -618,7 +618,6 @@ class GameThreadBot:
       thread = self.subreddit.submit(title, selftext=body, send_replies=False)
       thread.mod.distinguish(how="yes")
       thread.mod.sticky()
-      thread.mod.suggested_sort('new')
       self.logger.info(f'Created a new thread with title "{thread.title}".')
     elif thread.selftext.strip() == body.strip():
       self.logger.info(f'Text of "{thread.title}" did not change. Not updating.')
