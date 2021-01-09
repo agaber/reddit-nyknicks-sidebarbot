@@ -614,7 +614,6 @@ class GameThreadBot:
 
     if thread is None:
       thread = self.subreddit.submit(title, selftext=body, send_replies=False)
-      thread.mod.distinguish(how="yes")
       thread.mod.sticky()
       self.logger.info(f'Created a new thread with title "{thread.title}".')
     elif thread.selftext.strip() == body.strip():

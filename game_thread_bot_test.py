@@ -140,7 +140,7 @@ class GameThreadBotTest(unittest.TestCase):
       FakeThread(author='macdoogles', title="shitpost", created_utc=now),
       FakeThread(author='nyknicks-automod', title="nope", created_utc=now),
     ]
-    mock_submit_mod = MagicMock(['distinguish', 'sticky'])
+    mock_submit_mod = MagicMock(['sticky'])
     self.mock_subreddit.submit.return_value = MagicMock(
         mod=mock_submit_mod, title='game thread')
 
@@ -157,7 +157,6 @@ class GameThreadBotTest(unittest.TestCase):
         expected_title,
         selftext=EXPECTED_GAMETHREAD_TEXT,
         send_replies=False)
-    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
     mock_submit_mod.sticky.assert_called_once()
 
   def test_run_updateGameThread(self):
@@ -201,7 +200,7 @@ class GameThreadBotTest(unittest.TestCase):
     self.mock_subreddit.new.return_value = [
       FakeThread(author='macdoogles', created_utc=now)
     ]
-    mock_submit_mod = MagicMock(['distinguish', 'sticky'])
+    mock_submit_mod = MagicMock(['sticky'])
     self.mock_subreddit.submit.return_value = MagicMock(
         mod=mock_submit_mod, title='post game thread')
 
@@ -218,7 +217,6 @@ class GameThreadBotTest(unittest.TestCase):
         expected_title,
         selftext=EXPECTED_POSTGAME_TEXT,
         send_replies=False)
-    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
     mock_submit_mod.sticky.assert_called_once()
 
   @patch('random.choice')
@@ -259,9 +257,7 @@ class GameThreadBotTest(unittest.TestCase):
   def test_run_withObsoletePost_createNewPostGameThread(self, mock_random):
     # 3.5 hours after tip-off.
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
-
     mock_random.return_value = 'defeat'
-
     shitpost = FakeThread(
         author='macdoogles',
         created_utc=now,
@@ -279,7 +275,7 @@ class GameThreadBotTest(unittest.TestCase):
         selftext='we did it!',
         title=f'{POST_GAME_PREFIX} Knicks win!')
     self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
-    mock_submit_mod = MagicMock(['distinguish', 'sticky'])
+    mock_submit_mod = MagicMock(['sticky'])
     self.mock_subreddit.submit.return_value = MagicMock(
       mod=mock_submit_mod, title='post game thread')
 
@@ -293,7 +289,6 @@ class GameThreadBotTest(unittest.TestCase):
         expected_title,
         selftext=EXPECTED_POSTGAME_TEXT,
         send_replies=False)
-    mock_submit_mod.distinguish.assert_called_once_with(how='yes')
     mock_submit_mod.sticky.assert_called_once()
 
   # TODO: More tests needed for post game title generation:
