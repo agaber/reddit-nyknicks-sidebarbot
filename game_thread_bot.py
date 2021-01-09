@@ -416,110 +416,34 @@ class GameThreadBot:
             allStats["hTeam"]["leaders"]["assists"]["players"][0]["lastName"]
     )
 
-    body += f"""
-##### Player Stats
-
-**{vTeamNickname.upper()}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
-|:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-"""
-
-    # players stats are filled here, only starters have "pos" property (away team)
+    # Player stats.
+    # Only starters have a "pos" property.
+    def build_player_stat_header(team_name: str):
+      return (f'\n**{team_name.upper()}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**'
+              f'|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**'
+              f'|**+/-**|**PTS**|\n'
+              f'|:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|'
+              f':--:|:--:|:--:|\n')
+    away_players_stat_str = build_player_stat_header(vTeamNickname)
+    home_players_stat_str = build_player_stat_header(hTeamNickname)
     for i in range(len(playerStats)):
       stats = playerStats[i]
-      if stats["teamId"] == vTeamBasicData["teamId"] and stats["pos"] != "":
-        body += "|{pname}^{pos}|{min}|{fgm}-{fga}|{tpm}-{tpa}|{ftm}-{fta}|{oreb}|{dreb}|{treb}|{ast}|{stl}|{blk}|{to}|{pf}|{pm}|{pts}|\n".format(
-          pname=stats["firstName"] + " " + stats["lastName"],
-          pos=stats["pos"],
-          min=stats["min"],
-          fgm=stats["fgm"],
-          fga=stats["fga"],
-          tpm=stats["tpm"],
-          tpa=stats["tpa"],
-          ftm=stats["ftm"],
-          fta=stats["fta"],
-          oreb=stats["offReb"],
-          dreb=stats["defReb"],
-          treb=stats["totReb"],
-          ast=stats["assists"],
-          stl=stats["steals"],
-          blk=stats["blocks"],
-          to=stats["turnovers"],
-          pf=stats["pFouls"],
-          pm=self._plusminus(stats["plusMinus"]),
-          pts=stats["points"]
-        )
-      elif stats["teamId"] == vTeamBasicData["teamId"]:
-        body += "|{pname}|{min}|{fgm}-{fga}|{tpm}-{tpa}|{ftm}-{fta}|{oreb}|{dreb}|{treb}|{ast}|{stl}|{blk}|{to}|{pf}|{pm}|{pts}|\n".format(
-          pname=stats["firstName"] + " " + stats["lastName"],
-          min=stats["min"],
-          fgm=stats["fgm"],
-          fga=stats["fga"],
-          tpm=stats["tpm"],
-          tpa=stats["tpa"],
-          ftm=stats["ftm"],
-          fta=stats["fta"],
-          oreb=stats["offReb"],
-          dreb=stats["defReb"],
-          treb=stats["totReb"],
-          ast=stats["assists"],
-          stl=stats["steals"],
-          blk=stats["blocks"],
-          to=stats["turnovers"],
-          pf=stats["pFouls"],
-          pm=self._plusminus(stats["plusMinus"]),
-          pts=stats["points"]
-        )
-
-    # home team players
-    body += f"""
-**{hTeamNickname.upper()}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
-|:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-"""
-    for i in range(len(playerStats)):
-      stats = playerStats[i]
-      if stats["teamId"] != vTeamBasicData["teamId"] and stats["pos"] != "":
-        body += "|{pname}^{pos}|{min}|{fgm}-{fga}|{tpm}-{tpa}|{ftm}-{fta}|{oreb}|{dreb}|{treb}|{ast}|{stl}|{blk}|{to}|{pf}|{pm}|{pts}|\n".format(
-          pname=stats["firstName"] + " " + stats["lastName"],
-          pos=stats["pos"],
-          min=stats["min"],
-          fgm=stats["fgm"],
-          fga=stats["fga"],
-          tpm=stats["tpm"],
-          tpa=stats["tpa"],
-          ftm=stats["ftm"],
-          fta=stats["fta"],
-          oreb=stats["offReb"],
-          dreb=stats["defReb"],
-          treb=stats["totReb"],
-          ast=stats["assists"],
-          stl=stats["steals"],
-          blk=stats["blocks"],
-          to=stats["turnovers"],
-          pf=stats["pFouls"],
-          pm=self._plusminus(stats["plusMinus"]),
-          pts=stats["points"]
-        )
-      elif playerStats[i]["teamId"] != vTeamBasicData["teamId"] and playerStats[i]["pos"] == "":
-        body += "|{pname}|{min}|{fgm}-{fga}|{tpm}-{tpa}|{ftm}-{fta}|{oreb}|{dreb}|{treb}|{ast}|{stl}|{blk}|{to}|{pf}|{pm}|{pts}|\n".format(
-          pname=stats["firstName"] + " " + stats["lastName"],
-          min=stats["min"],
-          fgm=stats["fgm"],
-          fga=stats["fga"],
-          tpm=stats["tpm"],
-          tpa=stats["tpa"],
-          ftm=stats["ftm"],
-          fta=stats["fta"],
-          oreb=stats["offReb"],
-          dreb=stats["defReb"],
-          treb=stats["totReb"],
-          ast=stats["assists"],
-          stl=stats["steals"],
-          blk=stats["blocks"],
-          to=stats["turnovers"],
-          pf=stats["pFouls"],
-          pm=self._plusminus(stats["plusMinus"]),
-          pts=stats["points"]
-        )
+      player_name = f'{stats["firstName"]} {stats["lastName"]}'
+      position = f'^{stats["pos"]}' if stats["pos"] else ''
+      stat_str = (f'|{player_name}{position}|{stats["min"]}|'
+                  f'{stats["fgm"]}-{stats["fga"]}|{stats["tpm"]}-{stats["tpa"]}|'
+                  f'{stats["ftm"]}-{stats["fta"]}|{stats["offReb"]}|'
+                  f'{stats["defReb"]}|{stats["totReb"]}|{stats["assists"]}|'
+                  f'{stats["steals"]}|{stats["blocks"]}|{stats["turnovers"]}|'
+                  f'{stats["pFouls"]}|{self._plusminus(stats["plusMinus"])}|'
+                  f'{stats["points"]}|\n')
+      if stats["teamId"] == vTeamBasicData["teamId"]:
+        away_players_stat_str += stat_str
+      else:
+        home_players_stat_str += stat_str
+    body += '\n##### Player Stats\n'
+    body += away_players_stat_str
+    body += home_players_stat_str
     return body
 
   def _build_linescore(self, boxscore, teams):
