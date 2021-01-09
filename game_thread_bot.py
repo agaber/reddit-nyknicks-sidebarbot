@@ -327,12 +327,12 @@ class GameThreadBot:
 ##### Team Stats
 
 |**Team**|**PTS**|**FG**|**FG%**|**3P**|**3P%**|**FT**|**FT%**|**OREB**|**TREB**|**AST**|**PF**|**STL**|**TO**|**BLK**|
-|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
+|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 |{vTeamName}|{vpts}|{vfgm}-{vfga}|{vfgp}%|{vtpm}-{vtpa}|{vtpp}%|{vftm}-{vfta}|{vftp}%|{voreb}|{vtreb}|{vast}|{vpf}|{vstl}|{vto}|{vblk}|
 |{hTeamName}|{hpts}|{hfgm}-{hfga}|{hfgp}%|{htpm}-{htpa}|{htpp}%|{hftm}-{hfta}|{hftp}%|{horeb}|{htreb}|{hast}|{hpf}|{hstl}|{hto}|{hblk}|
 
 |**Team**|**Biggest Lead**|**Longest Run**|**PTS: In Paint**|**PTS: Off TOs**|**PTS: Fastbreak**|
-|:--|:--|:--|:--|:--|:--|
+|:--|:--:|:--:|:--:|:--:|:--:|
 |{vTeamName}|{vlead}|{vrun}|{vpaint}|{vpto}|{vfb}|
 |{hTeamName}|{hlead}|{hrun}|{hpaint}|{hpto}|{hfb}|
   """.format(
@@ -417,10 +417,10 @@ class GameThreadBot:
     body += """
 ##### Player Stats
 
-**[](/{vTeamLogo}) {vTeamName}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
-|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
+**[](/r/{vTeamLogo}) {vTeamName}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
+|:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 """.format(
-      vTeamLogo=vTeamBasicData["triCode"],
+      vTeamLogo=vTeamLogo,
       vTeamName=vTeamFullName.rsplit(None, 1)[-1].upper()
     )
 
@@ -470,10 +470,10 @@ class GameThreadBot:
           pm=self._plusminus(stats["plusMinus"]),
           pts=stats["points"]
         )
-    body += """\n**[](/{hTeamLogo}) {hTeamName}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
-|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
+    body += """\n**[](/r/{hTeamLogo}) {hTeamName}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
+|:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 """.format(
-      hTeamLogo=hTeamBasicData["triCode"],
+      hTeamLogo=hTeamLogo,
       hTeamName=hTeamFullName.rsplit(None, 1)[-1].upper()
     )
     # home team players
@@ -653,8 +653,8 @@ if __name__ == '__main__':
   username = options.username if options.username else 'nyknicks-automod'
   logger.info(f'Using subreddit "{subreddit_name}" and user "{username}".')
 
-  now = datetime.now(UTC)
-  # now = datetime(2021, 1, 1, 4, 4, 0, 0, UTC)
+  # now = datetime.now(UTC)
+  now = datetime(2021, 1, 1, 4, 4, 0, 0, UTC)
 
   try:
     nba_service = NbaService(logger)
