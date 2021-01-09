@@ -493,6 +493,8 @@ class GameThreadBot:
     return f'{header1}\n{header2}\n{road_team_line}\n{home_team_line}'
 
   def _build_starters_table(self, boxscore, teams):
+    if not boxscore["stats"] or not boxscore["stats"]["activePlayers"]:
+      return None
     hteamid = boxscore['basicGameData']['hTeam']['teamId']
     vteamid = boxscore['basicGameData']['vTeam']['teamId']
     away = []
