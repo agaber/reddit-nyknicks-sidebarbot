@@ -70,7 +70,7 @@ EXPECTED_POSTGAME_TEXT = """##### Game Summary
 
 ##### Player Stats
 
-**[](/r/MkeBucks) BUCKS**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
+**BUCKS**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
 |:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 |Giannis Antetokounmpo^SF|31:59|9-15|1-5|8-13|2|11|13|5|3|0|3|3|-13|27|
 |Khris Middleton^PF|32:46|8-18|1-6|5-5|1|3|4|5|0|0|0|1|-23|22|
@@ -89,7 +89,7 @@ EXPECTED_POSTGAME_TEXT = """##### Game Summary
 |Jaylen Adams|0:00|0-0|0-0|0-0|0|0|0|0|0|0|0|0|0|0|
 |Mamadi Diakite|0:00|0-0|0-0|0-0|0|0|0|0|0|0|0|0|0|0|
 
-**[](/r/NYKnicks) KNICKS**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
+**KNICKS**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
 |:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 |Reggie Bullock^SF|16:53|2-5|1-2|2-2|0|3|3|1|0|0|1|2|+1|7|
 |Julius Randle^PF|37:07|8-17|3-5|10-11|3|11|14|7|0|1|2|4|+12|29|

@@ -277,10 +277,12 @@ class GameThreadBot:
     # Header
     hTeamBasicData = basicGameData["hTeam"]
     hTeamFullName = teams[hTeamBasicData['teamId']]['fullName']
+    hTeamNickname = teams[hTeamBasicData['teamId']]['nickname']
     hTeamLogo = TEAM_SUB_MAP[teams[basicGameData['hTeam']['teamId']]['nickname']]
     hTeamScore = hTeamBasicData["score"]
     vTeamBasicData = basicGameData["vTeam"]
     vTeamFullName = teams[vTeamBasicData['teamId']]['fullName']
+    vTeamNickname = teams[vTeamBasicData['teamId']]['nickname']
     vTeamLogo = TEAM_SUB_MAP[teams[basicGameData['vTeam']['teamId']]['nickname']]
     vTeamScore = vTeamBasicData["score"]
     nbaUrl = (f'https://www.nba.com/game/{vTeamBasicData["triCode"]}-vs-'
@@ -414,15 +416,12 @@ class GameThreadBot:
             allStats["hTeam"]["leaders"]["assists"]["players"][0]["lastName"]
     )
 
-    body += """
+    body += f"""
 ##### Player Stats
 
-**[](/r/{vTeamLogo}) {vTeamName}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
+**{vTeamNickname.upper()}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
 |:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-""".format(
-      vTeamLogo=vTeamLogo,
-      vTeamName=vTeamFullName.rsplit(None, 1)[-1].upper()
-    )
+"""
 
     # players stats are filled here, only starters have "pos" property (away team)
     for i in range(len(playerStats)):
@@ -470,13 +469,12 @@ class GameThreadBot:
           pm=self._plusminus(stats["plusMinus"]),
           pts=stats["points"]
         )
-    body += """\n**[](/r/{hTeamLogo}) {hTeamName}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
-|:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-""".format(
-      hTeamLogo=hTeamLogo,
-      hTeamName=hTeamFullName.rsplit(None, 1)[-1].upper()
-    )
+
     # home team players
+    body += f"""
+**{hTeamNickname.upper()}**|**MIN**|**FGM-A**|**3PM-A**|**FTM-A**|**ORB**|**DRB**|**REB**|**AST**|**STL**|**BLK**|**TO**|**PF**|**+/-**|**PTS**|
+|:--|:--|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+"""
     for i in range(len(playerStats)):
       stats = playerStats[i]
       if stats["teamId"] != vTeamBasicData["teamId"] and stats["pos"] != "":
