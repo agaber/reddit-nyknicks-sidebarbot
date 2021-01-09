@@ -53,12 +53,12 @@ MAX_POST_AGE_HOURS = 6
 class GameThreadBot:
 
   def __init__(
-      self,
-      logger: logging.Logger,
-      nba_service: NbaService,
-      now: datetime,
-      reddit: praw.Reddit,
-      subreddit_name: str):
+    self,
+    logger: logging.Logger,
+    nba_service: NbaService,
+    now: datetime,
+    reddit: praw.Reddit,
+    subreddit_name: str):
     self.logger = logger
     self.nba_service = nba_service
     self.now = now
@@ -77,8 +77,8 @@ class GameThreadBot:
     boxscore = self._get_boxscore(game)
     teams = self.nba_service.teams(season_year)
     title, body = self._build_game_thread_text(boxscore, teams) \
-        if action == Action.DO_GAME_THREAD \
-        else self._build_postgame_thread_text(boxscore, teams)
+      if action == Action.DO_GAME_THREAD \
+      else self._build_postgame_thread_text(boxscore, teams)
     self._create_or_update_game_thread(action, title, body)
 
   def _get_boxscore(self, game):
@@ -138,7 +138,7 @@ class GameThreadBot:
 
     broadcasters = basic_game_data['watch']['broadcast']['broadcasters']
     national_broadcaster = 'N/A' if len(broadcasters['national']) == 0 \
-        else broadcasters['national'][0]['longName']
+      else broadcasters['national'][0]['longName']
     knicks_broadcaster = broadcasters[us][0]['longName']
     other_broadcaster = broadcasters[them][0]['longName']
 
@@ -160,8 +160,8 @@ class GameThreadBot:
     pacific = time_str(PACIFIC_TIMEZONE)
 
     urlpart = (
-        f'{vteam["triCode"].lower()}-vs-{hteam["triCode"].lower()}-'
-        f'{basic_game_data["gameId"]}')
+      f'{vteam["triCode"].lower()}-vs-{hteam["triCode"].lower()}-'
+      f'{basic_game_data["gameId"]}')
     nba_pass_link = f'https://www.nba.com/game/{urlpart}?watch'
     preview_link = f'https://www.nba.com/game/{urlpart}'
     play_link = f'https://www.nba.com/game/{urlpart}/play-by-play'
@@ -174,6 +174,11 @@ class GameThreadBot:
     body += f'{central} Central   | Knicks Broadcast: {knicks_broadcaster}               |[Play By Play]({play_link})| {arena}|\n'
     body += f'{mountain} Mountain | {other_team_nickname} Broadcast: {other_broadcaster} |[Box Score]({box_link})| r/NYKnicks|\n'
     body += f'{pacific} Pacific   | [NBA League Pass]({nba_pass_link})                   || r/{other_subreddit}|\n'
+
+    starters = self._build_starters_table(boxscore, teams)
+    if starters is not None:
+      body += '\n##### Starting lineups\n\n'
+      body += f'{starters}'
 
     linescore = self._build_linescore(boxscore, teams)
     if linescore is not None:
@@ -295,9 +300,9 @@ class GameThreadBot:
     arena = basicGameData["arena"]["name"]
     attendance = basicGameData["attendance"]
     officials = ', '.join([o["firstNameLastName"]
-        for o in basicGameData["officials"]["formatted"]])
+                           for o in basicGameData["officials"]["formatted"]])
     start_time_est = (dateutil.parser.parse(basicGameData['startTimeUTC'])
-        .astimezone(EASTERN_TIMEZONE).strftime('%B %d, %Y %-I:%M %p %Z'))
+                      .astimezone(EASTERN_TIMEZONE).strftime('%B %d, %Y %-I:%M %p %Z'))
     duration = (f'{basicGameData["gameDuration"]["hours"]} hours and '
                 f'{basicGameData["gameDuration"]["minutes"]} minutes')
     duration = duration.replace(' and 0 minutes', '')
@@ -487,6 +492,23 @@ class GameThreadBot:
 
     return f'{header1}\n{header2}\n{road_team_line}\n{home_team_line}'
 
+  def _build_starters_table(self, boxscore, teams):
+    hteamid = boxscore['basicGameData']['hTeam']['teamId']
+    vteamid = boxscore['basicGameData']['vTeam']['teamId']
+    away = []
+    home = []
+    for i in range(len(boxscore["stats"]["activePlayers"])):
+      stats = boxscore["stats"]["activePlayers"][i]
+      if stats["pos"]:
+        player_name = f'{stats["firstName"]} {stats["lastName"]}'
+        arr = away if stats["teamId"] == vteamid else home
+        arr.append(f'{player_name} ({stats["pos"]})')
+    result = f'{teams[vteamid]["fullName"]}|{teams[hteamid]["fullName"]}|\n'
+    result += ':--|:--|\n'
+    for away_player, home_player in zip(away, home):
+      result += f'{away_player}|{home_player}|\n'
+    return result
+
   @staticmethod
   def _plusminus(someStat):
     if someStat.isdigit() and int(someStat) > 0:
@@ -512,8 +534,8 @@ class GameThreadBot:
     # Display a hyphen for quarters that haven't started yet even though they
     # report it with a score of 0. Always display overtime data if present.
     if (points == '0'
-            and requested_period > current_period
-            and current_period <= 4):
+      and requested_period > current_period
+      and current_period <= 4):
       points = '-'
     return points
 
@@ -556,11 +578,11 @@ class Action(Enum):
 if __name__ == '__main__':
   parser = OptionParser()
   parser.add_option(
-      "-u",
-      "--user",
-      dest="username",
-      help="Reddit account for the bot to run as.",
-      metavar='[username]')
+    "-u",
+    "--user",
+    dest="username",
+    help="Reddit account for the bot to run as.",
+    metavar='[username]')
   (options, args) = parser.parse_args()
 
   logging.config.fileConfig('logging.conf')

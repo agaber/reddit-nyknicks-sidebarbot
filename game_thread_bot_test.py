@@ -17,6 +17,16 @@ EXPECTED_GAMETHREAD_TEXT = """##### General Information
 05:00 PM Mountain | Cavaliers Broadcast: Fox Sports Ohio |[Box Score](https://www.nba.com/game/nyk-vs-cle-0022000046/box-score#box-score)| r/NYKnicks|
 04:00 PM Pacific   | [NBA League Pass](https://www.nba.com/game/nyk-vs-cle-0022000046?watch)                   || r/clevelandcavs|
 
+##### Starting lineups
+
+New York Knicks|Cleveland Cavaliers|
+:--|:--|
+Julius Randle (SF)|Cedi Osman (SF)|
+Reggie Bullock (PF)|Larry Nance Jr. (PF)|
+Mitchell Robinson (C)|Andre Drummond (C)|
+RJ Barrett (SG)|Collin Sexton (SG)|
+Elfrid Payton (PG)|Darius Garland (PG)|
+
 ##### Score
 
 |**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|
@@ -127,11 +137,11 @@ class GameThreadBotTest(unittest.TestCase):
 
   def bot(self, now: datetime):
     return GameThreadBot(
-        logger=self.logger,
-        nba_service=self.fake_nba_service,
-        now=now,
-        reddit=self.mock_reddit,
-        subreddit_name='test_NYKnicks')
+      logger=self.logger,
+      nba_service=self.fake_nba_service,
+      now=now,
+      reddit=self.mock_reddit,
+      subreddit_name='test_NYKnicks')
 
   def test_run_createGameThread(self):
     # 1 hour before tip-off.
@@ -142,7 +152,7 @@ class GameThreadBotTest(unittest.TestCase):
     ]
     mock_submit_mod = MagicMock(['sticky'])
     self.mock_subreddit.submit.return_value = MagicMock(
-        mod=mock_submit_mod, title='game thread')
+      mod=mock_submit_mod, title='game thread')
 
     # Execute.
     self.bot(now).run()
@@ -154,9 +164,9 @@ class GameThreadBotTest(unittest.TestCase):
                       'Cavaliers (3-1) - (December 29, 2020)');
 
     self.mock_subreddit.submit.assert_called_once_with(
-        expected_title,
-        selftext=EXPECTED_GAMETHREAD_TEXT,
-        send_replies=False)
+      expected_title,
+      selftext=EXPECTED_GAMETHREAD_TEXT,
+      send_replies=False)
     mock_submit_mod.sticky.assert_called_once()
 
   def test_run_updateGameThread(self):
@@ -164,20 +174,20 @@ class GameThreadBotTest(unittest.TestCase):
     now = datetime(2020, 12, 29, 23, 0, 0, 0, UTC)
 
     shitpost = FakeThread(
-        author='macdoogles',
-        created_utc=now,
-        selftext='better shut up',
-        title='no u')
+      author='macdoogles',
+      created_utc=now,
+      selftext='better shut up',
+      title='no u')
     otherthread = FakeThread(
-        author='nyknicks-automod',
-        created_utc=now,
-        selftext="it's happening!",
-        title="This is not the thread you're looking for")
+      author='nyknicks-automod',
+      created_utc=now,
+      selftext="it's happening!",
+      title="This is not the thread you're looking for")
     gamethread = FakeThread(
-        author='nyknicks-automod',
-        created_utc=now,
-        selftext='we did it!',
-        title=f'{GAME_THREAD_PREFIX} A classic match of Good vs. Evil')
+      author='nyknicks-automod',
+      created_utc=now,
+      selftext='we did it!',
+      title=f'{GAME_THREAD_PREFIX} A classic match of Good vs. Evil')
     self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
 
     # Execute.
@@ -202,7 +212,7 @@ class GameThreadBotTest(unittest.TestCase):
     ]
     mock_submit_mod = MagicMock(['sticky'])
     self.mock_subreddit.submit.return_value = MagicMock(
-        mod=mock_submit_mod, title='post game thread')
+      mod=mock_submit_mod, title='post game thread')
 
     # Execute.
     self.bot(now).run()
@@ -214,9 +224,9 @@ class GameThreadBotTest(unittest.TestCase):
                       'Milwaukee Bucks (1-2), 130-110');
 
     self.mock_subreddit.submit.assert_called_once_with(
-        expected_title,
-        selftext=EXPECTED_POSTGAME_TEXT,
-        send_replies=False)
+      expected_title,
+      selftext=EXPECTED_POSTGAME_TEXT,
+      send_replies=False)
     mock_submit_mod.sticky.assert_called_once()
 
   @patch('random.choice')
@@ -227,20 +237,20 @@ class GameThreadBotTest(unittest.TestCase):
     mock_random.return_value = 'defeat'
 
     shitpost = FakeThread(
-        author='macdoogles',
-        created_utc=now,
-        selftext='better shut up',
-        title='u mad bro?')
+      author='macdoogles',
+      created_utc=now,
+      selftext='better shut up',
+      title='u mad bro?')
     otherthread = FakeThread(
-        author='nyknicks-automod',
-        created_utc=now,
-        selftext="it's happening!",
-        title="This is not the thread you're looking for")
+      author='nyknicks-automod',
+      created_utc=now,
+      selftext="it's happening!",
+      title="This is not the thread you're looking for")
     gamethread = FakeThread(
-        author='nyknicks-automod',
-        created_utc=now,
-        selftext='we did it!',
-        title=f'{POST_GAME_PREFIX} Knicks win!')
+      author='nyknicks-automod',
+      created_utc=now,
+      selftext='we did it!',
+      title=f'{POST_GAME_PREFIX} Knicks win!')
     self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
 
     # Execute.
@@ -259,21 +269,21 @@ class GameThreadBotTest(unittest.TestCase):
     now = datetime(2020, 12, 27, 3, 0, 0, 0, UTC)
     mock_random.return_value = 'defeat'
     shitpost = FakeThread(
-        author='macdoogles',
-        created_utc=now,
-        selftext='better shut up',
-        title='u mad bro?')
+      author='macdoogles',
+      created_utc=now,
+      selftext='better shut up',
+      title='u mad bro?')
     otherthread = FakeThread(
-        author='nyknicks-automod',
-        created_utc=now,
-        selftext="it's happening!",
-        title="This is not the thread you're looking for")
+      author='nyknicks-automod',
+      created_utc=now,
+      selftext="it's happening!",
+      title="This is not the thread you're looking for")
     # This thread would otherwise match but it is too old and should be ignored.
     gamethread = FakeThread(
-        author='nyknicks-automod',
-        created_utc=now - timedelta(hours=10),
-        selftext='we did it!',
-        title=f'{POST_GAME_PREFIX} Knicks win!')
+      author='nyknicks-automod',
+      created_utc=now - timedelta(hours=10),
+      selftext='we did it!',
+      title=f'{POST_GAME_PREFIX} Knicks win!')
     self.mock_subreddit.new.return_value = [shitpost, otherthread, gamethread]
     mock_submit_mod = MagicMock(['sticky'])
     self.mock_subreddit.submit.return_value = MagicMock(
@@ -286,9 +296,9 @@ class GameThreadBotTest(unittest.TestCase):
     expected_title = ('[Post Game Thread] The New York Knicks (1-2) defeat the '
                       'Milwaukee Bucks (1-2), 130-110');
     self.mock_subreddit.submit.assert_called_once_with(
-        expected_title,
-        selftext=EXPECTED_POSTGAME_TEXT,
-        send_replies=False)
+      expected_title,
+      selftext=EXPECTED_POSTGAME_TEXT,
+      send_replies=False)
     mock_submit_mod.sticky.assert_called_once()
 
   # TODO: More tests needed for post game title generation:
@@ -389,11 +399,11 @@ class GameThreadBotTest(unittest.TestCase):
     linescore = self.bot(now)._build_linescore(boxscore, teams)
 
     self.assertEqual(
-        linescore,
-        ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
-         '|:---|:--:|:--:|:--:|:--:|:--:|\n'
-         '|Milwaukee Bucks|27|-|-|-|27|\n'
-         '|New York Knicks|30|-|-|-|30|'))
+      linescore,
+      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
+       '|:---|:--:|:--:|:--:|:--:|:--:|\n'
+       '|Milwaukee Bucks|27|-|-|-|27|\n'
+       '|New York Knicks|30|-|-|-|30|'))
 
   def test_build_linescore_withTwoQuarters(self):
     teams = self.fake_nba_service.teams('2020')
@@ -407,11 +417,11 @@ class GameThreadBotTest(unittest.TestCase):
     linescore = self.bot(now)._build_linescore(boxscore, teams)
 
     self.assertEqual(
-        linescore,
-        ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
-         '|:---|:--:|:--:|:--:|:--:|:--:|\n'
-         '|Milwaukee Bucks|27|18|-|-|45|\n'
-         '|New York Knicks|30|31|-|-|61|'))
+      linescore,
+      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
+       '|:---|:--:|:--:|:--:|:--:|:--:|\n'
+       '|Milwaukee Bucks|27|18|-|-|45|\n'
+       '|New York Knicks|30|31|-|-|61|'))
 
   def test_build_linescore_withThreeQuarters(self):
     teams = self.fake_nba_service.teams('2020')
@@ -420,17 +430,17 @@ class GameThreadBotTest(unittest.TestCase):
     # Read a real boxscore response and modify it for our test case.
     boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
     boxscore = self.update_boxscore(
-        boxscore, [27, 18, 30, 0], [30, 31, 35, 0], 3)
+      boxscore, [27, 18, 30, 0], [30, 31, 35, 0], 3)
 
     # Execute
     linescore = self.bot(now)._build_linescore(boxscore, teams)
 
     self.assertEqual(
-        linescore,
-        ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
-         '|:---|:--:|:--:|:--:|:--:|:--:|\n'
-         '|Milwaukee Bucks|27|18|30|-|75|\n'
-         '|New York Knicks|30|31|35|-|96|'))
+      linescore,
+      ('|**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|\n'
+       '|:---|:--:|:--:|:--:|:--:|:--:|\n'
+       '|Milwaukee Bucks|27|18|30|-|75|\n'
+       '|New York Knicks|30|31|35|-|96|'))
 
   def test_build_linescore_withOneOvertime(self):
     teams = self.fake_nba_service.teams('2020')
@@ -439,10 +449,10 @@ class GameThreadBotTest(unittest.TestCase):
     # Read a real boxscore response and modify it for our test case.
     boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
     boxscore = self.update_boxscore(
-        boxscore,
-        home_scores=[27, 18, 30, 40, 15],
-        road_scores=[30, 31, 35, 19, 16],
-        period=4)  # I don't actually know what this value will be for OT.
+      boxscore,
+      home_scores=[27, 18, 30, 40, 15],
+      road_scores=[30, 31, 35, 19, 16],
+      period=4)  # I don't actually know what this value will be for OT.
 
     # Execute
     linescore = self.bot(now)._build_linescore(boxscore, teams)
@@ -461,10 +471,10 @@ class GameThreadBotTest(unittest.TestCase):
     # Read a real boxscore response and modify it for our test case.
     boxscore = self.fake_nba_service.boxscore('20201227', '0022000036')
     boxscore = self.update_boxscore(
-        boxscore,
-        home_scores=[27, 18, 30, 40, 15, 10],
-        road_scores=[30, 31, 35, 19, 15, 13],
-        period=4)
+      boxscore,
+      home_scores=[27, 18, 30, 40, 15, 10],
+      road_scores=[30, 31, 35, 19, 15, 13],
+      period=4)
 
     # Execute
     linescore = self.bot(now)._build_linescore(boxscore, teams)
