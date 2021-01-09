@@ -653,8 +653,8 @@ if __name__ == '__main__':
   username = options.username if options.username else 'nyknicks-automod'
   logger.info(f'Using subreddit "{subreddit_name}" and user "{username}".')
 
-  # now = datetime.now(UTC)
-  now = datetime(2021, 1, 1, 4, 4, 0, 0, UTC)
+  now = datetime.now(UTC)
+  # now = datetime(2021, 1, 1, 4, 4, 0, 0, UTC)
 
   try:
     nba_service = NbaService(logger)
