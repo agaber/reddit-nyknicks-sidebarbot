@@ -180,6 +180,14 @@ class GameThreadBot:
       body += '\n##### Starting lineups\n\n'
       body += f'{starters}'
 
+    if basic_game_data["officials"]:
+      officials = ', '.join([o["firstNameLastName"]
+          for o in basic_game_data["officials"]["formatted"]])
+      body += '\n##### Officials\n\n'
+      body += '||\n'
+      body += '|:--|\n'
+      body += f'|{officials}|\n'
+
     linescore = self._build_linescore(boxscore, teams)
     if linescore is not None:
       body += '\n##### Score\n\n'

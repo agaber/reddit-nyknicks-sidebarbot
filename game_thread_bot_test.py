@@ -27,6 +27,12 @@ Mitchell Robinson (C)|Andre Drummond (C)|
 RJ Barrett (SG)|Collin Sexton (SG)|
 Elfrid Payton (PG)|Darius Garland (PG)|
 
+##### Officials
+
+||
+|:--|
+|Ed Malloy, Scott Twardoski, Ashley Moyer-Gleich|
+
 ##### Score
 
 |**Team**|**Q1**|**Q2**|**Q3**|**Q4**|**Total**|
