@@ -27,6 +27,16 @@ Mitchell Robinson (C)|Andre Drummond (C)|
 RJ Barrett (SG)|Collin Sexton (SG)|
 Elfrid Payton (PG)|Darius Garland (PG)|
 
+##### Inactive
+
+New York Knicks|Cleveland Cavaliers|
+:--|:--|
+|Matthew Dellavedova (G)|
+|Kevin Love (F/C)|
+|Isaac Okoro (F/G)|
+|Kevin Porter Jr. (G/F)|
+|Dylan Windler (G/F)|
+
 ##### Officials
 
 ||

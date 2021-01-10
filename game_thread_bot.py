@@ -76,7 +76,7 @@ class GameThreadBot:
 
     boxscore = self._get_boxscore(game)
     teams = self.nba_service.teams(season_year)
-    title, body = self._build_game_thread_text(boxscore, teams) \
+    title, body = self._build_game_thread_text(boxscore, teams, season_year) \
       if action == Action.DO_GAME_THREAD \
       else self._build_postgame_thread_text(boxscore, teams)
     self._create_or_update_game_thread(action, title, body)
@@ -117,7 +117,7 @@ class GameThreadBot:
 
     return Action.DO_NOTHING, None
 
-  def _build_game_thread_text(self, boxscore, teams):
+  def _build_game_thread_text(self, boxscore, teams, year):
     """Builds the title and selftext for a game thread (not post game). This just
     builds strings and it doesn't actually interact with Reddit.
 
@@ -179,6 +179,11 @@ class GameThreadBot:
     if starters is not None:
       body += '\n##### Starting lineups\n\n'
       body += f'{starters}'
+
+    inactive = self._build_inactive_table(boxscore, teams, year)
+    if inactive is not None:
+      body += '\n##### Inactive\n\n'
+      body += f'{inactive}'
 
     if basic_game_data["officials"]:
       officials = ', '.join([o["firstNameLastName"]
@@ -517,6 +522,60 @@ class GameThreadBot:
     result += ':--|:--|\n'
     for away_player, home_player in zip(away, home):
       result += f'{away_player}|{home_player}|\n'
+    return result
+
+  def _build_inactive_table(self, boxscore, teams, year):
+    """Builds a markdown table of players on each team that are inactive.
+
+    It tries to figure out who is inactive by comparing the active players in the
+    boxscore feed with the full list of players in the team's player feed."""
+    if not boxscore["stats"] or not boxscore["stats"]["activePlayers"]:
+      return None
+
+    # Build a lookup table of active player ids.
+    active_players = boxscore["stats"]["activePlayers"]
+    active_player_ids = set(map(lambda p: p['personId'], active_players))
+
+    hteamid = boxscore['basicGameData']['hTeam']['teamId']
+    vteamid = boxscore['basicGameData']['vTeam']['teamId']
+
+    # Lookup each team's roster from the NBA API.
+    hroster = self.nba_service.roster(teams[hteamid]['urlName'], year)
+    vroster = self.nba_service.roster(teams[vteamid]['urlName'], year)
+
+    # Figure out whose inactive by comparing the team roster to active players.
+    hteam_inactive_player_ids = set(filter(
+      lambda pid: pid not in active_player_ids, hroster))
+    vteam_inactive_player_ids = set(filter(
+      lambda pid: pid not in active_player_ids, vroster))
+
+    # Don't do anything if there's no inactive players.
+    total_inactive = len(hteam_inactive_player_ids) + len(vteam_inactive_player_ids)
+    if total_inactive == 0:
+      return None
+
+    # Convert personIds to "Player Name (Position)" string.
+    def player_str(player):
+      pos = f' ({player["pos"].replace("-", "/")})' if player["pos"] else ''
+      return f'{player["firstName"]} {player["lastName"]}{pos}'
+    hinactive = []
+    vinactive = []
+    for player in self.nba_service.players(year):
+      if player["personId"] in hteam_inactive_player_ids:
+        hinactive.append(player_str(player))
+      if player["personId"] in vteam_inactive_player_ids:
+        vinactive.append(player_str(player))
+      # Terminate loop if we've already got everything we need.
+      if len(hinactive) + len(vinactive) == total_inactive:
+        break
+
+    # Build up the table.
+    result = f'{teams[vteamid]["fullName"]}|{teams[hteamid]["fullName"]}|\n'
+    result += ':--|:--|\n'
+    for i in range(max(len(hinactive), len(vinactive))):
+      vplayer = vinactive[i] if i < len(vinactive) else ''
+      hplayer = hinactive[i] if i < len(hinactive) else ''
+      result += f'{vplayer}|{hplayer}|\n'
     return result
 
   @staticmethod

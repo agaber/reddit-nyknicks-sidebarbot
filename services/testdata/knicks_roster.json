@@ -1,0 +1,56 @@
+{
+  "_internal": {
+    "pubDateTime": "2020-12-27 16:39:39.362 EST",
+    "igorPath": "S3,1609105170149,1609105176403|router,1609105176403,1609105176410|domUpdater,1609105176595,1609105179170|feedProducer,1609105179277,1609105193546",
+    "xslt": "NBA/xsl/team/roster/marty_roster_by_team.xsl",
+    "xsltForceRecompile": "true",
+    "xsltInCache": "false",
+    "xsltCompileTimeMillis": "50",
+    "xsltTransformTimeMillis": "129",
+    "consolidatedDomKey": "prod__transform__marty_team_roster__3576082156418",
+    "endToEndTimeMillis": "23397"
+  },
+  "league": {
+    "standard": {
+      "teamId": "1610612752",
+      "players": [
+        {
+          "personId": "1629628"
+        },
+        {
+          "personId": "1629649"
+        },
+        {
+          "personId": "203493"
+        },
+        {
+          "personId": "202692"
+        }
+      ]
+    },
+    "africa": {
+      "teamId": "1610612752",
+      "players": [
+        
+      ]
+    },
+    "sacramento": {
+      "teamId": "1610612752",
+      "players": [
+        
+      ]
+    },
+    "vegas": {
+      "teamId": "1610612752",
+      "players": [
+        
+      ]
+    },
+    "utah": {
+      "teamId": "1610612752",
+      "players": [
+        
+      ]
+    }
+  }
+}

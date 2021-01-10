@@ -1,0 +1,95 @@
+{
+  "_internal": {
+    "pubDateTime": "2021-01-10 10:39:50.265 EST",
+    "igorPath": "S3,1610293173966,1610293180184|router,1610293180184,1610293180222|domUpdater,1610293181176,1610293190064|feedProducer,1610293190195,1610293196307",
+    "xslt": "NBA/xsl/team/roster/marty_roster_by_team.xsl",
+    "xsltForceRecompile": "true",
+    "xsltInCache": "false",
+    "xsltCompileTimeMillis": "14",
+    "xsltTransformTimeMillis": "167",
+    "consolidatedDomKey": "prod__transform__marty_team_roster__2334026191201",
+    "endToEndTimeMillis": "22341"
+  },
+  "league": {
+    "standard": {
+      "teamId": "1610612739",
+      "players": [
+        {
+          "personId": "1629716"
+        },
+        {
+          "personId": "203521"
+        },
+        {
+          "personId": "1628422"
+        },
+        {
+          "personId": "203083"
+        },
+        {
+          "personId": "203957"
+        },
+        {
+          "personId": "1629636"
+        },
+        {
+          "personId": "201567"
+        },
+        {
+          "personId": "1627748"
+        },
+        {
+          "personId": "201580"
+        },
+        {
+          "personId": "1626204"
+        },
+        {
+          "personId": "1630171"
+        },
+        {
+          "personId": "1626224"
+        },
+        {
+          "personId": "1629645"
+        },
+        {
+          "personId": "1629012"
+        },
+        {
+          "personId": "1630205"
+        },
+        {
+          "personId": "1629731"
+        },
+        {
+          "personId": "1629685"
+        }
+      ]
+    },
+    "africa": {
+      "teamId": "1610612739",
+      "players": [
+
+      ]
+    },
+    "sacramento": {
+      "teamId": "1610612739",
+      "players": [
+
+      ]
+    },
+    "vegas": {
+      "teamId": "1610612739",
+      "players": [
+
+      ]
+    },
+    "utah": {
+      "teamId": "1610612739",
+      "players": [
+
+      ]
+    }
+  }
+}

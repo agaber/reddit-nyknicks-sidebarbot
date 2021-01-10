@@ -22,10 +22,10 @@ class FakeNbaService(NbaService):
     return '2020'
 
   def players(self, year):
-    return self._json('players.json')['league']['standard']
+    return self._json('all_players.json')['league']['standard']
 
   def roster(self, team, year):
-    data = self._json('roster.json')
+    data = self._json(f'{team}_roster.json')
     return set(
       map(lambda p: p['personId'], data['league']['standard']['players']))
 
