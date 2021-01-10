@@ -175,15 +175,15 @@ class GameThreadBot:
     body += f'{mountain} Mountain | {other_team_nickname} Broadcast: {other_broadcaster} |[Box Score]({box_link})| r/NYKnicks|\n'
     body += f'{pacific} Pacific   | [NBA League Pass]({nba_pass_link})                   || r/{other_subreddit}|\n'
 
-    starters = self._build_starters_table(boxscore, teams)
-    if starters is not None:
+    starters_table = self._build_starters_table(boxscore, teams)
+    if starters_table is not None:
       body += '\n##### Starting lineups\n\n'
-      body += f'{starters}'
+      body += starters_table
 
-    inactive = self._build_inactive_table(boxscore, teams, year)
-    if inactive is not None:
+    inactive_table = self._build_inactive_table(boxscore, teams, year)
+    if inactive_table is not None:
       body += '\n##### Inactive\n\n'
-      body += f'{inactive}'
+      body += inactive_table
 
     if basic_game_data['officials']['formatted']:
       officials = ', '.join([o['firstNameLastName']
@@ -570,12 +570,12 @@ class GameThreadBot:
         break
 
     # Build up the table.
-    result = f'{teams[vteamid]["fullName"]}|{teams[hteamid]["fullName"]}|\n'
-    result += ':--|:--|\n'
+    result = f'|{teams[vteamid]["fullName"]}|{teams[hteamid]["fullName"]}|\n'
+    result += '|:--|:--|\n'
     for i in range(max(len(hinactive), len(vinactive))):
-      vplayer = vinactive[i] if i < len(vinactive) else ''
       hplayer = hinactive[i] if i < len(hinactive) else ''
-      result += f'{vplayer}|{hplayer}|\n'
+      vplayer = vinactive[i] if i < len(vinactive) else ''
+      result += f'|{vplayer}|{hplayer}|\n'
     return result
 
   @staticmethod
@@ -647,11 +647,11 @@ class Action(Enum):
 if __name__ == '__main__':
   parser = OptionParser()
   parser.add_option(
-    "-u",
-    "--user",
-    dest="username",
-    help="Reddit account for the bot to run as.",
-    metavar='[username]')
+      "-u",
+      "--user",
+      dest="username",
+      help="Reddit account for the bot to run as.",
+      metavar='[username]')
   (options, args) = parser.parse_args()
 
   logging.config.fileConfig('logging.conf')
@@ -665,8 +665,8 @@ if __name__ == '__main__':
   username = options.username if options.username else 'nyknicks-automod'
   logger.info(f'Using subreddit "{subreddit_name}" and user "{username}".')
 
-  now = datetime.now(UTC)
-  # now = datetime(2021, 1, 10, 22, 0, 0, 0, UTC)
+  # now = datetime.now(UTC)
+  now = datetime(2021, 1, 10, 22, 0, 0, 0, UTC)
 
   try:
     nba_service = NbaService(logger)
