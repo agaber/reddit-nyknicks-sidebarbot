@@ -185,9 +185,9 @@ class GameThreadBot:
       body += '\n##### Inactive\n\n'
       body += f'{inactive}'
 
-    if basic_game_data["officials"]:
-      officials = ', '.join([o["firstNameLastName"]
-          for o in basic_game_data["officials"]["formatted"]])
+    if basic_game_data['officials']['formatted']:
+      officials = ', '.join([o['firstNameLastName']
+          for o in basic_game_data['officials']['formatted']])
       body += '\n##### Officials\n\n'
       body += '||\n'
       body += '|:--|\n'
@@ -506,7 +506,7 @@ class GameThreadBot:
     return f'{header1}\n{header2}\n{road_team_line}\n{home_team_line}'
 
   def _build_starters_table(self, boxscore, teams):
-    if not boxscore["stats"] or not boxscore["stats"]["activePlayers"]:
+    if 'stats' not in boxscore or 'activePlayers' not in boxscore['stats']:
       return None
     hteamid = boxscore['basicGameData']['hTeam']['teamId']
     vteamid = boxscore['basicGameData']['vTeam']['teamId']
@@ -529,7 +529,7 @@ class GameThreadBot:
 
     It tries to figure out who is inactive by comparing the active players in the
     boxscore feed with the full list of players in the team's player feed."""
-    if not boxscore["stats"] or not boxscore["stats"]["activePlayers"]:
+    if 'stats' not in boxscore or 'activePlayers' not in boxscore['stats']:
       return None
 
     # Build a lookup table of active player ids.
@@ -666,7 +666,7 @@ if __name__ == '__main__':
   logger.info(f'Using subreddit "{subreddit_name}" and user "{username}".')
 
   now = datetime.now(UTC)
-  # now = datetime(2021, 1, 1, 4, 4, 0, 0, UTC)
+  # now = datetime(2021, 1, 10, 22, 0, 0, 0, UTC)
 
   try:
     nba_service = NbaService(logger)
