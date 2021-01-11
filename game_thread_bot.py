@@ -43,7 +43,6 @@ DEFEAT_SYNONYMS = [
   'edge out',
   'steal one against',
   'hang on to defeat',
-  'snap',
 ]
 
 # Will ignore posts older than this many hours
@@ -53,12 +52,12 @@ MAX_POST_AGE_HOURS = 6
 class GameThreadBot:
 
   def __init__(
-    self,
-    logger: logging.Logger,
-    nba_service: NbaService,
-    now: datetime,
-    reddit: praw.Reddit,
-    subreddit_name: str):
+      self,
+      logger: logging.Logger,
+      nba_service: NbaService,
+      now: datetime,
+      reddit: praw.Reddit,
+      subreddit_name: str):
     self.logger = logger
     self.nba_service = nba_service
     self.now = now
@@ -138,7 +137,7 @@ class GameThreadBot:
 
     broadcasters = basic_game_data['watch']['broadcast']['broadcasters']
     national_broadcaster = 'N/A' if len(broadcasters['national']) == 0 \
-      else broadcasters['national'][0]['longName']
+        else broadcasters['national'][0]['longName']
     knicks_broadcaster = broadcasters[us][0]['longName']
     other_broadcaster = broadcasters[them][0]['longName']
 
@@ -160,8 +159,8 @@ class GameThreadBot:
     pacific = time_str(PACIFIC_TIMEZONE)
 
     urlpart = (
-      f'{vteam["triCode"].lower()}-vs-{hteam["triCode"].lower()}-'
-      f'{basic_game_data["gameId"]}')
+        f'{vteam["triCode"].lower()}-vs-{hteam["triCode"].lower()}-'
+        f'{basic_game_data["gameId"]}')
     nba_pass_link = f'https://www.nba.com/game/{urlpart}?watch'
     preview_link = f'https://www.nba.com/game/{urlpart}'
     play_link = f'https://www.nba.com/game/{urlpart}/play-by-play'
@@ -263,26 +262,21 @@ class GameThreadBot:
 
     Ported from https://bit.ly/3o6QvPB.
     """
-    home_team_name = teams[basic_game_data['hTeam']['teamId']]['fullName']
-    if home_team_name == "knicks":
-      us_score = int(basic_game_data["hTeam"]["score"])
-      them_score = int(basic_game_data["vTeam"]["score"])
-    else:
-      us_score = int(basic_game_data["vTeam"]["score"])
-      them_score = int(basic_game_data["hTeam"]["score"])
-
-    if us_score > them_score:
-      if them_score - us_score < 3:
+    home_team_name = teams[basic_game_data['hTeam']['teamId']]['urlName']
+    hscore = int(basic_game_data["hTeam"]["score"])
+    vscore = int(basic_game_data["vTeam"]["score"])
+    knicks_win = ((home_team_name == "knicks" and hscore > vscore)
+        or (home_team_name != "knicks" and vscore > hscore))
+    if knicks_win:
+      if abs(hscore - vscore) < 3:
         return random.choice(DEFEAT_SYNONYMS[14:16])
-      elif them_score - us_score < 6:
+      elif abs(hscore - vscore) < 6:
         return random.choice(DEFEAT_SYNONYMS[16:])
-      elif them_score - us_score > 20:
-        return random.choice(DEFEAT_SYNONYMS[3:9])
-      elif them_score - us_score > 40:
+      elif abs(hscore - vscore) > 40:
         return random.choice(DEFEAT_SYNONYMS[9:14])
-      else:
-        return random.choice(DEFEAT_SYNONYMS[:3])
-
+      elif abs(hscore - vscore) > 20:
+        return random.choice(DEFEAT_SYNONYMS[3:9])
+      return random.choice(DEFEAT_SYNONYMS[:3])
     return random.choice(DEFEAT_SYNONYMS[:2])
 
   def _build_boxscore_text(self, boxscore, teams):
@@ -545,9 +539,9 @@ class GameThreadBot:
 
     # Figure out whose inactive by comparing the team roster to active players.
     hteam_inactive_player_ids = set(filter(
-      lambda pid: pid not in active_player_ids, hroster))
+        lambda pid: pid not in active_player_ids, hroster))
     vteam_inactive_player_ids = set(filter(
-      lambda pid: pid not in active_player_ids, vroster))
+        lambda pid: pid not in active_player_ids, vroster))
 
     # Don't do anything if there's no inactive players.
     total_inactive = len(hteam_inactive_player_ids) + len(vteam_inactive_player_ids)
@@ -603,8 +597,8 @@ class GameThreadBot:
     # Display a hyphen for quarters that haven't started yet even though they
     # report it with a score of 0. Always display overtime data if present.
     if (points == '0'
-      and requested_period > current_period
-      and current_period <= 4):
+        and requested_period > current_period
+        and current_period <= 4):
       points = '-'
     return points
 
