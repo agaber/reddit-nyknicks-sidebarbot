@@ -76,8 +76,8 @@ class GameThreadBot:
     boxscore = self._get_boxscore(game)
     teams = self.nba_service.teams(season_year)
     title, body = self._build_game_thread_text(boxscore, teams, season_year) \
-      if action == Action.DO_GAME_THREAD \
-      else self._build_postgame_thread_text(boxscore, teams)
+        if action == Action.DO_GAME_THREAD \
+        else self._build_postgame_thread_text(boxscore, teams)
     self._create_or_update_game_thread(action, title, body)
 
   def _get_boxscore(self, game):
@@ -463,7 +463,6 @@ class GameThreadBot:
 
     Will return None if there's no data, otherwise it will always print a table
     with at least 4 quarters even if some columns are blank."""
-
     basic_game_data = boxscore["basicGameData"]
     current_period = int(basic_game_data['period']['current'])
 
