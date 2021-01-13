@@ -137,7 +137,7 @@ class GameThreadBot:
 
     def broadcaster_name(type):
       return 'N/A' if len(broadcasters[type]) == 0 \
-        else broadcasters[type][0]['longName']
+          else broadcasters[type][0]['longName']
 
     broadcasters = basic_game_data['watch']['broadcast']['broadcasters']
     national_broadcaster = broadcaster_name('national')
