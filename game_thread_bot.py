@@ -135,11 +135,14 @@ class GameThreadBot:
       them = 'hTeam'
       home_away_sign = '@'
 
+    def broadcaster_name(type):
+      return 'N/A' if len(broadcasters[type]) == 0 \
+        else broadcasters[type][0]['longName']
+
     broadcasters = basic_game_data['watch']['broadcast']['broadcasters']
-    national_broadcaster = 'N/A' if len(broadcasters['national']) == 0 \
-        else broadcasters['national'][0]['longName']
-    knicks_broadcaster = broadcasters[us][0]['longName']
-    other_broadcaster = broadcasters[them][0]['longName']
+    national_broadcaster = broadcaster_name('national')
+    knicks_broadcaster = broadcaster_name(us)
+    other_broadcaster = broadcaster_name(them)
 
     knicks_record = f"({basic_game_data[us]['win']}-{basic_game_data[us]['loss']})"
     other_record = f"({basic_game_data[them]['win']}-{basic_game_data[them]['loss']})"
