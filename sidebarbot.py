@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from optparse import OptionParser
 from services.nba_service import NbaService
 
+import copy
 import dateutil.parser
 import logging.config
 import praw
@@ -78,28 +79,7 @@ def build_schedule(logger, nba_service, now, teams, year):
   return '\n'.join(rows)
 
 
-def build_standings(logger, nba_service, teams):
-  standings = nba_service.conference_standings()
-  logger.info('Building standings text.')
-  division = standings['conference']['east']
-  return print_standings(teams, division)
-
-
-def build_tank_standings(logger, nba_service, teams):
-  standings = nba_service.conference_standings()
-  logger.info('Building tank standings text.')
-  rows = standings['conference']['east']
-  rows = rows + standings['conference']['west']
-  rows = sorted(rows, key=lambda team: float(team['lossPct']), reverse=True)
-  worst_wins = int(rows[0]['win'])
-  worst_loss = int(rows[0]['loss'])
-  for row in rows:
-     gb = (abs(worst_wins - int(row['win'])) + abs(worst_loss - int(row['loss']))) / 2
-     row['gamesBehind'] = ('%.1f' % gb).replace('.0', '')
-  return print_standings(teams, rows[:10])
-
-
-def print_standings(teams, standings):
+def build_standings(standings, teams):
   rows = [' | | |Record|GB', ':--:|:--:|:--|:--:|:--:']
   for i, d in enumerate(standings):
     team = teams[d['teamId']]['nickname']
@@ -109,9 +89,21 @@ def print_standings(teams, standings):
     games_behind = d['gamesBehind']
     games_behind = '-' if games_behind == '0' else games_behind
     row = ('%s|[](/r/%s)|%s|%s-%s|%s' %
-        (i + 1, teamsub, team, wins, loses, games_behind))
+           (i + 1, teamsub, team, wins, loses, games_behind))
     rows.append(row)
   return '\n'.join(rows)
+
+
+def build_tank_standings(standings, teams):
+  s2 = copy.deepcopy(standings)
+  rows = s2['conference']['east'] + s2['conference']['west']
+  rows = sorted(rows, key=lambda team: float(team['lossPct']), reverse=True)
+  worst_wins = int(rows[0]['win'])
+  worst_loss = int(rows[0]['loss'])
+  for row in rows:
+     gb = (abs(worst_wins - int(row['win'])) + abs(worst_loss - int(row['loss']))) / 2
+     row['gamesBehind'] = ('%.1f' % gb).replace('.0', '')
+  return build_standings(rows[:10], teams)
 
 
 def update_reddit_descr(descr, text, marker):
@@ -132,7 +124,7 @@ def winloss(knicks_score, opp_score):
       if kscore > oscore else 'L %s-%s' % (oscore, kscore))
 
 
-def execute(logger, now, subreddit_name, tanking, user='nyknicks-automod'):
+def execute(logger, now, subreddit_name, user='nyknicks-automod'):
   """
     The main starting point (after command line args are parsed) that initiates
     all of the work this bot will do. It intereacts with reddit and the NBA Data
@@ -147,9 +139,6 @@ def execute(logger, now, subreddit_name, tanking, user='nyknicks-automod'):
     subreddit_name : string
       The name of the subreddit to modify. The bot must have permissions to edit
       in this sub.
-    tanking : boolean
-      If true, print the standings as a race to the bottom, otherwise print
-      normal Eastern Conference standings.
     user: str
       The Reddit account username for the bot to run as. This praw.ini config
       file should also have an entry for this username.
@@ -160,8 +149,12 @@ def execute(logger, now, subreddit_name, tanking, user='nyknicks-automod'):
   roster = build_roster(nba_service, current_year)
   teams = nba_service.teams(current_year)
   schedule = build_schedule(logger, nba_service, now, teams, current_year)
-  standings = build_tank_standings(logger, nba_service, teams) \
-      if tanking else build_standings(logger, nba_service, teams)
+
+  logger.info('Building standings text.')
+  nba_standings = nba_service.conference_standings()
+  tank_standings = build_tank_standings(nba_standings, teams)
+  east_standings = build_standings(nba_standings['conference']['east'], teams)
+  west_standings = build_standings(nba_standings['conference']['west'], teams)
 
   logger.info('Logging in to reddit.')
   reddit = praw.Reddit(user)
@@ -170,7 +163,9 @@ def execute(logger, now, subreddit_name, tanking, user='nyknicks-automod'):
   subreddit = reddit.subreddit(subreddit_name)
   descr = subreddit.mod.settings()['description']
   updated_descr = update_reddit_descr(descr, schedule, 'Schedule')
-  updated_descr = update_reddit_descr(updated_descr, standings, 'Standings')
+  updated_descr = update_reddit_descr(updated_descr, tank_standings, 'TankStandings')
+  updated_descr = update_reddit_descr(updated_descr, east_standings, 'EastStandings')
+  updated_descr = update_reddit_descr(updated_descr, west_standings, 'WestStandings')
   updated_descr = update_reddit_descr(updated_descr, roster, 'Roster')
 
   if updated_descr != descr:
@@ -184,12 +179,6 @@ def execute(logger, now, subreddit_name, tanking, user='nyknicks-automod'):
 
 if __name__ == "__main__":
   parser = OptionParser()
-  parser.add_option(
-      "-t", 
-      "--tank_standings", 
-      dest="tank",
-      help="Print the race to be worst instead of best, if enabled.",
-      metavar='yes|no')
   parser.add_option(
       "-u",
       "--user",
@@ -209,12 +198,7 @@ if __name__ == "__main__":
   username = options.username if options.username else 'nyknicks-automod'
   logger.info(f'Using subreddit "{subreddit_name}" and user "{username}".')
 
-  yes = set(['yes', 'y', 'true'])
-  tank_standings = True \
-      if options.tank and options.tank.lower() in yes else False
-  logger.info(f'Print tank standings: {tank_standings}')
-
   try:
-    execute(logger, datetime.now(UTC), subreddit_name, tank_standings, username)
+    execute(logger, datetime.now(UTC), subreddit_name, username)
   except:
     logger.error(traceback.format_exc())

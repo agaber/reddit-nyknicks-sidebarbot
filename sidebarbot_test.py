@@ -20,9 +20,19 @@ junk
 
 ---
 
-[](#StartStandings)
+## Eastern Conference Standings
 
-[](#EndStandings)
+[](#StartEastStandings)
+
+[](#EndEastStandings)
+
+___
+
+## Western Conference Standings
+
+[](#StartWestStandings)
+
+[](#EndWestStandings)
 
 ___
 
@@ -34,7 +44,9 @@ bye
 """
 
 # To isolate testing just the standings logic.
-INITIAL_STANDINGS_DESCR = '[](#StartStandings)[](#EndStandings)'
+INITIAL_EAST_STANDINGS_DESCR = '[](#StartEastStandings)[](#EndEastStandings)'
+
+INITIAL_TANK_STANDINGS_DESCR = '[](#StartTankStandings)[](#EndTankStandings)'
 
 # To isolate testing just the schedule logic.
 INITIAL_SCHEDULE_DESCR = '[](#StartSchedule)[](#EndSchedule)'
@@ -63,7 +75,9 @@ Jan 08|[](/r/thunder)|Home|7:30 PM
 
 ---
 
-[](#StartStandings)
+## Eastern Conference Standings
+
+[](#StartEastStandings)
 
  | | |Record|GB
 :--:|:--:|:--|:--:|:--:
@@ -83,7 +97,33 @@ Jan 08|[](/r/thunder)|Home|7:30 PM
 14|[](/r/OrlandoMagic)|Magic|20-47|29.5
 15|[](/r/AtlantaHawks)|Hawks|20-47|29.5
 
-[](#EndStandings)
+[](#EndEastStandings)
+
+___
+
+## Western Conference Standings
+
+[](#StartWestStandings)
+
+ | | |Record|GB
+:--:|:--:|:--|:--:|:--:
+1|[](/r/rockets)|Rockets|51-14|-
+2|[](/r/warriors)|Warriors|51-16|1
+3|[](/r/ripcity)|Trail Blazers|40-26|11.5
+4|[](/r/NOLAPelicans)|Pelicans|38-28|13.5
+5|[](/r/timberwolves)|Timberwolves|39-29|13.5
+6|[](/r/thunder)|Thunder|39-29|13.5
+7|[](/r/NBASpurs)|Spurs|37-29|14.5
+8|[](/r/LAClippers)|Clippers|36-29|15
+9|[](/r/denvernuggets)|Nuggets|37-30|15
+10|[](/r/UtahJazz)|Jazz|37-30|15
+11|[](/r/lakers)|Lakers|29-36|22
+12|[](/r/mavericks)|Mavericks|21-45|30.5
+13|[](/r/kings)|Kings|21-46|31
+14|[](/r/suns)|Suns|19-49|33.5
+15|[](/r/memphisgrizzlies)|Grizzlies|18-48|33.5
+
+[](#EndWestStandings)
 
 ___
 
@@ -153,7 +193,7 @@ class SidebarBotTest(unittest.TestCase):
   def test_execute_tankChanges_updatesDescription(self, mock_get, mock_praw):
     # Expect it to lookup the initial description from the reddit API.
     mock_mod = MagicMock()
-    mock_mod.settings.return_value = {'description': INITIAL_STANDINGS_DESCR}
+    mock_mod.settings.return_value = {'description': INITIAL_TANK_STANDINGS_DESCR}
     mock_subreddit = MagicMock(mod=mock_mod)
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
@@ -166,7 +206,7 @@ class SidebarBotTest(unittest.TestCase):
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
     mock_mod.update.assert_called_with(
-        description="""[](#StartStandings)
+        description="""[](#StartTankStandings)
 
  | | |Record|GB
 :--:|:--:|:--|:--:|:--:
@@ -181,7 +221,7 @@ class SidebarBotTest(unittest.TestCase):
 9|[](/r/NYKnicks)|Knicks|24-43|5.5
 10|[](/r/CharlotteHornets)|Hornets|29-38|10.5
 
-[](#EndStandings)""")
+[](#EndTankStandings)""")
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_service_test.mocked_requests_get)

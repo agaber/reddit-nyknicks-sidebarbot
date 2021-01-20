@@ -14,7 +14,7 @@ class NbaService:
   def __init__(self, logger=None):
     if logger is None:
       logging.config.fileConfig('logging.conf')
-      self.logger = logger.getLogger(__name__)
+      self.logger = logging.getLogger(__name__)
     else:
       self.logger = logger
 
