@@ -74,12 +74,6 @@ expensive to justify.
 * https://github.com/praw-dev
 * https://www.reddit.com/r/redditdev/
 
-## Known issues
-
-* This is using an outdated version of praw because the newer version
-(praw=7.1.0) doesn't seem to correctly update the sidebar. See 
-https://github.com/praw-dev/praw/issues/1613.
-
 ## Contributing code changes
 
 #### Prerequisites

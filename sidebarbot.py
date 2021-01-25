@@ -170,7 +170,7 @@ def execute(logger, now, subreddit_name, user='nyknicks-automod'):
 
   if updated_descr != descr:
     logger.info('Updating reddit settings.')
-    subreddit.mod.update(description=updated_descr)
+    subreddit.wiki['config/sidebar'].edit(updated_descr)
   else:
     logger.info('No changes.')
 

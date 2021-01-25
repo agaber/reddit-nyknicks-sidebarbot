@@ -156,7 +156,8 @@ class SidebarBotTest(unittest.TestCase):
     # Expect it to lookup the initial description from the reddit API.
     mock_mod = MagicMock()
     mock_mod.settings.return_value = {'description': INITIAL_DESCR}
-    mock_subreddit = MagicMock(mod=mock_mod)
+    mock_wiki = MagicMock(['edit'])
+    mock_subreddit = MagicMock(mod=mock_mod, wiki={'config/sidebar': mock_wiki})
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
     mock_praw.return_value = mock_reddit
@@ -167,7 +168,7 @@ class SidebarBotTest(unittest.TestCase):
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
-    mock_mod.update.assert_called_with(description=EXPECTED_UPDATED_DESCR)
+    mock_wiki.edit.assert_called_with(EXPECTED_UPDATED_DESCR)
 
   @patch('praw.Reddit')
   @patch('requests.get', side_effect=nba_service_test.mocked_requests_get)
@@ -194,7 +195,8 @@ class SidebarBotTest(unittest.TestCase):
     # Expect it to lookup the initial description from the reddit API.
     mock_mod = MagicMock()
     mock_mod.settings.return_value = {'description': INITIAL_TANK_STANDINGS_DESCR}
-    mock_subreddit = MagicMock(mod=mock_mod)
+    mock_wiki = MagicMock(['edit'])
+    mock_subreddit = MagicMock(mod=mock_mod, wiki={'config/sidebar': mock_wiki})
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
     mock_praw.return_value = mock_reddit
@@ -205,8 +207,7 @@ class SidebarBotTest(unittest.TestCase):
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
-    mock_mod.update.assert_called_with(
-        description="""[](#StartTankStandings)
+    mock_wiki.edit.assert_called_with("""[](#StartTankStandings)
 
  | | |Record|GB
 :--:|:--:|:--|:--:|:--:
@@ -229,7 +230,8 @@ class SidebarBotTest(unittest.TestCase):
     # Expect it to lookup the initial description from the reddit API.
     mock_mod = MagicMock()
     mock_mod.settings.return_value = {'description': INITIAL_SCHEDULE_DESCR}
-    mock_subreddit = MagicMock(mod=mock_mod)
+    mock_wiki = MagicMock(['edit'])
+    mock_subreddit = MagicMock(mod=mock_mod, wiki={'config/sidebar': mock_wiki})
     mock_reddit = MagicMock(['subreddit'])
     mock_reddit.subreddit.return_value = mock_subreddit
     mock_praw.return_value = mock_reddit
@@ -239,8 +241,7 @@ class SidebarBotTest(unittest.TestCase):
     sidebarbot.execute(self.logger, now, 'subredditName', False)
 
     # Verify.
-    mock_mod.update.assert_called_with(
-        description="""[](#StartSchedule)
+    mock_wiki.edit.assert_called_with("""[](#StartSchedule)
 
 Date|Team|Loc|Time/Outcome
 :--:|:--:|:--:|:--:
