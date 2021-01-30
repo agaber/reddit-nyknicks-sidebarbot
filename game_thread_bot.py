@@ -300,19 +300,22 @@ class GameThreadBot:
     vTeamNickname = teams[vTeamBasicData['teamId']]['nickname']
     vTeamLogo = TEAM_SUB_MAP[teams[basicGameData['vTeam']['teamId']]['nickname']]
     vTeamScore = vTeamBasicData["score"]
-    nbaUrl = (f'https://www.nba.com/game/{vTeamBasicData["triCode"]}-vs-'
+    nba_url = (f'https://www.nba.com/game/{vTeamBasicData["triCode"]}-vs-'
               f'{hTeamBasicData["triCode"]}-{basicGameData["gameId"]}')
-    yahooUrl = ('http://sports.yahoo.com/nba/'
+    yahoo_url = ('http://sports.yahoo.com/nba/'
                 f'{vTeamFullName.lower().replace(" ", "-")}-'
                 f'{hTeamFullName.lower().replace(" ", "-")}-'
                 f'{basicGameData["startDateEastern"]}'
                 f'{YAHOO_TEAM_CODES[hTeamBasicData["triCode"]]}')
+    start_time_est = (dateutil.parser.parse(basicGameData['startTimeUTC'])
+        .astimezone(EASTERN_TIMEZONE))
+    threadalytics_url = (f'https://threadalytics.com/games/'
+                         f'{hTeamBasicData["triCode"]}@{vTeamBasicData["triCode"]}'
+                         f'-{int(start_time_est.timestamp())}')
     arena = basicGameData["arena"]["name"]
     attendance = basicGameData["attendance"]
     officials = ', '.join([o["firstNameLastName"]
                            for o in basicGameData["officials"]["formatted"]])
-    start_time_est = (dateutil.parser.parse(basicGameData['startTimeUTC'])
-                      .astimezone(EASTERN_TIMEZONE).strftime('%B %d, %Y %-I:%M %p %Z'))
     duration = (f'{basicGameData["gameDuration"]["hours"]} hours and '
                 f'{basicGameData["gameDuration"]["minutes"]} minutes')
     duration = duration.replace(' and 0 minutes', '')
@@ -324,11 +327,11 @@ class GameThreadBot:
 |||
 |:--|:--|
 |**Score**|[](/r/{vTeamLogo}) **{vTeamScore} -  {hTeamScore}** [](/r/{hTeamLogo})|
-|**Box Score**|[NBA]({nbaUrl}), [Yahoo]({yahooUrl})|
+|**Data**|[NBA]({nba_url}), [Yahoo]({yahoo_url}), [Threadalytics]({threadalytics_url})|
 |**Location**|{self._build_location_string(basicGameData)}|
 |**Arena**|{arena}|
 |**Attendance**|{attendance if attendance != '0' else 'No in-person attendance'}|
-|**Start Time**|{start_time_est}|
+|**Start Time**|{(start_time_est.strftime('%B %d, %Y %-I:%M %p %Z'))}|
 |**Game Duration**|{duration}|
 |**Officials**|{officials}|
 """

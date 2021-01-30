@@ -60,7 +60,7 @@ EXPECTED_POSTGAME_TEXT = """##### Game Summary
 |||
 |:--|:--|
 |**Score**|[](/r/MkeBucks) **110 -  130** [](/r/NYKnicks)|
-|**Box Score**|[NBA](https://www.nba.com/game/MIL-vs-NYK-0022000036), [Yahoo](http://sports.yahoo.com/nba/milwaukee-bucks-new-york-knicks-2020122718)|
+|**Data**|[NBA](https://www.nba.com/game/MIL-vs-NYK-0022000036), [Yahoo](http://sports.yahoo.com/nba/milwaukee-bucks-new-york-knicks-2020122718), [Threadalytics](https://threadalytics.com/games/NYK@MIL-1609115400)|
 |**Location**|New York, NY|
 |**Arena**|Madison Square Garden|
 |**Attendance**|No in-person attendance|
