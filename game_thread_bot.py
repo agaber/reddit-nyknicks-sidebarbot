@@ -326,7 +326,7 @@ class GameThreadBot:
 
 |||
 |:--|:--|
-|**Score**|[](/r/{vTeamLogo}) **{vTeamScore} -  {hTeamScore}** [](/r/{hTeamLogo})|
+|**Score**|[{vTeamFullName}](/r/{vTeamLogo}) **{vTeamScore} -  {hTeamScore}** [{hTeamFullName}](/r/{hTeamLogo})|
 |**Data**|[NBA]({nba_url}), [Yahoo]({yahoo_url}), [Threadalytics]({threadalytics_url})|
 |**Location**|{self._build_location_string(basicGameData)}|
 |**Arena**|{arena}|
