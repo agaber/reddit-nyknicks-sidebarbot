@@ -136,8 +136,12 @@ class GameThreadBot:
       home_away_sign = '@'
 
     def broadcaster_name(type):
-      return 'N/A' if len(broadcasters[type]) == 0 \
-          else broadcasters[type][0]['longName']
+      if len(broadcasters[type]) == 0:
+        return 'N/A'
+      name = broadcasters[type][0]['longName']
+      if name == 'MSG':
+        return f'[{name}](http://www.msggo.com)'
+      return name
 
     broadcasters = basic_game_data['watch']['broadcast']['broadcasters']
     national_broadcaster = broadcaster_name('national')

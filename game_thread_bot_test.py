@@ -13,7 +13,7 @@ EXPECTED_GAMETHREAD_TEXT = """##### General Information
 **TIME**|**BROADCAST**|**Media**|**Location and Subreddit**|
 :------------|:------------------------------------|:------------------------------------|:-------------------|
 07:00 PM Eastern   | National Broadcast: N/A           |[Game Preview](https://www.nba.com/game/nyk-vs-cle-0022000046)| Cleveland, OH|
-06:00 PM Central   | Knicks Broadcast: MSG               |[Play By Play](https://www.nba.com/game/nyk-vs-cle-0022000046/play-by-play)| Rocket Mortgage FieldHouse|
+06:00 PM Central   | Knicks Broadcast: [MSG](http://www.msggo.com)               |[Play By Play](https://www.nba.com/game/nyk-vs-cle-0022000046/play-by-play)| Rocket Mortgage FieldHouse|
 05:00 PM Mountain | Cavaliers Broadcast: Fox Sports Ohio |[Box Score](https://www.nba.com/game/nyk-vs-cle-0022000046/box-score#box-score)| r/NYKnicks|
 04:00 PM Pacific   | [NBA League Pass](https://www.nba.com/game/nyk-vs-cle-0022000046?watch)                   || r/clevelandcavs|
 
