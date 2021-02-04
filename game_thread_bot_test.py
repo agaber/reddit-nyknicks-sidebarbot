@@ -369,7 +369,7 @@ class GameThreadBotTest(unittest.TestCase):
       'vTeam': {'teamId': KNICKS_ID, 'score': '5'},
     }
     defeat_synonym = self.bot(now)._build_defeat_synonym(basic_game_data, teams)
-    mock_random.assert_called_once_with(DEFEAT_SYNONYMS[16:])
+    mock_random.assert_called_once_with(DEFEAT_SYNONYMS[15:])
     self.assertEqual(defeat_synonym, 'defeat')
 
   @patch('random.choice')

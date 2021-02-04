@@ -278,7 +278,7 @@ class GameThreadBot:
       if abs(hscore - vscore) < 3:
         return random.choice(DEFEAT_SYNONYMS[14:16])
       elif abs(hscore - vscore) < 6:
-        return random.choice(DEFEAT_SYNONYMS[16:])
+        return random.choice(DEFEAT_SYNONYMS[15:])
       elif abs(hscore - vscore) > 40:
         return random.choice(DEFEAT_SYNONYMS[9:14])
       elif abs(hscore - vscore) > 20:
