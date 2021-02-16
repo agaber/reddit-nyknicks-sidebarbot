@@ -621,7 +621,7 @@ class GameThreadBot:
     # one. Instead it's using subreddit.new() which seems to work better but does
     # does return a lot of extraneous results.
     q = GAME_THREAD_PREFIX if act == Action.DO_GAME_THREAD else POST_GAME_PREFIX
-    for submission in self.subreddit.new(limit=50):
+    for submission in self.subreddit.new(limit=150):
       # Need to make sure that we don't incorrectly update an old/obsolete post.
       created_utc = datetime.fromtimestamp(submission.created_utc, UTC)
       is_obsolete = created_utc + timedelta(hours=MAX_POST_AGE_HOURS) < self.now
