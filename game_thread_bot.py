@@ -97,6 +97,10 @@ class GameThreadBot:
     last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
     games = schedule['league']['standard']
 
+    # Hack for SAS vs. NYK game being cancelled due to COVID.
+    if last_played_idx == 33:
+      last_played_idx = 34
+
     # Check the game after lastStandardGamePlayedIndex. If we are an hour before
     # tip-off or later and there's no score, then we want to make a game thread.
     if len(games) > last_played_idx + 1:
@@ -668,7 +672,9 @@ if __name__ == '__main__':
   username = options.username if options.username else 'nyknicks-automod'
   logger.info(f'Using subreddit "{subreddit_name}" and user "{username}".')
 
-  now = datetime.now(UTC)
+  now = datetime(2021, 2, 22, 0, 0, 0, 0, UTC)
+  # now = datetime.now(UTC)
+
   try:
     nba_service = NbaService(logger)
     reddit = praw.Reddit(username)
