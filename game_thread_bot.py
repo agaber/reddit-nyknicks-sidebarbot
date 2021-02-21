@@ -677,7 +677,7 @@ if __name__ == '__main__':
 
   try:
     nba_service = NbaService(logger)
-    reddit = praw.Reddit(username)
+    reddit = praw.Reddit(username, validate_on_submit=True)
     bot = GameThreadBot(logger, nba_service, now, reddit, subreddit_name)
     bot.run()
   except:
