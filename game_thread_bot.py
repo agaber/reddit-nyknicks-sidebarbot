@@ -98,8 +98,7 @@ class GameThreadBot:
     games = schedule['league']['standard']
 
     # Hack for SAS vs. NYK game being cancelled due to COVID.
-    if last_played_idx == 33:
-      last_played_idx = 34
+    last_played_idx = last_played_idx + 1
 
     # Check the game after lastStandardGamePlayedIndex. If we are an hour before
     # tip-off or later and there's no score, then we want to make a game thread.
