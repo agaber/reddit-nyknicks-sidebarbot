@@ -72,6 +72,9 @@ def build_schedule(logger, nba_service, now, teams, year):
     time_or_score = (time if knicks_score['score'] == ''
         else winloss(knicks_score, opp_score))
 
+    if game['gameUrlCode'] == '20210220/SASNYK':
+      time_or_score = 'POSTPONED'
+
     row = ('%s|[](/r/%s)|%s|%s' %
         (date, opp_team_sub, 
             'Home' if is_home_team else 'Away', time_or_score))
