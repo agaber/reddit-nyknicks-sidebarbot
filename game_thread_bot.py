@@ -57,12 +57,14 @@ class GameThreadBot:
       nba_service: NbaService,
       now: datetime,
       reddit: praw.Reddit,
-      subreddit_name: str):
+      subreddit_name: str,
+      num_games_postponed: int = 0):
     self.logger = logger
     self.nba_service = nba_service
     self.now = now
     self.reddit = reddit
     self.subreddit = self.reddit.subreddit(subreddit_name)
+    self.num_games_postponed = num_games_postponed
 
   def run(self):
     season_year = self.nba_service.current_year()
@@ -98,7 +100,7 @@ class GameThreadBot:
     games = schedule['league']['standard']
 
     # Hack for SAS vs. NYK game being cancelled due to COVID.
-    last_played_idx = last_played_idx + 1
+    last_played_idx = last_played_idx + self.num_games_postponed
 
     # Check the game after lastStandardGamePlayedIndex. If we are an hour before
     # tip-off or later and there's no score, then we want to make a game thread.
@@ -677,7 +679,7 @@ if __name__ == '__main__':
   try:
     nba_service = NbaService(logger)
     reddit = praw.Reddit(username, validate_on_submit=True)
-    bot = GameThreadBot(logger, nba_service, now, reddit, subreddit_name)
+    bot = GameThreadBot(logger, nba_service, now, reddit, subreddit_name, 1)
     bot.run()
   except:
     logger.error(traceback.format_exc())
