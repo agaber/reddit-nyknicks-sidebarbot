@@ -673,13 +673,13 @@ if __name__ == '__main__':
   username = options.username if options.username else 'nyknicks-automod'
   logger.info(f'Using subreddit "{subreddit_name}" and user "{username}".')
 
-  # now = datetime(2021, 2, 22, 0, 0, 0, 0, UTC)
+  # now = datetime(2021, 2, 26, 0, 0, 0, 0, UTC)
   now = datetime.now(UTC)
 
   try:
     nba_service = NbaService(logger)
     reddit = praw.Reddit(username, validate_on_submit=True)
-    bot = GameThreadBot(logger, nba_service, now, reddit, subreddit_name, 1)
+    bot = GameThreadBot(logger, nba_service, now, reddit, subreddit_name, 0)
     bot.run()
   except:
     logger.error(traceback.format_exc())
