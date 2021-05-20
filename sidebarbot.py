@@ -18,7 +18,7 @@ def build_roster(nba_service, year):
   rows = []
   for player in team_players:
     name = f'{player["firstName"]} {player["lastName"]}'
-    jersey = player['jersey']
+    jersey = player['jersey'] if player['jersey'] else '-'
     position = player['pos'].replace('-', '/') if player['pos'] else ''
     rows.append(f'{jersey}|{name}|{position}')
 
