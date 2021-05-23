@@ -59,21 +59,17 @@ class Config:
         user_agent=self.user_agent)
 
 
-@sched.scheduled_job('interval', seconds=10)
+@sched.scheduled_job('interval', minutes=1)
 def every_minute():
-  config = Config.from_env_vars()
+  cfg = Config.from_env_vars()
   now = datetime.now(UTC)
-  logger.info(
-      f'Using subreddit "{config.subreddit_name}" and user "{config.username}".')
 
-  # Run the sidebar bot.
-  sidebarbot.execute(logger, now, config.subreddit_name, config.username)
+  logger.info('Logging in to reddit.')
+  logger.info(f'Using subreddit "{cfg.subreddit_name}" and user "{cfg.username}".')
+  reddit = cfg.reddit()
 
-  # Run the game thread bot.
-  gtbot = GameThreadBot(
-      logger, nba_service, now, config.reddit(), config.subreddit_name, 0)
-  gtbot.run()
-
+  sidebarbot.execute(logger, now, reddit, cfg.subreddit_name)
+  GameThreadBot(logger, nba_service, now, reddit, cfg.subreddit_name, 0).run()
   logger.info('Done.')
 
 sched.start()

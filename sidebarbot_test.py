@@ -164,7 +164,7 @@ class SidebarBotTest(unittest.TestCase):
     now = datetime(2020, 12, 29, 17, 12, 52, 305157, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute(self.logger, now, 'subredditName', False)
+    sidebarbot.execute(self.logger, now, mock_reddit, 'subredditName')
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
@@ -183,7 +183,7 @@ class SidebarBotTest(unittest.TestCase):
     now = datetime(2020, 12, 29, 17, 12, 52, 305157, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute(self.logger, now, 'subredditName', False)
+    sidebarbot.execute(self.logger, now, mock_reddit, 'subredditName')
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
@@ -203,7 +203,7 @@ class SidebarBotTest(unittest.TestCase):
     now = datetime(2020, 12, 29, 17, 12, 52, 305157, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute(self.logger, now, 'subredditName', True)
+    sidebarbot.execute(self.logger, now, mock_reddit, 'subredditName')
 
     # Verify.
     mock_reddit.subreddit.assert_called_with('subredditName')
@@ -238,7 +238,7 @@ class SidebarBotTest(unittest.TestCase):
     now = datetime(2020, 12, 28, 10, 00, 00, 00, sidebarbot.UTC)
 
     # Execute.
-    sidebarbot.execute(self.logger, now, 'subredditName', False)
+    sidebarbot.execute(self.logger, now, mock_reddit, 'subredditName')
 
     # Verify.
     mock_wiki.edit.assert_called_with("""[](#StartSchedule)

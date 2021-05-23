@@ -127,7 +127,7 @@ def winloss(knicks_score, opp_score):
       if kscore > oscore else 'L %s-%s' % (oscore, kscore))
 
 
-def execute(logger, now, subreddit_name, user='nyknicks-automod'):
+def execute(logger, now, reddit, subreddit_name):
   """
     The main starting point (after command line args are parsed) that initiates
     all of the work this bot will do. It intereacts with reddit and the NBA Data
@@ -139,12 +139,11 @@ def execute(logger, now, subreddit_name, user='nyknicks-automod'):
     logger : logging.Logger
     now : datetime
       The current time, preferably in UTC.
+    reddit: praw.Reddit
+      Object for interacting with reddit.
     subreddit_name : string
       The name of the subreddit to modify. The bot must have permissions to edit
       in this sub.
-    user: str
-      The Reddit account username for the bot to run as. This praw.ini config
-      file should also have an entry for this username.
   """
   nba_service = NbaService(logger)
 
@@ -158,9 +157,6 @@ def execute(logger, now, subreddit_name, user='nyknicks-automod'):
   tank_standings = build_tank_standings(nba_standings, teams)
   east_standings = build_standings(nba_standings['conference']['east'], teams)
   west_standings = build_standings(nba_standings['conference']['west'], teams)
-
-  logger.info('Logging in to reddit.')
-  reddit = praw.Reddit(user)
 
   logger.info('Querying reddit settings.')
   subreddit = reddit.subreddit(subreddit_name)
@@ -201,7 +197,10 @@ if __name__ == "__main__":
   username = options.username if options.username else 'nyknicks-automod'
   logger.info(f'Using subreddit "{subreddit_name}" and user "{username}".')
 
+  logger.info('Logging in to reddit.')
+  reddit = praw.Reddit(username)
+
   try:
-    execute(logger, datetime.now(UTC), subreddit_name, username)
+    execute(logger, datetime.now(UTC), reddit, subreddit_name)
   except:
     logger.error(traceback.format_exc())
