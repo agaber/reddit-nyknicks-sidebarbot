@@ -18,7 +18,7 @@ import sidebarbot
 
 
 sched = BlockingScheduler()
-logging.config.fileConfig('logging.conf')
+logging.config.fileConfig('logging_heroku.conf')
 logger = logging.getLogger('heroku_logger')
 nba_service = NbaService(logger)
 
