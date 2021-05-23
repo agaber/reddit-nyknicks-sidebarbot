@@ -19,8 +19,10 @@ import sidebarbot
 
 sched = BlockingScheduler()
 logging.config.fileConfig('logging_heroku.conf')
-logger = logging.getLogger('heroku_logger')
-nba_service = NbaService(logger)
+logger = logging.getLogger('main')
+gdlogger = logging.getLogger('game_thread_bot')
+sblogger = logging.getLogger('sidebarbot')
+nba_service = NbaService(gdlogger)
 
 class Config:
   """Container for reddit environment variables."""
@@ -68,8 +70,8 @@ def every_minute():
   logger.info(f'Using subreddit "{cfg.subreddit_name}" and user "{cfg.username}".')
   reddit = cfg.reddit()
 
-  sidebarbot.execute(logger, now, reddit, cfg.subreddit_name)
-  GameThreadBot(logger, nba_service, now, reddit, cfg.subreddit_name, 0).run()
+  sidebarbot.execute(sblogger, now, reddit, cfg.subreddit_name)
+  GameThreadBot(gdlogger, nba_service, now, reddit, cfg.subreddit_name, 0).run()
   logger.info('Done.')
 
 sched.start()
