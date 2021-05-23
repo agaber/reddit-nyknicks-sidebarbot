@@ -2,3 +2,5 @@ praw~=7.1.4
 py-dateutil==2.2
 pytz~=2018.3
 requests~=2.25.1
+APScheduler==3.0.0
+python-decouple==3.4

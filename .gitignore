@@ -1,5 +1,6 @@
 # Reddit password config file
 praw.ini
+.env
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
