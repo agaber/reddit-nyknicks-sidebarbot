@@ -318,7 +318,7 @@ class GameThreadBot:
                 f'{YAHOO_TEAM_CODES[hTeamBasicData["triCode"]]}')
     start_time_est = (dateutil.parser.parse(basicGameData['startTimeUTC'])
         .astimezone(EASTERN_TIMEZONE))
-    threadalytics_url = (f'https://threadalytics.com/games/'
+    threadalytics_url = (f'https://threadalytics.com/teams/NYK/games/'
                          f'{hTeamBasicData["triCode"]}@{vTeamBasicData["triCode"]}'
                          f'-{int(start_time_est.timestamp())}')
     arena = basicGameData["arena"]["name"]
