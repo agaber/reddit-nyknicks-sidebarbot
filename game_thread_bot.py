@@ -97,8 +97,8 @@ class GameThreadBot:
     last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
     games = schedule['league']['standard']
 
-    // Skip preseason games. This may also end up skipping the first game of the
-    // regular season. Revisit this logic.
+    # Skip preseason games. This may also end up skipping the first game of the
+    # regular season. Revisit this logic.
     if last_played_idx == -1:
       return Action.DO_NOTHING, None
 
