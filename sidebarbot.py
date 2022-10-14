@@ -35,7 +35,7 @@ def build_schedule(logger, nba_service, now, teams, year):
   schedule = nba_service.schedule('knicks', year)
 
   logger.info('Building schedule text.')
-  # FYI: We want to show to a show a total of 12 games: 
+  # FYI: We want to show to a show a total of 12 games:
   #    most recent + 4 prior + 7 next.
   # Get the array index of the last game played.
   last_played_idx = schedule['league']['lastStandardGamePlayedIndex']
@@ -58,7 +58,7 @@ def build_schedule(logger, nba_service, now, teams, year):
     gametime = dateutil.parser \
         .parse(game['startTimeUTC']) \
         .astimezone(EASTERN_TIMEZONE)
-    
+
     if gametime.date() == today:
       date = 'Today'
     elif gametime.date() == today - timedelta(days=1):
@@ -76,7 +76,7 @@ def build_schedule(logger, nba_service, now, teams, year):
       time_or_score = 'POSTPONED'
 
     row = ('%s|[](/r/%s)|%s|%s' %
-        (date, opp_team_sub, 
+        (date, opp_team_sub,
             'Home' if is_home_team else 'Away', time_or_score))
     rows.append(row)
   return '\n'.join(rows)
@@ -123,7 +123,7 @@ def update_reddit_descr(descr, text, marker):
 def winloss(knicks_score, opp_score):
   kscore = int(knicks_score['score'])
   oscore = int(opp_score['score'])
-  return ('W %s-%s' % (kscore, oscore) 
+  return ('W %s-%s' % (kscore, oscore)
       if kscore > oscore else 'L %s-%s' % (oscore, kscore))
 
 
