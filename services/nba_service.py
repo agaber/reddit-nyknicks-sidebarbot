@@ -67,9 +67,10 @@ class NbaService:
         map(lambda p: p['personId'], data['league']['standard']['players']))
 
   def schedule(self, team, year):
-    self.logger.info(f'Fetching {team} schedule information.')
     base_url = f'http://data.nba.net/data/10s/prod/v1/{year}/teams/{team}'
-    r = requests.get(f'{base_url}/schedule.json')
+    url = f'{base_url}/schedule.json'
+    self.logger.info(f'Fetching {team} schedule information from {url}.')
+    r = requests.get(url)
     r.raise_for_status()
     return json.loads(r.content.decode('utf-8'))
 
