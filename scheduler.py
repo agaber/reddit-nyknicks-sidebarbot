@@ -71,7 +71,7 @@ def every_minute():
   reddit = cfg.reddit()
 
   sidebarbot.execute(sblogger, now, reddit, cfg.subreddit_name)
-  GameThreadBot(gdlogger, nba_service, now, reddit, cfg.subreddit_name, 0).run()
+  GameThreadBot(gdlogger, nba_service, now, reddit, cfg.subreddit_name).run()
   logger.info('Done.')
 
 sched.start()
